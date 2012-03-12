@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="dialog_title">Activation required</string>
+    
+    <string name="dialog_message">Welcome!\nA confirmation e-mail containing an activation 
+        code will be sent to you as soon as we receive your purchase data 
+        (it may take some time).\n\nIf you have not received the confirmation e-mail yet, 
+        you can still activate your app temporarily by pressing <b>Later</b>.</string>
+        
+    <string name="input_field_label">Enter your code</string>
+    
+    <string name="cancel_button_text">Cancel</string>
+    <string name="confirm_button_text">Activate</string>
+    <string name="temporary_button_text">Later</string>
+    
+    <string name="time_remaining">Time remaining:</string>
+    <string name="powered_by">Powered by DroidActivator</string>
+    
+    
+    <string name="info_dialog_default_title">Info</string>
+	<string name="info_dialog_button_text">Ok</string>
+    
+	<string name="notify_dialog_default_title">Notice</string>
+	<string name="notify_dialog_button_text">Ok</string>
+	
+	<string name="confirm_cancel_dialog_default_title">Warning</string>
+	<string name="confirm_cancel_dialog_default_message">Confirm the operation?</string>
+	<string name="button_cancel_dialog_text">Cancel</string>
+	<string name="button_confirm_dialog_text">Confirm</string>
+	
+	<string name="network_unavailable">Network is currently unavailable. Please 
+	    check your connection and try again.</string>
+	<string name="backend_not_responding">The activation server is not 
+	    responding. Please try again later.</string>
+	
+</resources>
