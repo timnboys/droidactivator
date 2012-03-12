@@ -26,7 +26,7 @@
         <thead>
         <tr>
 
-            <g:sortableColumn property="applicationName" title="${message(code: 'activation.applicationName.label', default: 'Application Name')}"/>
+            <g:sortableColumn property="appName" title="${message(code: 'activation.appName.label', default: 'App Name')}"/>
 
             <g:sortableColumn property="paid" title="${message(code: 'activation.paid.label', default: 'Paid')}"/>
 
@@ -44,7 +44,7 @@
         <g:each in="${activationInstanceList}" status="i" var="activationInstance">
             <tr class="${(i % 2) == 0 ? 'even' : 'odd'}">
 
-                <td><g:link action="show" id="${activationInstance.id}">${fieldValue(bean: activationInstance, field: "applicationName")}</g:link></td>
+                <td><g:link action="show" id="${activationInstance.id}">${fieldValue(bean: activationInstance, field: "appName")}</g:link></td>
 
                 <td><g:formatBoolean boolean="${activationInstance.paid}"/></td>
 

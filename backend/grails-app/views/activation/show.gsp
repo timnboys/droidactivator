@@ -25,11 +25,11 @@
     </g:if>
     <ol class="property-list activation">
 
-        <g:if test="${activationInstance?.applicationName}">
+        <g:if test="${activationInstance?.appName}">
             <li class="fieldcontain">
-                <span id="applicationName-label" class="property-label"><g:message code="activation.applicationName.label" default="Application Name"/></span>
+                <span id="appName-label" class="property-label"><g:message code="activation.appName.label" default="App Name"/></span>
 
-                <span class="property-value" aria-labelledby="applicationName-label"><g:fieldValue bean="${activationInstance}" field="applicationName"/></span>
+                <span class="property-value" aria-labelledby="appName-label"><g:fieldValue bean="${activationInstance}" field="appName"/></span>
 
             </li>
         </g:if>
@@ -88,11 +88,11 @@
             </li>
         </g:if>
 
-        <g:if test="${activationInstance?.installationID}">
+        <g:if test="${activationInstance?.uniqueID}">
             <li class="fieldcontain">
-                <span id="installationID-label" class="property-label"><g:message code="activation.installationID.label" default="Installation ID"/></span>
+                <span id="uniqueID-label" class="property-label"><g:message code="activation.uniqueID.label" default="Unique ID"/></span>
 
-                <span class="property-value" aria-labelledby="installationID-label"><g:fieldValue bean="${activationInstance}" field="installationID"/></span>
+                <span class="property-value" aria-labelledby="uniqueID-label"><g:fieldValue bean="${activationInstance}" field="uniqueID"/></span>
 
             </li>
         </g:if>
