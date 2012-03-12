@@ -660,10 +660,6 @@ public class DroidActivator {
 			// if the call succeeded, put all response headers in the map
 			if (isHttpSuccess()) {
 
-
-				// success of the request as of reported by the backend
-				Object avalue = this.connection.getHeaderField("minni");
-
 				Map<String, List<String>> responseMap = this.connection.getHeaderFields();
 				if (responseMap != null) {
 
@@ -679,17 +675,11 @@ public class DroidActivator {
 							valueStr = Lib.getString(value);
 						}
 
-						// for (int i = 0; i < values.size(); i++) {
-						// Object o = values.get(i);
-						// System.out.println(o + ", ");
-						// }
-
 						this.responseMap.put(key, valueStr);
 
 					}
 
 				}
-
 
 			}
 
@@ -700,7 +690,7 @@ public class DroidActivator {
 		 * @return true if the Http call succeeded (at protocol level)
 		 */
 		boolean isHttpSuccess() {
-			return (this.httpResultCode < 300);
+			return ((this.httpResultCode>=200) && (this.httpResultCode < 300));
 		}
 
 
@@ -718,7 +708,27 @@ public class DroidActivator {
 			
 			return success;
 		}
-
+		
+		/**
+		 * @return true if the app is activated
+		 */
+		boolean isActivated() {
+			return getBool(KEY_ACTIVATED);
+		}
+		
+		/**
+		 * @return the expiration date
+		 */
+		Date getExpirationDate() {
+			return getDate(KEY_EXPIRATION);
+		}
+		
+		/**
+		 * @return the app level
+		 */
+		Date getAppLevel() {
+			return getDate(KEY_LEVEL);
+		}
 
 		/**
 		 * Retuns a Date from the response map.
