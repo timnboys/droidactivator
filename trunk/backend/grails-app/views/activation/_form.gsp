@@ -2,12 +2,12 @@
 
 
 
-<div class="fieldcontain ${hasErrors(bean: activationInstance, field: 'applicationName', 'error')} ">
-    <label for="applicationName">
-        <g:message code="activation.applicationName.label" default="Application Name"/>
+<div class="fieldcontain ${hasErrors(bean: activationInstance, field: 'appName', 'error')} ">
+    <label for="appName">
+        <g:message code="activation.appName.label" default="App Name"/>
 
     </label>
-    <g:textField name="applicationName" value="${activationInstance?.applicationName}"/>
+    <g:textField name="appName" value="${activationInstance?.appName}"/>
 </div>
 
 <div class="fieldcontain ${hasErrors(bean: activationInstance, field: 'paid', 'error')} ">
@@ -58,12 +58,12 @@
     <g:datePicker name="expiration" precision="day" value="${activationInstance?.expiration}" default="none" noSelection="['': '']"/>
 </div>
 
-<div class="fieldcontain ${hasErrors(bean: activationInstance, field: 'installationID', 'error')} ">
-    <label for="installationID">
-        <g:message code="activation.installationID.label" default="Installation ID"/>
+<div class="fieldcontain ${hasErrors(bean: activationInstance, field: 'uniqueID', 'error')} ">
+    <label for="uniqueID">
+        <g:message code="activation.uniqueID.label" default="Unique ID"/>
 
     </label>
-    <g:textField name="installationID" value="${activationInstance?.installationID}"/>
+    <g:textField name="uniqueID" value="${activationInstance?.uniqueID}"/>
 </div>
 
 <div class="fieldcontain ${hasErrors(bean: activationInstance, field: 'userID', 'error')} required">

@@ -12,6 +12,31 @@ class ActivationController {
     }
 
 
+    def check() {
+        def action = request.getHeader('action')
+        def appName = request.getHeader('appname')
+        def uniqueid = request.getHeader('uniqueid')
+
+        if (action && action.equals('checkresponding')) {
+            response.setHeader("success", "false")
+            render 'true'
+        } else {
+            response.setHeader("success", "true")
+            if (action && action.equals('checkid')) {
+                response.setHeader('action', 'true')
+                response.setHeader('appname', 'appname')
+                response.setHeader('uniqueid', 'true')
+                render 'true'
+            } else {
+                response.setHeader("action", "topolinoz")
+                render 'false'
+            }// fine del blocco if-else
+            response.setHeader("action", "minni")
+            render 'false'
+        }// fine del blocco if-else
+    }
+
+
     def list() {
         servletContext.startController = null
         params.max = Math.min(params.max ? params.int('max') : 10, 100)
