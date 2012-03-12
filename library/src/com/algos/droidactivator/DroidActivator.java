@@ -3,9 +3,16 @@ package com.algos.droidactivator;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.zip.Deflater;
 
@@ -23,6 +30,8 @@ import org.apache.http.util.EntityUtils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -51,6 +60,9 @@ public class DroidActivator {
 	private static String KEY_INSTALLATION_UUID = "installation_UUID";
 	private static String KEY_BACKEND_URL = "backend_url";
 
+	// the app name passed to the backend, defaults to the current App Name
+	private String appName = "";
+
 	// listener notified when the Activation Cycle is finished
 	OnActivationDoneListener activationDoneListener;
 
@@ -71,6 +83,11 @@ public class DroidActivator {
 	 * init() is called by newInstance() after the ACTIVATOR variable is set!
 	 */
 	private void init() {
+
+		// retrieve default application name
+		PackageManager packageManager = getContext().getPackageManager();
+		String appname = packageManager.getApplicationLabel(getContext().getApplicationInfo()).toString();
+		this.appName = appname;
 
 		// create and save the installation UUID in Shared Preferences if not present (first time only)
 		String uuidStr = getInstallationUuid();
@@ -154,19 +171,75 @@ public class DroidActivator {
 	private static void doCheck() {
 
 		if (!isActivated()) {
-			openDialog();
+			openDialog(isUseridRequested());
 		}
 
 	}
 
 
 	/**
+	 * Decide if the activation process requires the userid also.
+	 * 
+	 * @return true if userid is requested
+	 */
+	private static boolean isUseridRequested() {
+		boolean requested = false;
+		if (getUniqueId().equals("")) { // no uniqueid in cached data
+			requested = true;
+		}
+		else { // uniqueid present in cached data
+			if (isUniqueidPresentInBackend()) {// also in the backend?
+				requested = false;
+			}
+			else {
+				requested = true;
+			}
+		}
+		return requested;
+	}
+
+
+	/**
+	 * Checks if the cached uniqueid is present in the backend.
+	 * If the backend is not responding, it is assumed as present
+	 * (will be checked again in the the effective activation process)
+	 * 
+	 * @return true if the uniqueid is present in the backend or the backend is not responding
+	 */
+	private static boolean isUniqueidPresentInBackend() {
+		boolean present = true;
+		if (isBackendResponding()) {
+
+			// create the task
+			CheckUniqueidPresentTask task = getInstance().new CheckUniqueidPresentTask();
+
+			// start the background task
+			task.execute();
+
+			// wait until finished
+			while (!task.isFinished()) {
+				try {
+					Thread.sleep(50);
+				}
+				catch (InterruptedException e) {
+				}
+			}
+
+			// retrieve the result
+			present = task.isPresent();
+
+		}
+		return present;
+	}
+
+
+	/**
 	 * Presents the Activation dialog
 	 * 
-	 * @param context the context
+	 * @param context useridRequested true if userid must be requested by the dialog
 	 */
-	private static void openDialog() {
-		ActivationDialog dialog = new ActivationDialog(getInstance().getContext());
+	private static void openDialog(boolean useridRequested) {
+		ActivationDialog dialog = new ActivationDialog(getInstance().getContext(), useridRequested);
 		dialog.setOnActivationRequestedListener(new OnActivationRequestedListener() {
 
 			@Override
@@ -193,9 +266,8 @@ public class DroidActivator {
 
 		// collect data for the request
 		String uniqueId = getUniqueId();
-		String userEmail = "";	// pass it in the event from the dialog!
+		String userEmail = ""; // pass it in the event from the dialog!
 		String activationCode = code;
-		
 
 		// to be continued..
 
@@ -391,14 +463,12 @@ public class DroidActivator {
 					connection = (HttpURLConnection) url.openConnection();
 					connection.setConnectTimeout(1000);
 					connection.setReadTimeout(1000);
+					connection.setRequestProperty("action", "checkresponding");
+					connection.setRequestProperty("appname", getAppName());
 
-					try {
-						InputStream stream = connection.getInputStream();
-						if (stream != null) {
-							this.responding = true;
-						}
-					}
-					catch (IOException e) {
+					BackendResponse response = new BackendResponse(connection);
+					if (response.isResponseSuccess()) {
+						this.responding = true;
 					}
 
 					connection.disconnect();
@@ -408,7 +478,7 @@ public class DroidActivator {
 				}
 			}
 
-			finished = true;
+			this.finished=true;
 
 			return null;
 		}
@@ -431,6 +501,281 @@ public class DroidActivator {
 
 	}
 
+	/**
+	 * An AsyncTask to check if the cached uniqueid is present in the backend. 
+	 * This is needed to comply with Honeycomb Strict Mode wich doesn't allow 
+	 * networking operations in the UI thread.
+	 * <p>Call isPresent() at the end for the response
+	 */
+	private class CheckUniqueidPresentTask extends AsyncTask<Void, Void, Void> {
+
+		private boolean finished = false;
+		private boolean present = false;
+
+
+		@Override
+		protected Void doInBackground(Void... params) {
+
+			URL url = getBackendURL();
+			if (url != null) {
+				HttpURLConnection connection = null;
+				try {
+
+					connection = (HttpURLConnection) url.openConnection();
+					connection.setConnectTimeout(1000);
+					connection.setReadTimeout(1000);
+					connection.setRequestProperty("action", "checkid");
+					connection.setRequestProperty("appname", getAppName());
+					connection.setRequestProperty("uniqueid", getUniqueId());
+
+					BackendResponse response = new BackendResponse(connection);
+					if (response.isHttpSuccess()) {
+						if (response.isResponseSuccess()) {
+							this.present = response.getBool("present");
+						}
+					}
+
+					connection.disconnect();
+
+				}
+				catch (IOException e1) {
+				}
+			}
+			
+			this.finished=true;
+
+			return null;
+		}
+
+
+		@Override
+		protected void onPostExecute(Void result) {
+			cancel(true);
+		}
+
+
+		private boolean isFinished() {
+			return finished;
+		}
+
+
+		private boolean isPresent() {
+			return this.present;
+		}
+
+	}
+
+
+	/**
+	 * @return the Bundle
+	 */
+	private Bundle getResponseBundle(HttpURLConnection conn) {
+		Bundle bundle = new Bundle();
+		String value;
+
+		// Map responseMap = conn.getHeaderFields();
+		// for (Iterator iterator = responseMap.keySet().iterator(); iterator.hasNext();) {
+		// String key = (String) iterator.next();
+		// System.out.println(key + " = ");
+		//
+		// List values = (List) responseMap.get(key);
+		// for (int i = 0; i < values.size(); i++) {
+		// Object o = values.get(i);
+		// System.out.println(o + ", ");
+		// }
+		// }
+
+		// retrieve http response code
+		int code = 0;
+		try {
+			code = conn.getResponseCode();
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		// success of the request as of reported by the protocol
+		bundle.putBoolean("httpsuccess", false);
+
+		if (code < 300) {
+			bundle.putBoolean("httpsuccess", true);
+
+			// success of the request as of reported by the backend
+			value = conn.getHeaderField("success");
+			bundle.putBoolean("success", false);
+			if (Lib.getInt(value) > 0) {
+				bundle.putBoolean("success", true);
+			}
+
+			// activation flag
+			value = conn.getHeaderField("activationflag");
+			bundle.putBoolean("activationflag", false);
+			if (Lib.getInt(value) == 1) {
+				bundle.putBoolean("activationflag", true);
+			}
+
+			// expiration date
+			value = conn.getHeaderField("expirationdate");
+			bundle.putLong("expirationdate", Lib.getLong(value));
+
+			// application level
+			value = conn.getHeaderField("applevel");
+			bundle.putLong("applevel", Lib.getInt(value));
+
+		}
+
+		return bundle;
+	}
+
+	
+	/**
+	 * Object representing a response from the Backend.
+	 */
+	private class BackendResponse {
+
+		private HttpURLConnection connection;
+		private HashMap<String, Object> responseMap = new HashMap<String, Object>();
+		private int httpResultCode = 0;
+
+
+		public BackendResponse(HttpURLConnection conn) {
+			super();
+			this.connection = conn;
+			init();
+		}
+
+
+		private void init() {
+
+			// send the request and retrieve http response code
+			try {
+				if (this.connection!=null) {
+					this.httpResultCode = this.connection.getResponseCode();					
+				}
+			}
+			catch (IOException e) {
+				e.printStackTrace();
+			}
+
+			// if the call succeeded, put all response headers in the map
+			if (isHttpSuccess()) {
+
+
+				// success of the request as of reported by the backend
+				Object avalue = this.connection.getHeaderField("minni");
+
+				Map<String, List<String>> responseMap = this.connection.getHeaderFields();
+				if (responseMap != null) {
+
+					String key = "";
+					String valueStr = "";
+
+					for (Iterator<String> iterator = responseMap.keySet().iterator(); iterator.hasNext();) {
+						key = (String) iterator.next();
+
+						List values = (List) responseMap.get(key);
+						if (values.size() > 0) {
+							Object value = values.get(0);
+							valueStr = Lib.getString(value);
+						}
+
+						// for (int i = 0; i < values.size(); i++) {
+						// Object o = values.get(i);
+						// System.out.println(o + ", ");
+						// }
+
+						this.responseMap.put(key, valueStr);
+
+					}
+
+				}
+
+
+			}
+
+		}
+
+
+		/**
+		 * @return true if the Http call succeeded (at protocol level)
+		 */
+		boolean isHttpSuccess() {
+			return (this.httpResultCode < 300);
+		}
+
+
+		/**
+		 * @return true if the backend call succeeded (at backend logical)
+		 */
+		boolean isResponseSuccess() {
+			boolean success=false;
+			if (isHttpSuccess()) {
+				String string = getString("success");
+				if (Lib.getBool(string)) {
+					success = true;
+				}
+			}
+			
+			return success;
+		}
+
+
+		/**
+		 * Retuns a Date from the response map.
+		 * 
+		 * @param key the key to search
+		 * @return the date
+		 */
+		Date getDate(String key) {
+			return Lib.getDate(this.responseMap.get(key));
+		}
+
+
+		/**
+		 * Retuns a int from the response map.
+		 * 
+		 * @param key the key to search
+		 * @return the int
+		 */
+		int getInt(String key) {
+			return Lib.getInt(this.responseMap.get(key));
+		}
+
+
+		/**
+		 * Retuns a long from the response map.
+		 * 
+		 * @param key the key to search
+		 * @return the long
+		 */
+		long getLong(String key) {
+			return Lib.getLong(this.responseMap.get(key));
+		}
+
+
+		/**
+		 * Retuns a boolean from the response map.
+		 * 
+		 * @param key the key to search
+		 * @return the boolean
+		 */
+		boolean getBool(String key) {
+			return Lib.getBool(this.responseMap.get(key));
+		}
+
+
+		/**
+		 * Retuns a string from the response map.
+		 * 
+		 * @param key the key to search
+		 * @return the string
+		 */
+		String getString(String key) {
+			return Lib.getString(this.responseMap.get(key));
+		}
+
+	}
+
 
 	/**
 	 * Retrieve the SharedPreferences object. The preferences file is 
@@ -442,6 +787,11 @@ public class DroidActivator {
 		SharedPreferences prefs = getInstance().getContext().getSharedPreferences(SHARED_PREFS_FILE_NAME,
 				Context.MODE_PRIVATE);
 		return prefs;
+	}
+
+
+	private String getAppName() {
+		return this.appName;
 	}
 
 
@@ -587,29 +937,30 @@ public class DroidActivator {
 
 		// create a long string
 		String longString = installUUID + deviceUUID;
-		
-		// strip "-"
-		longString = longString.replace("-", "");;
 
-//		compressing-encoding results in a string longer than the original! it is useless.
-//		// byte array from long string
-//		byte[] originalBytes = longString.getBytes();
-//
-//		// compress to another byte array with DEFLATE
-//		Deflater deflater = new Deflater();
-//		deflater.setInput(originalBytes);
-//		deflater.finish();
-//		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//		byte[] buf = new byte[8192];
-//		while (!deflater.finished()) {
-//			int byteCount = deflater.deflate(buf);
-//			baos.write(buf, 0, byteCount);
-//		}
-//		deflater.end();
-//		byte[] compressedBytes = baos.toByteArray();
-//
-//		// Convert a compressed byte array to base64 string
-//		String encoded = Base64.encodeToString(compressedBytes, Base64.DEFAULT);
+		// strip "-"
+		longString = longString.replace("-", "");
+		;
+
+		// compressing-encoding results in a string longer than the original! it is useless.
+		// // byte array from long string
+		// byte[] originalBytes = longString.getBytes();
+		//
+		// // compress to another byte array with DEFLATE
+		// Deflater deflater = new Deflater();
+		// deflater.setInput(originalBytes);
+		// deflater.finish();
+		// ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		// byte[] buf = new byte[8192];
+		// while (!deflater.finished()) {
+		// int byteCount = deflater.deflate(buf);
+		// baos.write(buf, 0, byteCount);
+		// }
+		// deflater.end();
+		// byte[] compressedBytes = baos.toByteArray();
+		//
+		// // Convert a compressed byte array to base64 string
+		// String encoded = Base64.encodeToString(compressedBytes, Base64.DEFAULT);
 
 		return longString;
 	}
