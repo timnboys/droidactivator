@@ -566,66 +566,6 @@ public class DroidActivator {
 	}
 
 
-	/**
-	 * @return the Bundle
-	 */
-	private Bundle getResponseBundle(HttpURLConnection conn) {
-		Bundle bundle = new Bundle();
-		String value;
-
-		// Map responseMap = conn.getHeaderFields();
-		// for (Iterator iterator = responseMap.keySet().iterator(); iterator.hasNext();) {
-		// String key = (String) iterator.next();
-		// System.out.println(key + " = ");
-		//
-		// List values = (List) responseMap.get(key);
-		// for (int i = 0; i < values.size(); i++) {
-		// Object o = values.get(i);
-		// System.out.println(o + ", ");
-		// }
-		// }
-
-		// retrieve http response code
-		int code = 0;
-		try {
-			code = conn.getResponseCode();
-		}
-		catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		// success of the request as of reported by the protocol
-		bundle.putBoolean("httpsuccess", false);
-
-		if (code < 300) {
-			bundle.putBoolean("httpsuccess", true);
-
-			// success of the request as of reported by the backend
-			value = conn.getHeaderField("success");
-			bundle.putBoolean("success", false);
-			if (Lib.getInt(value) > 0) {
-				bundle.putBoolean("success", true);
-			}
-
-			// activation flag
-			value = conn.getHeaderField("activationflag");
-			bundle.putBoolean("activationflag", false);
-			if (Lib.getInt(value) == 1) {
-				bundle.putBoolean("activationflag", true);
-			}
-
-			// expiration date
-			value = conn.getHeaderField("expirationdate");
-			bundle.putLong("expirationdate", Lib.getLong(value));
-
-			// application level
-			value = conn.getHeaderField("applevel");
-			bundle.putLong("applevel", Lib.getInt(value));
-
-		}
-
-		return bundle;
-	}
 
 	
 	/**
