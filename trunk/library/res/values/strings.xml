@@ -3,12 +3,13 @@
 
     <string name="dialog_title">Activation required</string>
     
-    <string name="dialog_message">Welcome!\nA confirmation e-mail containing an activation 
-        code will be sent to you as soon as we receive your purchase data 
+    <string name="dialog_message">Welcome!\nA confirmation e-mail containing activation 
+        data will be sent to you as soon as we receive your purchase data 
         (it may take some time).\n\nIf you have not received the confirmation e-mail yet, 
         you can still activate your app temporarily by pressing <b>Later</b>.</string>
         
-    <string name="input_field_label">Enter your code</string>
+    <string name="input_userid_label">Enter your email</string>
+    <string name="input_code_label">Enter your code</string>
     
     <string name="cancel_button_text">Cancel</string>
     <string name="confirm_button_text">Activate</string>

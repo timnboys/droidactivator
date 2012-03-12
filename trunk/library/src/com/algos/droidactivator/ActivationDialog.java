@@ -24,15 +24,18 @@ import android.widget.TextView;
 
 class ActivationDialog extends Dialog {
 
+	boolean useridRequested;
 	private Button activateButton;
 	private Button laterButton;
-	private EditText inputField;
+	private EditText inputUseridField;
+	private EditText inputCodeField;
 	
 	private OnActivationRequestedListener activationRequestedListener;
 	
 	
-	ActivationDialog(Context context) {
+	ActivationDialog(Context context, boolean useridRequested) {
 		super(context);
+		this.useridRequested=useridRequested;
 		init();
 	}
 
@@ -102,28 +105,31 @@ class ActivationDialog extends Dialog {
 	 */
 	private View createInputPanel(){
 		TextView tv;
+		EditText et;
+		int wdp;
+		int widthPx;
+		Resources r=getContext().getResources();
+		InputFilter[] filterArray;
 
-		// label and code panel
-		LinearLayout panel = new LinearLayout(getContext());
-		panel.setOrientation(LinearLayout.VERTICAL);
-		panel.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT));
-		
-		// label
+		// input userid panel
+		LinearLayout useridPanel = new LinearLayout(getContext());
+		useridPanel.setOrientation(LinearLayout.VERTICAL);
+		useridPanel.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT));
+
+		// input userid label
 		tv = new TextView(getContext());
-		tv.setText(R.string.input_field_label);
-		panel.addView(tv);
+		tv.setText(R.string.input_userid_label);
+		useridPanel.addView(tv);
 
-		// input field
-		int wdp=140;
-		Resources r = getContext().getResources();
-		int widthPx = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, wdp, r.getDisplayMetrics());
+		// input userid field
+		wdp=240;
+		widthPx = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, wdp, r.getDisplayMetrics());
+		//widthPx=LayoutParams.MATCH_PARENT;
 		
-		EditText et = new EditText(getContext());
+		et = new EditText(getContext());
 		et.setLayoutParams(new LinearLayout.LayoutParams(widthPx,LayoutParams.WRAP_CONTENT));
-		et.setInputType(InputType.TYPE_CLASS_NUMBER);
-		InputFilter[] FilterArray = new InputFilter[1];
-		FilterArray[0] = new InputFilter.LengthFilter(8);
-		et.setFilters(FilterArray);
+		et.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+
 		et.addTextChangedListener(new TextWatcher() {
 			
 			@Override
@@ -137,18 +143,73 @@ class ActivationDialog extends Dialog {
 				sync();
 			}
 		});
-		this.inputField=et;
-		panel.addView(et);
+		this.inputUseridField=et;
+		useridPanel.addView(et);
+
+		
+		// input code panel
+		LinearLayout codePanel = new LinearLayout(getContext());
+		codePanel.setOrientation(LinearLayout.VERTICAL);
+		codePanel.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT));
+		
+		// "input code" label
+		tv = new TextView(getContext());
+		tv.setText(R.string.input_code_label);
+		codePanel.addView(tv);
+
+		// input code field
+		wdp=140;
+		 widthPx = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, wdp, r.getDisplayMetrics());
+		
+		et = new EditText(getContext());
+		et.setLayoutParams(new LinearLayout.LayoutParams(widthPx,LayoutParams.WRAP_CONTENT));
+		et.setInputType(InputType.TYPE_CLASS_NUMBER);
+		filterArray = new InputFilter[1];
+		filterArray[0] = new InputFilter.LengthFilter(8);
+		et.setFilters(filterArray);
+		et.addTextChangedListener(new TextWatcher() {
+			
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {}
+		
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+			
+			@Override
+			public void afterTextChanged(Editable s) {
+				sync();
+			}
+		});
+		this.inputCodeField=et;
+		codePanel.addView(et);
+
+		
+		// horizontal panel with centered userid
+		LinearLayout centeredUseridPanel = new LinearLayout(getContext());
+		centeredUseridPanel.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.WRAP_CONTENT));
+		centeredUseridPanel.setOrientation(LinearLayout.HORIZONTAL);
+		centeredUseridPanel.addView(new ElasticSpacer(getContext()));
+		centeredUseridPanel.addView(useridPanel);
+		centeredUseridPanel.addView(new ElasticSpacer(getContext()));
+
+		// horizontal panel with centered code
+		LinearLayout centeredCodePanel = new LinearLayout(getContext());
+		centeredCodePanel.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.WRAP_CONTENT));
+		centeredCodePanel.setOrientation(LinearLayout.HORIZONTAL);
+		centeredCodePanel.addView(new ElasticSpacer(getContext()));
+		centeredCodePanel.addView(codePanel);
+		centeredCodePanel.addView(new ElasticSpacer(getContext()));
 
 		
 		// main panel
 		LinearLayout layout = new LinearLayout(getContext());
-		layout.setOrientation(LinearLayout.HORIZONTAL);
+		layout.setOrientation(LinearLayout.VERTICAL);
 		layout.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.WRAP_CONTENT));
 		layout.setPadding(0, 15, 0, 15);
-		layout.addView(new ElasticSpacer(getContext()));
-		layout.addView(panel);
-		layout.addView(new ElasticSpacer(getContext()));
+		if (isUseridRequested()) {
+			layout.addView(centeredUseridPanel);			
+		}
+		layout.addView(centeredCodePanel);
 
 		return layout;
 		
@@ -244,13 +305,24 @@ class ActivationDialog extends Dialog {
 	private void sync(){
 		
 		boolean enabled;
-		String inputString = getInputString();
+		String inputString = getCodeString();
 		
-		// sync the Activate button: input field length must be 8 digits
-		enabled=false;
-		if (inputString.length()==8) {
-			enabled=true;
+		// sync the Activate button: 
+		enabled=true;
+		
+		// if userid is requested, must be longer than 3 chars and contain the @ char and a dot
+		if (isUseridRequested()) {
+			String uString = getUseridString();
+			if ((uString.length()<6) || (!uString.contains("@") ) || (!uString.contains(".") )) {
+				enabled=false;
+			}
 		}
+		
+		// code field length must be 8 digits
+		if (getCodeString().length()!=8) {
+			enabled=false;
+		}
+
 		this.activateButton.setEnabled(enabled);
 		
 
@@ -293,38 +365,70 @@ class ActivationDialog extends Dialog {
 	 * Activate button has been pressed
 	 */
 	private void activateButtonPressed(){
-
-		// check if network is available
-		if (DroidActivator.isNetworkAvailable()) {
-			
-			// check if backend is reachable
-			if (DroidActivator.isBackendResponding()) {
-				
-				// notify the listener
-				if (this.activationRequestedListener!=null) {
-					this.activationRequestedListener.onActivationRequested(false, getInputString());
+		boolean cont = true;
+		
+		//if used, check if userid is a valid email address
+		if (cont) {
+			if (isUseridRequested()) {
+				if (!Lib.checkEmail(getUseridString())) {
+					WarningDialog dialog = new WarningDialog(getContext());
+					dialog.setMessage("Malformed email");
+					dialog.show();
+					cont = false;
 				}
-				
-				dismiss();
-				
 			}
-			else {
-				new WarningDialog(getContext(), getResourceString(R.string.backend_not_responding)).show();
-			}
-			
-		}
-		else {
-			new WarningDialog(getContext(), getResourceString(R.string.network_unavailable)).show();
 		}
 		
+		// check if network is available
+		if (cont) {
+			if (!DroidActivator.isNetworkAvailable()) {
+				new WarningDialog(getContext(), getResourceString(R.string.network_unavailable)).show();
+				cont = false;
+			}
+		}
+		
+		// check if backend is reachable
+		if (cont) {
+			if (!DroidActivator.isBackendResponding()) {
+				new WarningDialog(getContext(), getResourceString(R.string.backend_not_responding)).show();
+				cont = false;
+			}
+		}
+		
+		// notify the listener
+		if (cont) {
+			// notify the listener
+			if (this.activationRequestedListener!=null) {
+				this.activationRequestedListener.onActivationRequested(false, getCodeString());
+			}
+			
+			dismiss();
+		}
+
+
 	}
 
 	
 	/**
-	 * @return the current input string
+	 * Check if userid is requested
+	 * @return true if requested
 	 */
-	private String getInputString(){
-		return this.inputField.getText().toString();
+	private boolean isUseridRequested(){
+		return this.useridRequested;
+	}
+
+	/**
+	 * @return the current input userid string
+	 */
+	private String getUseridString(){
+		return this.inputUseridField.getText().toString();
+	}
+
+	/**
+	 * @return the current input code string
+	 */
+	private String getCodeString(){
+		return this.inputCodeField.getText().toString();
 	}
 	
 	/**
