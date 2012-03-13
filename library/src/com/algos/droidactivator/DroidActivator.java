@@ -34,13 +34,12 @@ public class DroidActivator {
 	// maximum number of days activation can be delayed pressing "Later"
 	private int maxActivationDelay;
 	
+	// Number of seconds the user must wait before "Later" becomes enabled
+	private int temporaryWaitTime;
+	
 	// flag turned on when a Temporary Activation is issued.
 	// if this flag is on, the isActivated() method returns always true
 	private boolean temporarilyActivated;
-
-
-//	// a runnable to run when the Activation Cycle is finished
-//	private Runnable cycleFinishedRunnable;
 
 	// the shared preferences file name
 	private static String SHARED_PREFS_FILE_NAME = "droidActivatorData";
@@ -97,6 +96,9 @@ public class DroidActivator {
 		
 		// default number of days for maximum activation delay
 		setMaximumActivationDelay(7);
+		
+		// default number of seconds user must wait before "Later" button becomes enabled
+		setTemporaryWaitTime(10);
 
 		// create and save the installation UUID in Shared Preferences if not present (first time only)
 		// this is the In stallation part of the UniqueId
@@ -823,7 +825,7 @@ public class DroidActivator {
 	 * 
 	 * @return the timestamp of the first Temporary Activation
 	 */
-	private static long getFirstTempActivationTS() {
+	static long getFirstTempActivationTS() {
 		return getPrefs().getLong(KEY_TS_FIRST_TEMP_ACTIVATION, 0);
 	}
 
@@ -961,6 +963,35 @@ public class DroidActivator {
 	public static void setMaximumActivationDelay(int days){
 		getInstance().maxActivationDelay=days;
 	}
+	
+	/**
+	 * Maximum number of days the user can delay activation by pressing "Later".
+	 * 
+	 * @return max number of days
+	 */
+	static int getMaximumActivationDelay(){
+		return getInstance().maxActivationDelay;
+	}
+	
+	
+	/**
+	 * Number of seconds the user must wait before "Later" becomes enabled
+	 * 
+	 * @param days number of seconds
+	 */
+	public static void setTemporaryWaitTime(int seconds){
+		getInstance().temporaryWaitTime=seconds;
+	}
+	
+	/**
+	 * Retrieve the number of seconds the user must wait before "Later" becomes enabled.
+	 * 
+	 * @return number of seconds
+	 */
+	static int getTemporaryWaitTime(){
+		return getInstance().temporaryWaitTime;
+	}
+
 
 
 	// /**

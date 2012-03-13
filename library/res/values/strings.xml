@@ -15,7 +15,7 @@
     <string name="confirm_button_text">Activate</string>
     <string name="temporary_button_text">Later</string>
     
-    <string name="time_remaining">Time remaining:</string>
+    <string name="time_remaining">Days remaining:</string>
     <string name="powered_by">Powered by DroidActivator</string>
     
     
