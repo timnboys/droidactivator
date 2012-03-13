@@ -119,8 +119,26 @@ class Lib {
 		if (obj != null) {
 			if (obj instanceof Boolean) {
 				bool = (Boolean)obj;
+			}	
+			
+			if (obj instanceof String) {
+				String string = Lib.getString(obj);
+				if ((string.toUpperCase().equals("TRUE")) || (string.equals("1"))) {
+					bool=true;
+				}
 			}			
+			
+			if (obj instanceof Number) {
+				Number number = (Number)obj;
+				int intnum = number.intValue();
+				if (intnum==1) {
+					bool=true;
+				}
+			}			
+
+
 		}
+		
 		return bool;
 	}
 
