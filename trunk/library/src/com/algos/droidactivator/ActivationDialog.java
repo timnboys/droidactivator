@@ -25,17 +25,16 @@ import android.widget.TextView;
 class ActivationDialog extends Dialog {
 
 	boolean useridRequested;
+	boolean temporaryActivationAvailable;
 	private Button activateButton;
 	private Button laterButton;
 	private EditText inputUseridField;
 	private EditText inputCodeField;
 	
-	private OnActivationRequestedListener activationRequestedListener;
-	
-	
-	ActivationDialog(Context context, boolean useridRequested) {
+	ActivationDialog(Context context, boolean useridRequested, boolean temporaryActivationAvailable) {
 		super(context);
 		this.useridRequested=useridRequested;
+		this.temporaryActivationAvailable=temporaryActivationAvailable;
 		init();
 	}
 
@@ -55,6 +54,9 @@ class ActivationDialog extends Dialog {
 		
         // Android bug: must be called after setContentView()!
         setFeatureDrawableResource(Window.FEATURE_LEFT_ICON, R.drawable.warning_icon);
+
+		// back is disabled in this dialog
+		setCancelable(false);
 
         // can't cancel touching outside!
         setCanceledOnTouchOutside(false);
@@ -238,15 +240,17 @@ class ActivationDialog extends Dialog {
 		layout.addView(button);
 		
 		// later button
-		button = new DialogButton(getContext(),R.string.temporary_button_text, new View.OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				laterButtonPressed();
-			}
-		});
-		this.laterButton=button;
-		layout.addView(button);
+		if(this.temporaryActivationAvailable){
+			button = new DialogButton(getContext(),R.string.temporary_button_text, new View.OnClickListener() {
+				
+				@Override
+				public void onClick(View v) {
+					laterButtonPressed();
+				}
+			});
+			this.laterButton=button;
+			layout.addView(button);
+		}
 		
 		// activate button
 		button = new DialogButton(getContext(),R.string.confirm_button_text, new View.OnClickListener() {
@@ -278,12 +282,14 @@ class ActivationDialog extends Dialog {
 		layout.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.WRAP_CONTENT));
 
 		// add time remaining text
-		tv = new TextView(getContext());
-		tv.setTextSize(12);
-		tv.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT));
-		tv.setGravity(Gravity.LEFT);
-		tv.setText(R.string.time_remaining);
-		layout.addView(tv);
+		if (this.temporaryActivationAvailable) {
+			tv = new TextView(getContext());
+			tv.setTextSize(12);
+			tv.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT));
+			tv.setGravity(Gravity.LEFT);
+			tv.setText(R.string.time_remaining);
+			layout.addView(tv);			
+		}
 
 		// add elastic spacer
 		layout.addView(new ElasticSpacer(getContext()));
@@ -327,12 +333,16 @@ class ActivationDialog extends Dialog {
 		this.activateButton.setEnabled(enabled);
 		
 
-		// sync the Later button: time must not be over
-		enabled=false;
-		if (true) {
-			enabled=true;
+		// sync the Later button (if present):
+		// time must not be over
+		Button button = this.laterButton;
+		if (button!=null) {
+			enabled=false;
+			if (true) {
+				enabled=true;
+			}
+			button.setEnabled(enabled);
 		}
-		this.laterButton.setEnabled(enabled);
 
 
 	}
@@ -343,7 +353,8 @@ class ActivationDialog extends Dialog {
 	 */
 	private void cancelButtonPressed(){
 
-		dismiss();		
+		dismiss();	
+		DroidActivator.runRunnable();
 		
 	}
 	
@@ -352,17 +363,14 @@ class ActivationDialog extends Dialog {
 	 */
 	private void laterButtonPressed(){
 
-		// notify the listener
-		if (this.activationRequestedListener!=null) {
-			this.activationRequestedListener.onActivationRequested(true, "", "");
-		}
-
+		DroidActivator.doTemporaryActivation();
 		dismiss();		
+		DroidActivator.runRunnable();
 		
 	}
 
 
-	/**
+	/** 
 	 * Activate button has been pressed
 	 */
 	private void activateButtonPressed(){
@@ -401,23 +409,10 @@ class ActivationDialog extends Dialog {
 		if (cont) {
 			if (DroidActivator.requestActivation(getUseridString(), getCodeString())) {
 				dismiss();
+				DroidActivator.runRunnable();
 			}
 		}
 		
-		
-//		// notify the listener
-//		if (cont) {
-//			// notify the listener
-//			if (this.activationRequestedListener!=null) {
-//				this.activationRequestedListener.onActivationRequested(false, getUseridString(), getCodeString());
-//			}
-//			
-//			
-//			
-//			dismiss();
-//		}
-
-
 	}
 
 	
@@ -451,9 +446,9 @@ class ActivationDialog extends Dialog {
 	}
 
 	
-	public void setOnActivationRequestedListener(OnActivationRequestedListener l){
-		this.activationRequestedListener=l;
-	}
+//	public void setOnActivationRequestedListener(OnActivationRequestedListener l){
+//		this.activationRequestedListener=l;
+//	}
 
 	private class DialogButton extends Button{
 
