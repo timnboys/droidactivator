@@ -22,13 +22,13 @@ class ActivationController {
 
       if (action.equals('checkresponding')) {
         response.setHeader("success", "true")
-        render 'true'
+        render 'OK'
       }
 
       if (action.equals('checkidpresent')) {
         def uniqueid = request.getHeader('uniqueid')
         response.setHeader("success", "true")
-        render 'true'
+        render 'OK'
       }
 
       if (action.equals('activate')) {
@@ -37,7 +37,7 @@ class ActivationController {
         def activationCode = request.getHeader('activationcode')
         response.setHeader("success", "false")
         response.setHeader("failurecode", "3")
-        render 'true'
+        render 'OK'
       }
 
       if (action.equals('update')) {
@@ -46,7 +46,7 @@ class ActivationController {
         response.setHeader("activated", "false")
         response.setHeader("expiration", "0")
         response.setHeader("level", "0")
-        render 'true'
+        render 'OK'
       }
 
 
