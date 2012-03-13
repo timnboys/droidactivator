@@ -25,7 +25,7 @@ class ActivationController {
         render 'true'
       }
 
-      if (action.equals('checkid')) {
+      if (action.equals('checkidpresent')) {
         def uniqueid = request.getHeader('uniqueid')
         response.setHeader("present", "true")
         response.setHeader("success", "true")
