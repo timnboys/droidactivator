@@ -1,23 +1,8 @@
 package com.algos.droidactivator;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.UUID;
-
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.CoreProtocolPNames;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
-import org.apache.http.util.EntityUtils;
-
-import com.algos.droidactivator.dialog.InfoDialog;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -25,7 +10,8 @@ import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
-import android.os.Bundle;
+
+import com.algos.droidactivator.dialog.InfoDialog;
 
 public class DroidActivator {
 
@@ -41,13 +27,13 @@ public class DroidActivator {
 	// the shared preferences file name
 	private static String SHARED_PREFS_FILE_NAME = "droidActivatorData";
 
-	// keys to identify values in bundles and preferences
-	static String KEY_SUCCESS = "success";
+	// keys to identify values 
+	// used both in bundles sent to the backend and in shared preferences
 	static String KEY_ACTIVATED = "activated";
 	static String KEY_LEVEL = "level";
 	static String KEY_EXPIRATION = "expiration";
 	static String KEY_INSTALLATION_UUID = "installation_UUID";
-	static String KEY_UNIQUEID = "unique_id";
+	static String KEY_UNIQUEID = "uniqueid";
 	static String KEY_BACKEND_URL = "backend_url";
 
 	// the app name passed to the backend, defaults to the current App Name
@@ -136,17 +122,9 @@ public class DroidActivator {
 		if (isNetworkAvailable()) {
 
 			if (isBackendResponding()) {
-
-				Bundle bundle = readBackendData();
-
-				// write backend values in local cache
-				if (bundle.getBoolean(KEY_SUCCESS)) {
-					setActivated(bundle.getBoolean(KEY_ACTIVATED));
-					setExpiration(bundle.getLong(KEY_EXPIRATION));
-					setLevel(bundle.getInt(KEY_LEVEL));
-					success = true;
-				}
-
+				
+				success = requestUpdate();
+				
 			}
 
 		}
@@ -175,9 +153,9 @@ public class DroidActivator {
 	 */
 	private static boolean isUseridRequested() {
 		boolean requested = false;
-		
+
 		String uid = getUniqueId();
-		
+
 		if (uid.equals("")) { // no uniqueid in cached data
 			requested = true;
 		}
@@ -260,13 +238,12 @@ public class DroidActivator {
 	 */
 	static boolean requestActivation(String userId, String activationCode) {
 
-		
 		// retrieve the Unique Id (the cached one if present, otherwise calculated on the fly)
 		String uniqueId = getUniqueId();
 		if (uniqueId.equals("")) {
-			uniqueId=createUniqueId();
+			uniqueId = createUniqueId();
 		}
-		
+
 		// create the task
 		RequestActivationTask task = getInstance().new RequestActivationTask(uniqueId, userId, activationCode);
 
@@ -281,7 +258,7 @@ public class DroidActivator {
 			catch (InterruptedException e) {
 			}
 		}
-		
+
 		// final message
 		Context ctx = getInstance().getContext();
 		InfoDialog dialog = new InfoDialog(ctx);
@@ -296,20 +273,20 @@ public class DroidActivator {
 			dialog.setMessage(failureString);
 		}
 		dialog.show();
-		
+
 		return task.isSuccessful();
-		
+
 	}
-	
+
+
 	/**
 	 * @param failureCode a failure code
 	 * @return a failure string in the current language
 	 */
-	private static String getFailureString(int failureCode){
+	private static String getFailureString(int failureCode) {
 		return "generic failure";
 	}
-	
-	
+
 	/**
 	 * An AsyncTask to request the activation in a background process. 
 	 * This is needed to comply with Honeycomb Strict Mode wich doesn't allow 
@@ -323,39 +300,41 @@ public class DroidActivator {
 		private String activationCode;
 		private boolean successful;
 		private int failureCode;
-		
+
+
 		public RequestActivationTask(String uniqueId, String userId, String activationCode) {
 			super();
-			this.uniqueId=uniqueId;
-			this.userId=userId;
-			this.activationCode=activationCode;
+			this.uniqueId = uniqueId;
+			this.userId = userId;
+			this.activationCode = activationCode;
 		}
+
 
 		@Override
 		protected Void doInBackground(Void... params) {
 
 			BackendRequest request = new BackendRequest("activate");
-			request.setRequestProperty("uniqueid", this.uniqueId);
+			request.setRequestProperty(KEY_UNIQUEID, this.uniqueId);
 			request.setRequestProperty("userid", this.userId);
 			request.setRequestProperty("activationcode", this.activationCode);
 			BackendResponse response = new BackendResponse(request);
-			
+
 			// write returned data in shared preferences
 			if (response.isResponseSuccess()) {
 				setActivated(true);
-				setExpiration(response.getLong("expirationtimestamp"));
-				setLevel(response.getInt("level"));
+				setExpiration(response.getExpirationTime());
+				setLevel(response.getLevel());
 				setUniqueId(this.uniqueId);// this can be new, write it back!
-				this.successful=true;
+				this.successful = true;
 			}
 			else {
 				setActivated(false);
-				this.failureCode=response.getInt("failurecode");
-				this.successful=false;
+				this.failureCode = response.getInt("failurecode");
+				this.successful = false;
 			}
-			
+
 			request.disconnect();
-			this.finished=true;
+			this.finished = true;
 
 			return null;
 		}
@@ -370,18 +349,18 @@ public class DroidActivator {
 		private boolean isFinished() {
 			return this.finished;
 		}
-		
+
+
 		private boolean isSuccessful() {
 			return this.successful;
 		}
+
 
 		private int getFailureCode() {
 			return this.failureCode;
 		}
 
-
 	}
-
 
 
 	/**
@@ -395,101 +374,84 @@ public class DroidActivator {
 
 
 	/**
-	 * Reads activation data from the backend and returns it in a Bundle.
-	 * 
-	 * @return a Bundle containing backend activation data
+	 * Requests an Update to the backend.
+	 * @return true if the update succeeded
 	 */
-	private static Bundle readBackendData() {
+	private static boolean requestUpdate() {
 
-		// create the task
-		ReadBackendDataTask task = getInstance().new ReadBackendDataTask();
+		RequestUpdateTask task = null;
+		boolean successful = false;
 
-		// start the background task
-		task.execute();
+		// retrieve the cached Unique Id
+		String uniqueId = getUniqueId();
 
-		// wait until finished
-		while (!task.isFinished()) {
-			try {
-				Thread.sleep(50);
+		if (!uniqueId.equals("")) {
+
+			// create the task
+			task = getInstance().new RequestUpdateTask(uniqueId);
+
+			// start the background task
+			task.execute();
+
+			// wait until finished
+			while (!task.isFinished()) {
+				try {
+					Thread.sleep(50);
+				}
+				catch (InterruptedException e) {
+				}
 			}
-			catch (InterruptedException e) {
-			}
+
+			// retrieve result
+			successful = task.isSuccessful();
+
 		}
 
-		// get the result
-		return task.getBundle();
+		return successful;
 
 	}
 
 	/**
-	 * An AsyncTask to read backend data in a background process. 
+	 * An AsyncTask to request an Activation Update in a background process. 
 	 * This is needed to comply with Honeycomb Strict Mode wich doesn't allow 
 	 * networking operations in the UI thread.
+	 * <p>When finished, call isSuccessul() for the result.
 	 */
-	private class ReadBackendDataTask extends AsyncTask<Void, Void, Void> {
+	private class RequestUpdateTask extends AsyncTask<Void, Void, Void> {
 
 		private boolean finished = false;
-		private Bundle bundle = null;
+		private String uniqueId;
+		private boolean successful;
+
+
+		public RequestUpdateTask(String uniqueId) {
+			super();
+			this.uniqueId = uniqueId;
+		}
 
 
 		@Override
 		protected Void doInBackground(Void... params) {
 
-			// create an empty bundle with success=false (it will be set to true later)
-			Bundle bundle = new Bundle();
-			bundle.putBoolean(KEY_SUCCESS, false);
+			BackendRequest request = new BackendRequest("update");
+			request.setRequestProperty(KEY_UNIQUEID, this.uniqueId);
+			BackendResponse response = new BackendResponse(request);
 
-			// create a parameter object for the http client
-			HttpParams httpParameters = new BasicHttpParams();
-			HttpConnectionParams.setConnectionTimeout(httpParameters, 1000);
-			HttpConnectionParams.setSoTimeout(httpParameters, 1000);
-
-			HttpClient client = new DefaultHttpClient(httpParameters);
-			client.getParams().setParameter(CoreProtocolPNames.USER_AGENT, "droid-activator");
-
-			HttpGet request = new HttpGet(getBackendURL().toString());
-			try {
-				HttpResponse response = client.execute(request);
-				if (response != null) {
-
-					// get data from the response
-					HttpEntity entity = response.getEntity();
-					String string = EntityUtils.toString(entity);
-					// ... todo...
-
-					// retrieve the result code from the backend
-					boolean success = true;
-
-					if (success) {
-						bundle.putBoolean(KEY_SUCCESS, true);
-						bundle.putBoolean(KEY_ACTIVATED, false);
-						bundle.putLong(KEY_EXPIRATION, 0);
-						bundle.putInt(KEY_LEVEL, 0);
-					}
-
-				}
+			// write returned data in shared preferences
+			if (response.isResponseSuccess()) {
+				setActivated(response.isActivated());
+				setExpiration(response.getExpirationTime());
+				setLevel(response.getLevel());
+				this.successful = true;
 			}
-			catch (ClientProtocolException e) {
-				e.printStackTrace();
-			}
-			catch (IOException e) {
-				e.printStackTrace();
+			else {
+				this.successful = false;
 			}
 
-			this.bundle = bundle;
+			request.disconnect();
 			this.finished = true;
 
 			return null;
-		}
-
-
-		private boolean isFinished() {
-			return finished;
-		}
-
-
-		private Bundle getBundle() {
-			return this.bundle;
 		}
 
 
@@ -498,7 +460,18 @@ public class DroidActivator {
 			cancel(true);
 		}
 
+
+		private boolean isFinished() {
+			return this.finished;
+		}
+
+
+		private boolean isSuccessful() {
+			return this.successful;
+		}
+
 	}
+
 
 
 	/**
@@ -567,13 +540,13 @@ public class DroidActivator {
 
 			BackendRequest request = new BackendRequest("checkresponding");
 			BackendResponse response = new BackendResponse(request);
-			
+
 			if (response.isResponseSuccess()) {
 				this.responding = true;
 			}
-			
+
 			request.disconnect();
-			this.finished=true;
+			this.finished = true;
 
 			return null;
 		}
@@ -611,17 +584,17 @@ public class DroidActivator {
 		@Override
 		protected Void doInBackground(Void... params) {
 
-			
 			BackendRequest request = new BackendRequest("checkidpresent");
+			request.setRequestProperty(KEY_UNIQUEID, getUniqueId());
 			BackendResponse response = new BackendResponse(request);
 
 			if (response.isResponseSuccess()) {
 				this.present = true;
 			}
-			
+
 			request.disconnect();
-			this.finished=true;
-			
+			this.finished = true;
+
 			return null;
 		}
 
@@ -642,7 +615,6 @@ public class DroidActivator {
 		}
 
 	}
-
 
 
 	/**
@@ -787,7 +759,8 @@ public class DroidActivator {
 	public static void setInstallationUuid(String uuidString) {
 		getPrefs().edit().putString(KEY_INSTALLATION_UUID, uuidString).commit();
 	}
-	
+
+
 	/**
 	 * Returns the Unique Id from shared preferences.
 	 * @return the Unique Id
@@ -805,7 +778,6 @@ public class DroidActivator {
 	public static void setUniqueId(String uidString) {
 		getPrefs().edit().putString(KEY_UNIQUEID, uidString).commit();
 	}
-
 
 
 	/**

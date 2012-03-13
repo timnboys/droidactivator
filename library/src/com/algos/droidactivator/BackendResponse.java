@@ -103,19 +103,21 @@ public class BackendResponse {
 	}
 
 
+	
 	/**
 	 * @return the expiration date
 	 */
-	Date getExpirationDate() {
-		return getDate(DroidActivator.KEY_EXPIRATION);
+	long getExpirationTime() {
+		return getLong(DroidActivator.KEY_EXPIRATION);
 	}
+
 
 
 	/**
 	 * @return the app level
 	 */
-	Date getAppLevel() {
-		return getDate(DroidActivator.KEY_LEVEL);
+	int getLevel() {
+		return getInt(DroidActivator.KEY_LEVEL);
 	}
 
 
