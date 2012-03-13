@@ -37,4 +37,8 @@
 	
 	<string name="invalid_email_address">Invalid e-mail address</string>
 	
+	<string name="congratulations">Congratulations!</string>
+	<string name="app_successfully_activated">Your application has been successfully activated.\nThank You.</string>
+	<string name="activation_error">Activation error</string>
+	
 </resources>
