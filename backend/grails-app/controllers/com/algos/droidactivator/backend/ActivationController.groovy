@@ -36,9 +36,19 @@ class ActivationController {
         def userid = request.getHeader('userid')
         def activationCode = request.getHeader('activationcode')
         response.setHeader("success", "false")
-        response.setHeader("failure_code", "3")
+        response.setHeader("failurecode", "3")
         render 'true'
       }
+
+      if (action.equals('update')) {
+        def uniqueid = request.getHeader('uniqueid')
+        response.setHeader("success", "true")
+        response.setHeader("activated", "false")
+        response.setHeader("expiration", "0")
+        response.setHeader("level", "0")
+        render 'true'
+      }
+
 
 
     }
