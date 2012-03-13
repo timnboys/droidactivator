@@ -35,4 +35,6 @@
 	<string name="backend_not_responding">The activation server is not 
 	    responding. Please try again later.</string>
 	
+	<string name="invalid_email_address">Invalid e-mail address</string>
+	
 </resources>

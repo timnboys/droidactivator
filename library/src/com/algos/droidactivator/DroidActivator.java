@@ -1,20 +1,10 @@
 package com.algos.droidactivator;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.zip.Deflater;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -31,12 +21,10 @@ import org.apache.http.util.EntityUtils;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Base64;
 
 public class DroidActivator {
 
@@ -53,12 +41,13 @@ public class DroidActivator {
 	private static String SHARED_PREFS_FILE_NAME = "droidActivatorData";
 
 	// keys to identify values in bundles and preferences
-	private static String KEY_SUCCESS = "success";
-	private static String KEY_ACTIVATED = "activated";
-	private static String KEY_LEVEL = "level";
-	private static String KEY_EXPIRATION = "expiration";
-	private static String KEY_INSTALLATION_UUID = "installation_UUID";
-	private static String KEY_BACKEND_URL = "backend_url";
+	static String KEY_SUCCESS = "success";
+	static String KEY_ACTIVATED = "activated";
+	static String KEY_LEVEL = "level";
+	static String KEY_EXPIRATION = "expiration";
+	static String KEY_INSTALLATION_UUID = "installation_UUID";
+	static String KEY_UNIQUEID = "unique_id";
+	static String KEY_BACKEND_URL = "backend_url";
 
 	// the app name passed to the backend, defaults to the current App Name
 	private String appName = "";
@@ -90,6 +79,7 @@ public class DroidActivator {
 		this.appName = appname;
 
 		// create and save the installation UUID in Shared Preferences if not present (first time only)
+		// this is the In stallation part of the UniqueId
 		String uuidStr = getInstallationUuid();
 		if (uuidStr.equals("")) {
 			UUID uuid = UUID.randomUUID();
@@ -178,13 +168,16 @@ public class DroidActivator {
 
 
 	/**
-	 * Decide if the activation process requires the userid also.
+	 * Determine if the activation process requires to supply the userid also.
 	 * 
 	 * @return true if userid is requested
 	 */
 	private static boolean isUseridRequested() {
 		boolean requested = false;
-		if (getUniqueId().equals("")) { // no uniqueid in cached data
+		
+		String uid = getUniqueId();
+		
+		if (uid.equals("")) { // no uniqueid in cached data
 			requested = true;
 		}
 		else { // uniqueid present in cached data
@@ -243,12 +236,12 @@ public class DroidActivator {
 		dialog.setOnActivationRequestedListener(new OnActivationRequestedListener() {
 
 			@Override
-			public void onActivationRequested(boolean temporary, String code) {
+			public void onActivationRequested(boolean temporary, String userid, String code) {
 				if (temporary) {
 					doTemporaryActivation();
 				}
 				else {
-					requestActivation(code);
+					requestActivation(userid, code);
 				}
 			}
 		});
@@ -260,15 +253,19 @@ public class DroidActivator {
 	/**
 	 * Requests an Activation to the backend.
 	 * <p>Called by the Activation Dialog when Activate button is pressed.
-	 * @param code the activation code to use.
+	 * @param userId the activation userid to use.
+	 * @param activationCode the activation code to use.
 	 */
-	private static void requestActivation(String code) {
+	private static void requestActivation(String userId, String activationCode) {
 
-		// collect data for the request
-		String uniqueId = getUniqueId();
-		String userEmail = ""; // pass it in the event from the dialog!
-		String activationCode = code;
-
+		
+		// retrieve the Unique Id (the cached one if present, otherwise calculated on the fly)
+		String uid = getUniqueId();
+		if (uid.equals("")) {
+			uid=createUniqueId();
+		}
+		
+		
 		// to be continued..
 
 		int a = 87;
@@ -446,6 +443,7 @@ public class DroidActivator {
 	 * An AsyncTask to test if the backend is responding in a background process. 
 	 * This is needed to comply with Honeycomb Strict Mode wich doesn't allow 
 	 * networking operations in the UI thread.
+	 * <p>Call isResponding() at the end for the response
 	 */
 	private class CheckBackendRespondingTask extends AsyncTask<Void, Void, Void> {
 
@@ -456,28 +454,14 @@ public class DroidActivator {
 		@Override
 		protected Void doInBackground(Void... params) {
 
-			URL url = getBackendURL();
-			if (url != null) {
-				HttpURLConnection connection = null;
-				try {
-					connection = (HttpURLConnection) url.openConnection();
-					connection.setConnectTimeout(1000);
-					connection.setReadTimeout(1000);
-					connection.setRequestProperty("action", "checkresponding");
-					connection.setRequestProperty("appname", getAppName());
-
-					BackendResponse response = new BackendResponse(connection);
-					if (response.isResponseSuccess()) {
-						this.responding = true;
-					}
-
-					connection.disconnect();
-
-				}
-				catch (IOException e1) {
-				}
+			BackendRequest request = new BackendRequest("checkresponding");
+			BackendResponse response = new BackendResponse(request);
+			
+			if (response.isResponseSuccess()) {
+				this.responding = true;
 			}
-
+			
+			request.disconnect();
 			this.finished=true;
 
 			return null;
@@ -516,34 +500,17 @@ public class DroidActivator {
 		@Override
 		protected Void doInBackground(Void... params) {
 
-			URL url = getBackendURL();
-			if (url != null) {
-				HttpURLConnection connection = null;
-				try {
+			
+			BackendRequest request = new BackendRequest("checkidpresent");
+			BackendResponse response = new BackendResponse(request);
 
-					connection = (HttpURLConnection) url.openConnection();
-					connection.setConnectTimeout(1000);
-					connection.setReadTimeout(1000);
-					connection.setRequestProperty("action", "checkid");
-					connection.setRequestProperty("appname", getAppName());
-					connection.setRequestProperty("uniqueid", getUniqueId());
-
-					BackendResponse response = new BackendResponse(connection);
-					if (response.isHttpSuccess()) {
-						if (response.isResponseSuccess()) {
-							this.present = response.getBool("present");
-						}
-					}
-
-					connection.disconnect();
-
-				}
-				catch (IOException e1) {
-				}
+			if (response.isResponseSuccess()) {
+				this.present = response.getBool("present");
 			}
 			
+			request.disconnect();
 			this.finished=true;
-
+			
 			return null;
 		}
 
@@ -567,164 +534,164 @@ public class DroidActivator {
 
 
 
-	
-	/**
-	 * Object representing a response from the Backend.
-	 */
-	private class BackendResponse {
-
-		private HttpURLConnection connection;
-		private HashMap<String, Object> responseMap = new HashMap<String, Object>();
-		private int httpResultCode = 0;
-
-
-		public BackendResponse(HttpURLConnection conn) {
-			super();
-			this.connection = conn;
-			init();
-		}
-
-
-		private void init() {
-
-			// send the request and retrieve http response code
-			try {
-				if (this.connection!=null) {
-					this.httpResultCode = this.connection.getResponseCode();					
-				}
-			}
-			catch (IOException e) {
-				e.printStackTrace();
-			}
-
-			// if the call succeeded, put all response headers in the map
-			if (isHttpSuccess()) {
-
-				Map<String, List<String>> responseMap = this.connection.getHeaderFields();
-				if (responseMap != null) {
-
-					String key = "";
-					String valueStr = "";
-
-					for (Iterator<String> iterator = responseMap.keySet().iterator(); iterator.hasNext();) {
-						key = (String) iterator.next();
-
-						List values = (List) responseMap.get(key);
-						if (values.size() > 0) {
-							Object value = values.get(0);
-							valueStr = Lib.getString(value);
-						}
-
-						this.responseMap.put(key, valueStr);
-
-					}
-
-				}
-
-			}
-
-		}
-
-
-		/**
-		 * @return true if the Http call succeeded (at protocol level)
-		 */
-		boolean isHttpSuccess() {
-			return ((this.httpResultCode>=200) && (this.httpResultCode < 300));
-		}
-
-
-		/**
-		 * @return true if the backend call succeeded (at backend logical)
-		 */
-		boolean isResponseSuccess() {
-			boolean success=false;
-			if (isHttpSuccess()) {
-				String string = getString("success");
-				if (Lib.getBool(string)) {
-					success = true;
-				}
-			}
-			
-			return success;
-		}
-		
-		/**
-		 * @return true if the app is activated
-		 */
-		boolean isActivated() {
-			return getBool(KEY_ACTIVATED);
-		}
-		
-		/**
-		 * @return the expiration date
-		 */
-		Date getExpirationDate() {
-			return getDate(KEY_EXPIRATION);
-		}
-		
-		/**
-		 * @return the app level
-		 */
-		Date getAppLevel() {
-			return getDate(KEY_LEVEL);
-		}
-
-		/**
-		 * Retuns a Date from the response map.
-		 * 
-		 * @param key the key to search
-		 * @return the date
-		 */
-		Date getDate(String key) {
-			return Lib.getDate(this.responseMap.get(key));
-		}
-
-
-		/**
-		 * Retuns a int from the response map.
-		 * 
-		 * @param key the key to search
-		 * @return the int
-		 */
-		int getInt(String key) {
-			return Lib.getInt(this.responseMap.get(key));
-		}
-
-
-		/**
-		 * Retuns a long from the response map.
-		 * 
-		 * @param key the key to search
-		 * @return the long
-		 */
-		long getLong(String key) {
-			return Lib.getLong(this.responseMap.get(key));
-		}
-
-
-		/**
-		 * Retuns a boolean from the response map.
-		 * 
-		 * @param key the key to search
-		 * @return the boolean
-		 */
-		boolean getBool(String key) {
-			return Lib.getBool(this.responseMap.get(key));
-		}
-
-
-		/**
-		 * Retuns a string from the response map.
-		 * 
-		 * @param key the key to search
-		 * @return the string
-		 */
-		String getString(String key) {
-			return Lib.getString(this.responseMap.get(key));
-		}
-
-	}
+//	
+//	/**
+//	 * Object representing a response from the Backend.
+//	 */
+//	private class BackendResponse {
+//
+//		private HttpURLConnection connection;
+//		private HashMap<String, Object> responseMap = new HashMap<String, Object>();
+//		private int httpResultCode = 0;
+//
+//
+//		public BackendResponse(HttpURLConnection conn) {
+//			super();
+//			this.connection = conn;
+//			init();
+//		}
+//
+//
+//		private void init() {
+//
+//			// send the request and retrieve http response code
+//			try {
+//				if (this.connection!=null) {
+//					this.httpResultCode = this.connection.getResponseCode();					
+//				}
+//			}
+//			catch (IOException e) {
+//				e.printStackTrace();
+//			}
+//
+//			// if the call succeeded, put all response headers in the map
+//			if (isHttpSuccess()) {
+//
+//				Map<String, List<String>> responseMap = this.connection.getHeaderFields();
+//				if (responseMap != null) {
+//
+//					String key = "";
+//					String valueStr = "";
+//
+//					for (Iterator<String> iterator = responseMap.keySet().iterator(); iterator.hasNext();) {
+//						key = (String) iterator.next();
+//
+//						List values = (List) responseMap.get(key);
+//						if (values.size() > 0) {
+//							Object value = values.get(0);
+//							valueStr = Lib.getString(value);
+//						}
+//
+//						this.responseMap.put(key, valueStr);
+//
+//					}
+//
+//				}
+//
+//			}
+//
+//		}
+//
+//
+//		/**
+//		 * @return true if the Http call succeeded (at protocol level)
+//		 */
+//		boolean isHttpSuccess() {
+//			return ((this.httpResultCode>=200) && (this.httpResultCode < 300));
+//		}
+//
+//
+//		/**
+//		 * @return true if the backend call succeeded (at backend logical)
+//		 */
+//		boolean isResponseSuccess() {
+//			boolean success=false;
+//			if (isHttpSuccess()) {
+//				String string = getString("success");
+//				if (Lib.getBool(string)) {
+//					success = true;
+//				}
+//			}
+//			
+//			return success;
+//		}
+//		
+//		/**
+//		 * @return true if the app is activated
+//		 */
+//		boolean isActivated() {
+//			return getBool(KEY_ACTIVATED);
+//		}
+//		
+//		/**
+//		 * @return the expiration date
+//		 */
+//		Date getExpirationDate() {
+//			return getDate(KEY_EXPIRATION);
+//		}
+//		
+//		/**
+//		 * @return the app level
+//		 */
+//		Date getAppLevel() {
+//			return getDate(KEY_LEVEL);
+//		}
+//
+//		/**
+//		 * Retuns a Date from the response map.
+//		 * 
+//		 * @param key the key to search
+//		 * @return the date
+//		 */
+//		Date getDate(String key) {
+//			return Lib.getDate(this.responseMap.get(key));
+//		}
+//
+//
+//		/**
+//		 * Retuns a int from the response map.
+//		 * 
+//		 * @param key the key to search
+//		 * @return the int
+//		 */
+//		int getInt(String key) {
+//			return Lib.getInt(this.responseMap.get(key));
+//		}
+//
+//
+//		/**
+//		 * Retuns a long from the response map.
+//		 * 
+//		 * @param key the key to search
+//		 * @return the long
+//		 */
+//		long getLong(String key) {
+//			return Lib.getLong(this.responseMap.get(key));
+//		}
+//
+//
+//		/**
+//		 * Retuns a boolean from the response map.
+//		 * 
+//		 * @param key the key to search
+//		 * @return the boolean
+//		 */
+//		boolean getBool(String key) {
+//			return Lib.getBool(this.responseMap.get(key));
+//		}
+//
+//
+//		/**
+//		 * Retuns a string from the response map.
+//		 * 
+//		 * @param key the key to search
+//		 * @return the string
+//		 */
+//		String getString(String key) {
+//			return Lib.getString(this.responseMap.get(key));
+//		}
+//
+//	}
 
 
 	/**
@@ -740,8 +707,8 @@ public class DroidActivator {
 	}
 
 
-	private String getAppName() {
-		return this.appName;
+	static String getAppName() {
+		return getInstance().appName;
 	}
 
 
@@ -750,7 +717,7 @@ public class DroidActivator {
 	 * 
 	 * @return the backend URL
 	 */
-	private static URL getBackendURL() {
+	static URL getBackendURL() {
 		String string;
 		URL url = null;
 		string = getPrefs().getString(KEY_BACKEND_URL, "");
@@ -869,6 +836,25 @@ public class DroidActivator {
 	public static void setInstallationUuid(String uuidString) {
 		getPrefs().edit().putString(KEY_INSTALLATION_UUID, uuidString).commit();
 	}
+	
+	/**
+	 * Returns the Unique Id from shared preferences.
+	 * @return the Unique Id
+	 */
+	public static String getUniqueId() {
+		return getPrefs().getString(KEY_UNIQUEID, "");
+	}
+
+
+	/**
+	 * Sets the Unique Id in shared preferences.
+	 * 
+	 * @param uidString the Unique Id string
+	 */
+	public static void setUniqueId(String uidString) {
+		getPrefs().edit().putString(KEY_UNIQUEID, uidString).commit();
+	}
+
 
 
 	/**
@@ -881,7 +867,7 @@ public class DroidActivator {
 	 * 
 	 * @return the combined id
 	 */
-	private static String getUniqueId() {
+	private static String createUniqueId() {
 		String installUUID = getPrefs().getString(KEY_INSTALLATION_UUID, "");
 		String deviceUUID = new DeviceUuidFactory(getInstance().getContext()).getDeviceUuid().toString();
 

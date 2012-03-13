@@ -305,12 +305,13 @@ class ActivationDialog extends Dialog {
 	private void sync(){
 		
 		boolean enabled;
-		String inputString = getCodeString();
 		
 		// sync the Activate button: 
 		enabled=true;
 		
-		// if userid is requested, must be longer than 3 chars and contain the @ char and a dot
+		// if userid is requested, perform a preliminary check: it must be longer 
+		// than 6 chars and contain the @ char and a dot. A deeper check
+		// will be performed when Activate button is pressed.
 		if (isUseridRequested()) {
 			String uString = getUseridString();
 			if ((uString.length()<6) || (!uString.contains("@") ) || (!uString.contains(".") )) {
@@ -326,9 +327,9 @@ class ActivationDialog extends Dialog {
 		this.activateButton.setEnabled(enabled);
 		
 
-		// sync the Later button: input field must be empty
+		// sync the Later button: time must not be over
 		enabled=false;
-		if (inputString.length()==0) {
+		if (true) {
 			enabled=true;
 		}
 		this.laterButton.setEnabled(enabled);
@@ -353,7 +354,7 @@ class ActivationDialog extends Dialog {
 
 		// notify the listener
 		if (this.activationRequestedListener!=null) {
-			this.activationRequestedListener.onActivationRequested(true, "");
+			this.activationRequestedListener.onActivationRequested(true, "", "");
 		}
 
 		dismiss();		
@@ -372,7 +373,7 @@ class ActivationDialog extends Dialog {
 			if (isUseridRequested()) {
 				if (!Lib.checkEmail(getUseridString())) {
 					WarningDialog dialog = new WarningDialog(getContext());
-					dialog.setMessage("Malformed email");
+					dialog.setMessage(getContext().getString(R.string.invalid_email_address));
 					dialog.show();
 					cont = false;
 				}
@@ -399,7 +400,7 @@ class ActivationDialog extends Dialog {
 		if (cont) {
 			// notify the listener
 			if (this.activationRequestedListener!=null) {
-				this.activationRequestedListener.onActivationRequested(false, getCodeString());
+				this.activationRequestedListener.onActivationRequested(false, getUseridString(), getCodeString());
 			}
 			
 			dismiss();
