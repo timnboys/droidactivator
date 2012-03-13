@@ -18,7 +18,7 @@ class ActivationController {
         def uniqueid = request.getHeader('uniqueid')
 
         if (action && action.equals('checkresponding')) {
-            response.setHeader("success", "false")
+            response.setHeader("success", "true")
             render 'true'
         } else {
             response.setHeader("success", "true")
@@ -31,7 +31,6 @@ class ActivationController {
                 response.setHeader("action", "topolinoz")
                 render 'false'
             }// fine del blocco if-else
-            response.setHeader("action", "minni")
             render 'false'
         }// fine del blocco if-else
     }
