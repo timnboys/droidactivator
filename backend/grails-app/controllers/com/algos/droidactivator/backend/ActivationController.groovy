@@ -36,7 +36,7 @@ class ActivationController {
         def userid = request.getHeader('userid')
         def activationCode = request.getHeader('activationcode')
         response.setHeader("success", "false")
-        response.setHeader("message", "you are not authorized to activate")
+        response.setHeader("failure_code", "3")
         render 'true'
       }
 
