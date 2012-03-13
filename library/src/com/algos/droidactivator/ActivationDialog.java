@@ -396,15 +396,26 @@ class ActivationDialog extends Dialog {
 			}
 		}
 		
-		// notify the listener
+		
+		// perform the activation
 		if (cont) {
-			// notify the listener
-			if (this.activationRequestedListener!=null) {
-				this.activationRequestedListener.onActivationRequested(false, getUseridString(), getCodeString());
+			if (DroidActivator.requestActivation(getUseridString(), getCodeString())) {
+				dismiss();
 			}
-			
-			dismiss();
 		}
+		
+		
+//		// notify the listener
+//		if (cont) {
+//			// notify the listener
+//			if (this.activationRequestedListener!=null) {
+//				this.activationRequestedListener.onActivationRequested(false, getUseridString(), getCodeString());
+//			}
+//			
+//			
+//			
+//			dismiss();
+//		}
 
 
 	}

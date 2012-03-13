@@ -1,7 +1,6 @@
 package com.algos.droidactivator;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.UUID;
@@ -17,6 +16,8 @@ import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
+
+import com.algos.droidactivator.dialog.InfoDialog;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -255,22 +256,132 @@ public class DroidActivator {
 	 * <p>Called by the Activation Dialog when Activate button is pressed.
 	 * @param userId the activation userid to use.
 	 * @param activationCode the activation code to use.
+	 * @return true if the ativation succeeded
 	 */
-	private static void requestActivation(String userId, String activationCode) {
+	static boolean requestActivation(String userId, String activationCode) {
 
 		
 		// retrieve the Unique Id (the cached one if present, otherwise calculated on the fly)
-		String uid = getUniqueId();
-		if (uid.equals("")) {
-			uid=createUniqueId();
+		String uniqueId = getUniqueId();
+		if (uniqueId.equals("")) {
+			uniqueId=createUniqueId();
 		}
 		
-		
-		// to be continued..
+		// create the task
+		RequestActivationTask task = getInstance().new RequestActivationTask(uniqueId, userId, activationCode);
 
-		int a = 87;
-		int b = a;
+		// start the background task
+		task.execute();
+
+		// wait until finished
+		while (!task.isFinished()) {
+			try {
+				Thread.sleep(50);
+			}
+			catch (InterruptedException e) {
+			}
+		}
+		
+		// final message
+		Context ctx = getInstance().getContext();
+		InfoDialog dialog = new InfoDialog(ctx);
+		if (task.isSuccessful()) {
+			dialog.setTitle(R.string.congratulations);
+			dialog.setMessage(ctx.getString(R.string.app_successfully_activated));
+		}
+		else {
+			int failureCode = task.getFailureCode();
+			String failureString = getFailureString(failureCode);
+			dialog.setTitle(R.string.activation_error);
+			dialog.setMessage(failureString);
+		}
+		dialog.show();
+		
+		return task.isSuccessful();
+		
 	}
+	
+	/**
+	 * @param failureCode a failure code
+	 * @return a failure string in the current language
+	 */
+	private static String getFailureString(int failureCode){
+		return "generic failure";
+	}
+	
+	
+	/**
+	 * An AsyncTask to request the activation in a background process. 
+	 * This is needed to comply with Honeycomb Strict Mode wich doesn't allow 
+	 * networking operations in the UI thread.
+	 */
+	private class RequestActivationTask extends AsyncTask<Void, Void, Void> {
+
+		private boolean finished = false;
+		private String uniqueId;
+		private String userId;
+		private String activationCode;
+		private boolean successful;
+		private int failureCode;
+		
+		public RequestActivationTask(String uniqueId, String userId, String activationCode) {
+			super();
+			this.uniqueId=uniqueId;
+			this.userId=userId;
+			this.activationCode=activationCode;
+		}
+
+		@Override
+		protected Void doInBackground(Void... params) {
+
+			BackendRequest request = new BackendRequest("activate");
+			request.setRequestProperty("uniqueid", this.uniqueId);
+			request.setRequestProperty("userid", this.userId);
+			request.setRequestProperty("activationcode", this.activationCode);
+			BackendResponse response = new BackendResponse(request);
+			
+			// write returned data in shared preferences
+			if (response.isResponseSuccess()) {
+				setActivated(true);
+				setExpiration(response.getLong("expirationtimestamp"));
+				setLevel(response.getInt("level"));
+				setUniqueId(this.uniqueId);// this can be new, write it back!
+				this.successful=true;
+			}
+			else {
+				setActivated(false);
+				this.failureCode=response.getInt("failurecode");
+				this.successful=false;
+			}
+			
+			request.disconnect();
+			this.finished=true;
+
+			return null;
+		}
+
+
+		@Override
+		protected void onPostExecute(Void result) {
+			cancel(true);
+		}
+
+
+		private boolean isFinished() {
+			return this.finished;
+		}
+		
+		private boolean isSuccessful() {
+			return this.successful;
+		}
+
+		private int getFailureCode() {
+			return this.failureCode;
+		}
+
+
+	}
+
 
 
 	/**
@@ -505,7 +616,7 @@ public class DroidActivator {
 			BackendResponse response = new BackendResponse(request);
 
 			if (response.isResponseSuccess()) {
-				this.present = response.getBool("present");
+				this.present = true;
 			}
 			
 			request.disconnect();
@@ -532,166 +643,6 @@ public class DroidActivator {
 
 	}
 
-
-
-//	
-//	/**
-//	 * Object representing a response from the Backend.
-//	 */
-//	private class BackendResponse {
-//
-//		private HttpURLConnection connection;
-//		private HashMap<String, Object> responseMap = new HashMap<String, Object>();
-//		private int httpResultCode = 0;
-//
-//
-//		public BackendResponse(HttpURLConnection conn) {
-//			super();
-//			this.connection = conn;
-//			init();
-//		}
-//
-//
-//		private void init() {
-//
-//			// send the request and retrieve http response code
-//			try {
-//				if (this.connection!=null) {
-//					this.httpResultCode = this.connection.getResponseCode();					
-//				}
-//			}
-//			catch (IOException e) {
-//				e.printStackTrace();
-//			}
-//
-//			// if the call succeeded, put all response headers in the map
-//			if (isHttpSuccess()) {
-//
-//				Map<String, List<String>> responseMap = this.connection.getHeaderFields();
-//				if (responseMap != null) {
-//
-//					String key = "";
-//					String valueStr = "";
-//
-//					for (Iterator<String> iterator = responseMap.keySet().iterator(); iterator.hasNext();) {
-//						key = (String) iterator.next();
-//
-//						List values = (List) responseMap.get(key);
-//						if (values.size() > 0) {
-//							Object value = values.get(0);
-//							valueStr = Lib.getString(value);
-//						}
-//
-//						this.responseMap.put(key, valueStr);
-//
-//					}
-//
-//				}
-//
-//			}
-//
-//		}
-//
-//
-//		/**
-//		 * @return true if the Http call succeeded (at protocol level)
-//		 */
-//		boolean isHttpSuccess() {
-//			return ((this.httpResultCode>=200) && (this.httpResultCode < 300));
-//		}
-//
-//
-//		/**
-//		 * @return true if the backend call succeeded (at backend logical)
-//		 */
-//		boolean isResponseSuccess() {
-//			boolean success=false;
-//			if (isHttpSuccess()) {
-//				String string = getString("success");
-//				if (Lib.getBool(string)) {
-//					success = true;
-//				}
-//			}
-//			
-//			return success;
-//		}
-//		
-//		/**
-//		 * @return true if the app is activated
-//		 */
-//		boolean isActivated() {
-//			return getBool(KEY_ACTIVATED);
-//		}
-//		
-//		/**
-//		 * @return the expiration date
-//		 */
-//		Date getExpirationDate() {
-//			return getDate(KEY_EXPIRATION);
-//		}
-//		
-//		/**
-//		 * @return the app level
-//		 */
-//		Date getAppLevel() {
-//			return getDate(KEY_LEVEL);
-//		}
-//
-//		/**
-//		 * Retuns a Date from the response map.
-//		 * 
-//		 * @param key the key to search
-//		 * @return the date
-//		 */
-//		Date getDate(String key) {
-//			return Lib.getDate(this.responseMap.get(key));
-//		}
-//
-//
-//		/**
-//		 * Retuns a int from the response map.
-//		 * 
-//		 * @param key the key to search
-//		 * @return the int
-//		 */
-//		int getInt(String key) {
-//			return Lib.getInt(this.responseMap.get(key));
-//		}
-//
-//
-//		/**
-//		 * Retuns a long from the response map.
-//		 * 
-//		 * @param key the key to search
-//		 * @return the long
-//		 */
-//		long getLong(String key) {
-//			return Lib.getLong(this.responseMap.get(key));
-//		}
-//
-//
-//		/**
-//		 * Retuns a boolean from the response map.
-//		 * 
-//		 * @param key the key to search
-//		 * @return the boolean
-//		 */
-//		boolean getBool(String key) {
-//			return Lib.getBool(this.responseMap.get(key));
-//		}
-//
-//
-//		/**
-//		 * Retuns a string from the response map.
-//		 * 
-//		 * @param key the key to search
-//		 * @return the string
-//		 */
-//		String getString(String key) {
-//			return Lib.getString(this.responseMap.get(key));
-//		}
-//
-//	}
 
 
 	/**
