@@ -29,6 +29,7 @@ class ActivationController {
         def uniqueid = request.getHeader('uniqueid')
         response.setHeader("present", "true")
         response.setHeader("success", "true")
+        render 'true'
       }
 
     }
