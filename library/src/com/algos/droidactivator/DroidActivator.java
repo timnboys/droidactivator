@@ -2,6 +2,7 @@ package com.algos.droidactivator;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Calendar;
 import java.util.UUID;
 
 import android.content.Context;
@@ -20,21 +21,40 @@ public class DroidActivator {
 
 	// the context to obtain the SharedPreferences
 	private Context context;
+	
+	// the backend address as supplied in the constructor
+	private String address;
+	
+	// the runnable to run to start the app when an Activation Cycle is completed
+	private Runnable runnable;
 
-	// a runnable to run when the Activation Cycle is finished
-	private Runnable cycleFinishedRunnable;
+	// flag to control if the Temporary Activation mechanism is available
+	private boolean temporaryActivationAvailable;
+	
+	// maximum number of days activation can be delayed pressing "Later"
+	private int maxActivationDelay;
+	
+	// flag turned on when a Temporary Activation is issued.
+	// if this flag is on, the isActivated() method returns always true
+	private boolean temporarilyActivated;
+
+
+//	// a runnable to run when the Activation Cycle is finished
+//	private Runnable cycleFinishedRunnable;
 
 	// the shared preferences file name
 	private static String SHARED_PREFS_FILE_NAME = "droidActivatorData";
 
-	// keys to identify values 
+	// keys to identify values
 	// used both in bundles sent to the backend and in shared preferences
 	static String KEY_ACTIVATED = "activated";
 	static String KEY_LEVEL = "level";
 	static String KEY_EXPIRATION = "expiration";
 	static String KEY_INSTALLATION_UUID = "installation_UUID";
 	static String KEY_UNIQUEID = "uniqueid";
-	static String KEY_BACKEND_URL = "backend_url";
+	static String KEY_TS_FIRST_TEMP_ACTIVATION = "first_temp_activation";	// the timestamp of the first Temporary Activation
+	//static String KEY_BACKEND_URL = "backend_url";
+	//static String KEY_MAX_ACTIVATION_DELAY_DAYS = "max_activation_delay";
 
 	// the app name passed to the backend, defaults to the current App Name
 	private String appName = "";
@@ -48,10 +68,11 @@ public class DroidActivator {
 	/**
 	 * Constructor
 	 */
-	private DroidActivator(Context context, Runnable runnable) {
+	private DroidActivator(Context context, String address, Runnable runnable) {
 		super();
 		this.context = context;
-		this.cycleFinishedRunnable = runnable;
+		this.address = address;
+		this.runnable = runnable;
 	}
 
 
@@ -64,6 +85,18 @@ public class DroidActivator {
 		PackageManager packageManager = getContext().getPackageManager();
 		String appname = packageManager.getApplicationLabel(getContext().getApplicationInfo()).toString();
 		this.appName = appname;
+		
+//		// build and save full backend address
+//		setBackendAddress(this.address);
+
+		// default for temporary activation mechanism availability
+		setTemporaryActivationAvailable(true);
+
+		// set the temporary activation flag to off
+		setTemporarilyActivated(false);
+		
+		// default number of days for maximum activation delay
+		setMaximumActivationDelay(7);
 
 		// create and save the installation UUID in Shared Preferences if not present (first time only)
 		// this is the In stallation part of the UniqueId
@@ -72,15 +105,17 @@ public class DroidActivator {
 			UUID uuid = UUID.randomUUID();
 			setInstallationUuid(uuid.toString());
 		}
+		
 
-		this.activationDoneListener = new OnActivationDoneListener() {
-
-			@Override
-			public void onActivationDone() {
-				// TODO Auto-generated method stub
-
-			}
-		};
+//		this.activationDoneListener = new OnActivationDoneListener() {
+//
+//			@Override
+//			public void onActivationDone() {
+//				// TODO Auto-generated method stub
+//
+//			}
+//		};
+		
 	}
 
 
@@ -102,11 +137,11 @@ public class DroidActivator {
 		// // notify the listener
 		// getInstance().activationDoneListener.onActivationDone();
 
-		// run the Cycle Finished runnable
-		Runnable runnable = getInstance().cycleFinishedRunnable;
-		if (runnable != null) {
-			runnable.run();
-		}
+//		// run the Cycle Finished runnable
+//		Runnable runnable = getInstance().cycleFinishedRunnable;
+//		if (runnable != null) {
+//			runnable.run();
+//		}
 
 	}
 
@@ -122,9 +157,9 @@ public class DroidActivator {
 		if (isNetworkAvailable()) {
 
 			if (isBackendResponding()) {
-				
+
 				success = requestUpdate();
-				
+
 			}
 
 		}
@@ -139,7 +174,7 @@ public class DroidActivator {
 	 */
 	private static void doCheck() {
 
-		if (!isActivated()) {
+		if (!isActivatedInCache()) {
 			openDialog(isUseridRequested());
 		}
 
@@ -211,20 +246,7 @@ public class DroidActivator {
 	 * @param context useridRequested true if userid must be requested by the dialog
 	 */
 	private static void openDialog(boolean useridRequested) {
-		ActivationDialog dialog = new ActivationDialog(getInstance().getContext(), useridRequested);
-		dialog.setOnActivationRequestedListener(new OnActivationRequestedListener() {
-
-			@Override
-			public void onActivationRequested(boolean temporary, String userid, String code) {
-				if (temporary) {
-					doTemporaryActivation();
-				}
-				else {
-					requestActivation(userid, code);
-				}
-			}
-		});
-
+		ActivationDialog dialog = new ActivationDialog(getContext(), useridRequested, isTemporaryActivationAvailable());
 		dialog.show();
 	}
 
@@ -260,7 +282,7 @@ public class DroidActivator {
 		}
 
 		// final message
-		Context ctx = getInstance().getContext();
+		Context ctx = getContext();
 		InfoDialog dialog = new InfoDialog(ctx);
 		if (task.isSuccessful()) {
 			dialog.setTitle(R.string.congratulations);
@@ -367,9 +389,19 @@ public class DroidActivator {
 	 * Performs a Temporary Activation.
 	 * <p>Called by the Activation Dialog when Later button is pressed.
 	 */
-	private static void doTemporaryActivation() {
-		int a = 87;
-		int b = a;
+	static void doTemporaryActivation() {
+		
+		// turns the temporary activation flag on
+		setTemporarilyActivated(true);
+		
+		// save the time of the first temporary activation
+		long ts = getFirstTempActivationTS();
+		if (ts==0) {
+			Calendar c = Calendar.getInstance(); 
+			ts = c.getTimeInMillis();
+			setFirstTempActivationTS(ts);
+		}
+
 	}
 
 
@@ -473,7 +505,6 @@ public class DroidActivator {
 	}
 
 
-
 	/**
 	 * Check if network is configured and connected.
 	 * 
@@ -481,7 +512,7 @@ public class DroidActivator {
 	 */
 	static boolean isNetworkAvailable() {
 		boolean available = false;
-		Object service = getInstance().getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+		Object service = getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
 		if (service != null && service instanceof ConnectivityManager) {
 			ConnectivityManager cm = (ConnectivityManager) service;
 
@@ -624,7 +655,7 @@ public class DroidActivator {
 	 * @return the SharedPreferences object
 	 */
 	private static SharedPreferences getPrefs() {
-		SharedPreferences prefs = getInstance().getContext().getSharedPreferences(SHARED_PREFS_FILE_NAME,
+		SharedPreferences prefs = getContext().getSharedPreferences(SHARED_PREFS_FILE_NAME,
 				Context.MODE_PRIVATE);
 		return prefs;
 	}
@@ -641,56 +672,93 @@ public class DroidActivator {
 	 * @return the backend URL
 	 */
 	static URL getBackendURL() {
-		String string;
-		URL url = null;
-		string = getPrefs().getString(KEY_BACKEND_URL, "");
-		try {
-			url = new URL(string);
-		}
-		catch (MalformedURLException e) {
-			e.printStackTrace();
-		}
-		return url;
-	}
-
-
-	/**
-	 * Sets the URL of the backend.
-	 * 
-	 * @param the backend URL
-	 */
-	private static void setBackendURL(URL url) {
-		if (url != null) {
-			getPrefs().edit().putString(KEY_BACKEND_URL, url.toString()).commit();
-		}
-	}
-
-
-	/**
-	 * Sets the URL of the backend.
-	 * 
-	 * @param the backend URL as a string
-	 */
-	public static void setBackendURL(String urlString) {
-
-		URL url;
+		URL url=null;
+		
+		String urlString = getInstance().address+"/activator/activation/check";
 		try {
 			url = new URL(urlString);
-			setBackendURL(url);
 		}
 		catch (MalformedURLException e) {
 			e.printStackTrace();
 		}
 
+		return url;
 	}
+	
+	static void runRunnable(){
+		getRunnable().run();
+	}
+
+
+//	/**
+//	 * Sets the URL of the backend.
+//	 * 
+//	 * @param the backend URL
+//	 */
+//	private static void setBackendURL(URL url) {
+//		if (url != null) {
+//			getPrefs().edit().putString(KEY_BACKEND_URL, url.toString()).commit();
+//		}
+//	}
+
+	
+//	/**
+//	 * Sets the backend address and port.
+//	 * <p>Valid address are in the form "http://123.123.123.123:8080" or "http://mydomain.com:8081".
+//	 * <p>The default backend port is 8080
+//	 * 
+//	 * @param the backend address 
+//	 */
+//	private static void setBackendAddress(String address) {
+//
+//		String urlString = address+"/activator/activation/check";
+//		setBackendURL(urlString);
+//		
+//	}
+
+
+//	/**
+//	 * Sets the URL of the backend.
+//	 * 
+//	 * @param the backend URL as a string
+//	 */
+//	private static void setBackendURL(String urlString) {
+//
+//		URL url;
+//		try {
+//			url = new URL(urlString);
+//			setBackendURL(url);
+//		}
+//		catch (MalformedURLException e) {
+//			e.printStackTrace();
+//		}
+//
+//	}
 
 
 	/**
 	 * Checks if the app is currently activated from cached data.
 	 * @return whether the app is activated
 	 */
-	public static boolean isActivated() {
+	private static boolean isActivatedInCache() {
 		return getPrefs().getBoolean(KEY_ACTIVATED, false);
+	}
+
+	/**
+	 * Checks if the app is currently activated.
+	 * <p>Uses a combination of cached data and temporary activation.
+	 * <p>If Temporary Activation is on, always returns true. If off, lloks in cached data.
+	 * @return whether the app is activated
+	 */
+	public static boolean isActivated() {
+		boolean activated;
+		if (isTemporarilyActivated()) {
+			activated=true;
+		}
+		else {
+			activated=isActivatedInCache();
+		}
+		return activated;
 	}
 
 
@@ -737,9 +805,48 @@ public class DroidActivator {
 	 * 
 	 * @param expirationTs the expiration timestamp
 	 */
-	public static void setExpiration(long expirationTs) {
+	static void setExpiration(long expirationTs) {
 		getPrefs().edit().putLong(KEY_EXPIRATION, expirationTs).commit();
 	}
+	
+	/**
+	 * Saves the timestamp of the first Temporary Activation in shared preferences.
+	 * 
+	 * @param timestamp of the first Temporary Activation
+	 */
+	private static void setFirstTempActivationTS(long timestamp) {
+		getPrefs().edit().putLong(KEY_TS_FIRST_TEMP_ACTIVATION, timestamp).commit();
+	}
+	
+	/**
+	 * Returns the timestamp of the first Temporary Activation from shared preferences.
+	 * 
+	 * @return the timestamp of the first Temporary Activation
+	 */
+	private static long getFirstTempActivationTS() {
+		return getPrefs().getLong(KEY_TS_FIRST_TEMP_ACTIVATION, 0);
+	}
+
+	
+	/**
+	 * Sets the temporary activation flag.
+	 * 
+	 * @param flag the temporary activation flag
+	 */
+	public static void setTemporarilyActivated(boolean flag) {
+		getInstance().temporarilyActivated=flag;
+	}
+
+	
+	/**
+	 * Checks if the activation is temporary.
+	 * 
+	 * @return true if the activation is temporary
+	 */
+	public static boolean isTemporarilyActivated() {
+		return getInstance().temporarilyActivated;
+	}
+
 
 
 	/**
@@ -792,7 +899,7 @@ public class DroidActivator {
 	 */
 	private static String createUniqueId() {
 		String installUUID = getPrefs().getString(KEY_INSTALLATION_UUID, "");
-		String deviceUUID = new DeviceUuidFactory(getInstance().getContext()).getDeviceUuid().toString();
+		String deviceUUID = new DeviceUuidFactory(getContext()).getDeviceUuid().toString();
 
 		// create a long string
 		String longString = installUUID + deviceUUID;
@@ -825,8 +932,34 @@ public class DroidActivator {
 	}
 
 
-	private Context getContext() {
-		return context;
+	private static Context getContext() {
+		return getInstance().context;
+	}
+
+	private static Runnable getRunnable() {
+		return getInstance().runnable;
+	}
+
+	/**
+	 * Control the availability of the Temporary Activation mechanism.
+	 * 
+	 * @param true if you want it to be available to the user, false otherwise
+	 */
+	public static void setTemporaryActivationAvailable(boolean available) {
+		getInstance().temporaryActivationAvailable=available;
+	}
+	
+	private static boolean isTemporaryActivationAvailable(){
+		return getInstance().temporaryActivationAvailable;
+	}
+	
+	/**
+	 * Maximum number of days the user can delay activation by pressing "Later".
+	 * 
+	 * @param days number of days
+	 */
+	public static void setMaximumActivationDelay(int days){
+		getInstance().maxActivationDelay=days;
 	}
 
 
@@ -845,13 +978,18 @@ public class DroidActivator {
 	 * Create the Singleton instance of this class.
 	 * 
 	 * @param ctx the context
-	 * @param runnable the runnable to run when an Activation Cycle is finished
+	 * @param address the backend address
+	 * @param runnable the runnable to run to start your app when an Activation Cycle is completed.
+	 * <p>Valid backend addresses are in the form "http://123.123.123.123:8080" or 
+	 * "http://mydomain.com:8081".
+	 * <p>The default backend port is 8080.
 	 */
-	public static void newInstance(Context ctx, Runnable runnable) {
+	public static void newInstance(Context ctx, String address, Runnable runnable) {
 		if (ACTIVATOR == null) {
-			ACTIVATOR = new DroidActivator(ctx, runnable);
-			ACTIVATOR.init();
+			ACTIVATOR = new DroidActivator(ctx, address, runnable);
 		}
+		ACTIVATOR.init();
+
 	}// end of method
 
 
@@ -863,13 +1001,5 @@ public class DroidActivator {
 		return ACTIVATOR;
 	}// end of method
 
-	private interface OnUpdateDoneListener {
-
-		/**
-		 * Called when the update operation is finished.
-		 */
-		public abstract void OnUpdateDone();
-
-	}
 
 }
