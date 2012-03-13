@@ -4,6 +4,7 @@ import java.util.Calendar;
 
 import com.algos.droidactivator.dialog.WarningDialog;
 import com.algos.droidactivator.util.ElasticSpacer;
+import com.algos.droidactivator.util.Spacer;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -170,7 +171,7 @@ class ActivationDialog extends Dialog {
 		codePanel.addView(tv);
 
 		// input code field
-		wdp = 140;
+		wdp = 240;
 		widthPx = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, wdp, r.getDisplayMetrics());
 
 		et = new EditText(getContext());
@@ -224,6 +225,7 @@ class ActivationDialog extends Dialog {
 		layout.setPadding(0, 15, 0, 15);
 		if (isUseridRequested()) {
 			layout.addView(centeredUseridPanel);
+			layout.addView(new Spacer(getContext(),0,10));
 		}
 		layout.addView(centeredCodePanel);
 
