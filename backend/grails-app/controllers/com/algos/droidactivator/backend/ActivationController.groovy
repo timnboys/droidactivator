@@ -27,10 +27,19 @@ class ActivationController {
 
       if (action.equals('checkidpresent')) {
         def uniqueid = request.getHeader('uniqueid')
-        response.setHeader("present", "true")
         response.setHeader("success", "true")
         render 'true'
       }
+
+      if (action.equals('activate')) {
+        def uniqueid = request.getHeader('uniqueid')
+        def userid = request.getHeader('userid')
+        def activationCode = request.getHeader('activationcode')
+        response.setHeader("success", "false")
+        response.setHeader("message", "you are not autorized to activate")
+        render 'true'
+      }
+
 
     }
 
