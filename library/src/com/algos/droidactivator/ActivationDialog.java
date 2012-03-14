@@ -9,6 +9,7 @@ import com.algos.droidactivator.util.Spacer;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.text.Editable;
 import android.text.InputFilter;
@@ -21,6 +22,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
@@ -300,6 +302,7 @@ class ActivationDialog extends Dialog {
 
 		LinearLayout layout = new LinearLayout(getContext());
 		layout.setOrientation(LinearLayout.HORIZONTAL);
+		layout.setGravity(Gravity.BOTTOM);
 		layout.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
 
 		// add time remaining text
@@ -316,17 +319,42 @@ class ActivationDialog extends Dialog {
 		// add elastic spacer
 		layout.addView(new ElasticSpacer(getContext()));
 
-		// add powered by text
-		tv = new TextView(getContext());
-		tv.setTextSize(12);
-		tv.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-		tv.setGravity(Gravity.RIGHT);
-		tv.setText(R.string.powered_by);
-		layout.addView(tv);
+		// add powered by panel
+		layout.addView(createPoweredByPanel());
 
 		return layout;
 
 	}
+	
+	/**
+	 * Creates the Powered By panel
+	 */
+	private View createPoweredByPanel() {
+		TextView tv;
+
+		LinearLayout layout = new LinearLayout(getContext());
+		layout.setOrientation(LinearLayout.HORIZONTAL);
+		layout.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+		layout.setGravity(Gravity.BOTTOM);
+		
+		tv = new TextView(getContext());
+		tv.setTextSize(12);
+		tv.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+		tv.setGravity(Gravity.LEFT);
+		tv.setText(R.string.powered_by);
+		layout.addView(tv);
+		
+		layout.addView(new Spacer(getContext(),4,0));
+
+		Drawable d = getContext().getResources().getDrawable(R.drawable.droidactivator_logo);
+		ImageView iv = new ImageView(getContext());
+		iv.setImageDrawable(d);
+		layout.addView(iv);
+		
+		return layout;
+	}
+
+	
 
 
 	/**
