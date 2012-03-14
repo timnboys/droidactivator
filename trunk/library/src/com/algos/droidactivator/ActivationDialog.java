@@ -454,7 +454,7 @@ class ActivationDialog extends Dialog {
 
 		// perform the activation
 		if (cont) {
-			if (DroidActivator.requestActivation(getUseridString(), getCodeString())) {
+			if (DroidActivator.requestActivation(getContext(), getUseridString(), getCodeString())) {
 				dismiss();
 				DroidActivator.runRunnable();
 			}
