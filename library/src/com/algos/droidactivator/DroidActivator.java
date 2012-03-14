@@ -19,7 +19,7 @@ public class DroidActivator {
 	// a variable holding the Singleton instance of the Activator
 	private static DroidActivator ACTIVATOR = null;
 
-	// the context to obtain the SharedPreferences
+	// the global Application context, used to obtain Resources, SharedPreferences etc
 	private Context context;
 	
 	// the backend address as supplied in the constructor
@@ -58,9 +58,6 @@ public class DroidActivator {
 	// the app name passed to the backend, defaults to the current App Name
 	private String appName = "";
 
-	// listener notified when the Activation Cycle is finished
-	OnActivationDoneListener activationDoneListener;
-
 
 	// private ArrayList<OnActivationDoneListener> activationDoneListeners = new ArrayList<OnActivationDoneListener>();
 
@@ -69,7 +66,7 @@ public class DroidActivator {
 	 */
 	private DroidActivator(Context context, String address, Runnable runnable) {
 		super();
-		this.context = context;
+		this.context = context.getApplicationContext(); // this survives for all the app lifetime!
 		this.address = address;
 		this.runnable = runnable;
 	}
@@ -79,26 +76,23 @@ public class DroidActivator {
 	 * init() is called by newInstance() after the ACTIVATOR variable is set!
 	 */
 	private void init() {
-
-		// retrieve default application name
-		PackageManager packageManager = getContext().getPackageManager();
-		String appname = packageManager.getApplicationLabel(getContext().getApplicationInfo()).toString();
-		this.appName = appname;
 		
-//		// build and save full backend address
-//		setBackendAddress(this.address);
-
 		// default for temporary activation mechanism availability
 		setTemporaryActivationAvailable(true);
 
-		// set the temporary activation flag to off
-		setTemporarilyActivated(false);
-		
 		// default number of days for maximum activation delay
 		setMaximumActivationDelay(7);
 		
 		// default number of seconds user must wait before "Later" button becomes enabled
 		setTemporaryWaitTime(10);
+		
+		// set the temporary activation flag to off
+		setTemporarilyActivated(false);
+
+		// retrieve default application name
+		PackageManager packageManager = getContext().getPackageManager();
+		String appname = packageManager.getApplicationLabel(getContext().getApplicationInfo()).toString();
+		this.appName = appname;
 
 		// create and save the installation UUID in Shared Preferences if not present (first time only)
 		// this is the In stallation part of the UniqueId
@@ -108,42 +102,37 @@ public class DroidActivator {
 			setInstallationUuid(uuid.toString());
 		}
 		
+		// Device change detection: if device chenges, activation data is wiped out.
+		// If the cached UniqueId is present (activation already done), but it doesn't 
+		// correspond to the calculated Unique Id anymore, then device has changed.
+		// The app has to be re-activated. Revoke activation and delete Unique Id.
+		String cachedUid = getUniqueId();
+		if (!cachedUid.equals("")) {
+			String currUid = calcUniqueId();
+			if (!currUid.equals(cachedUid)) {
+				setActivated(false);
+				setUniqueId("");
+			}
+		}
 
-//		this.activationDoneListener = new OnActivationDoneListener() {
-//
-//			@Override
-//			public void onActivationDone() {
-//				// TODO Auto-generated method stub
-//
-//			}
-//		};
 		
 	}
 
 
 	/**
-	 * Retrieve the SharedPreferences object. The preferences file is 
-	 * created now if it doesn't exist.
+	 * Performs the Activation Cycle (update and check). 
+	 * When completed, your Runnable is run. 
 	 * 
-	 * @return the SharedPreferences object
+	 * @param context the current context
 	 */
-	public static void doActivationCycle() {
+	public static void doActivationCycle(Context context) {
 
 		// performs an Activation Update
 		// after the Activation Update the cached variables are updated
 		doUpdate();
 
 		// performs a Check (even if the update vas unsuccessful)
-		doCheck();
-
-		// // notify the listener
-		// getInstance().activationDoneListener.onActivationDone();
-
-//		// run the Cycle Finished runnable
-//		Runnable runnable = getInstance().cycleFinishedRunnable;
-//		if (runnable != null) {
-//			runnable.run();
-//		}
+		doCheck(context);
 
 	}
 
@@ -172,12 +161,14 @@ public class DroidActivator {
 
 
 	/**
-	 * Performs the Check operation
+	 * Performs the Check operation.
+	 * 
+	 * @param context the current context
 	 */
-	private static void doCheck() {
+	private static void doCheck(Context context) {
 
 		if (!isActivatedInCache()) {
-			openDialog(isUseridRequested());
+			openDialog(context, isUseridRequested());
 		}
 
 	}
@@ -243,12 +234,13 @@ public class DroidActivator {
 
 
 	/**
-	 * Presents the Activation dialog
+	 * Presents the Activation dialog.
 	 * 
+	 * @param context the current context
 	 * @param context useridRequested true if userid must be requested by the dialog
 	 */
-	private static void openDialog(boolean useridRequested) {
-		ActivationDialog dialog = new ActivationDialog(getContext(), useridRequested, isTemporaryActivationAvailable());
+	private static void openDialog(Context context, boolean useridRequested) {
+		ActivationDialog dialog = new ActivationDialog(context, useridRequested, isTemporaryActivationAvailable());
 		dialog.show();
 	}
 
@@ -256,16 +248,17 @@ public class DroidActivator {
 	/**
 	 * Requests an Activation to the backend.
 	 * <p>Called by the Activation Dialog when Activate button is pressed.
+	 * @param context the context for displaying the final message
 	 * @param userId the activation userid to use.
 	 * @param activationCode the activation code to use.
 	 * @return true if the ativation succeeded
 	 */
-	static boolean requestActivation(String userId, String activationCode) {
+	static boolean requestActivation(Context context, String userId, String activationCode) {
 
 		// retrieve the Unique Id (the cached one if present, otherwise calculated on the fly)
 		String uniqueId = getUniqueId();
 		if (uniqueId.equals("")) {
-			uniqueId = createUniqueId();
+			uniqueId = calcUniqueId();
 		}
 
 		// create the task
@@ -284,11 +277,10 @@ public class DroidActivator {
 		}
 
 		// final message
-		Context ctx = getContext();
-		InfoDialog dialog = new InfoDialog(ctx);
+		InfoDialog dialog = new InfoDialog(context);
 		if (task.isSuccessful()) {
 			dialog.setTitle(R.string.congratulations);
-			dialog.setMessage(ctx.getString(R.string.app_successfully_activated));
+			dialog.setMessage(getContext().getString(R.string.app_successfully_activated));
 		}
 		else {
 			int failureCode = task.getFailureCode();
@@ -899,7 +891,7 @@ public class DroidActivator {
 	 * 
 	 * @return the combined id
 	 */
-	private static String createUniqueId() {
+	private static String calcUniqueId() {
 		String installUUID = getPrefs().getString(KEY_INSTALLATION_UUID, "");
 		String deviceUUID = new DeviceUuidFactory(getContext()).getDeviceUuid().toString();
 
