@@ -202,11 +202,117 @@ This is an attempt to activate the installation before purchase data is added to
 
 =In your code=
 
+1. As soon as you have a Context (usually in the onCreate() method) instantiate DroidActivator calling
+
+{{{
+DroidActivator.newInstance(context, backendAddress, runnable)
+}}}
+
+DroidActivator uses the Singleton pattern, so after instantiation you don't have to keep an instance and can make only static calls.
+
+ * A context is needed for accessing Shared Preferences and resources
+ * backendAddress is a string containing the network address of your backend, in the form "http://151.10.128.32:8080" or "http://mydomain.com:8080" (8080 is the default application server port, you can change it to match your server).
+ * the runnable is an object implementing the Runnable interface whose method run() will be called when the activation process is completed. In this run() method you start up your application.
+
+For example, from your Activity onCreate() method, make this call:
+{{{
+DroidActivator.newInstance(this, "http://151.10.128.32:8080",new Runnable() {	
+	public void run() {startMyApp();}
+});
+}}}
+
+2. Just after instantiation, you can configure the Activator (optional). Here you have the chance to change the default settings if needed.
+
+{{{
+DroidActivator.setTemporaryWaitTime(20);
+}}}
+
+3. Perform the Activation Cycle. This will update the Activation status and may bring up the Activation Dialog if needed. In any case, your Runnable will be called when finished.
+
+{{{
+DroidActivator.doActivationCycle(this);
+}}}
+
+After the Activation Cycle, your startup method is called.
+
+There, you can obtain the activation status from DroidActivator and put your actions in place.
+
+This is an example of a full implementation in your startup Activity:
+
+{{{
+public void onCreate(Bundle savedInstanceState) {
+	super.onCreate(savedInstanceState);
+			
+	// instantiate DroidActivator
+	DroidActivator.newInstance(this, "http://151.10.128.32:8080",new Runnable() {	
+		public void run() {startMyApp();}
+	});
+
+	// optional: configure DroidActivator
+	DroidActivator.setTemporaryWaitTime(3);
+			
+	// perform the Activation cycle – your startup method is called when finished
+	DroidActivator.doActivationCycle(this);
+		
+}
 
 
-= Details =
+// this is your startup method
+private void startMyApp() {
 
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+	// test the activator variables and do whatever is appropriate	
+	if (DroidActivator.isActivated()) {
+		switch (DroidActivator.getLevel()) {
+		case 0:
+			startInDemoMode();
+			break;
+		case 1:
+			startInBasicMode();
+			break;
+		case 2:
+			startInProMode();
+			break;
+		}
+	}
+	else {
+		startInDemoMode();
+	}
+}
+}}}
+
+To check if the installation is activated, you call DroidActivator.isActivated(). This method returns true also if the activation is temporary. If you want to distinguish between these cases, you can also call DroidActivator.isTemporarilyActivated().
+
+To check the application level, call DroidActivator.getLevel().
+
+To use DroidActivator, your application requires the ACCESS_NETWORK_STATE permission and the INTERNET permission in the Manifest file:
+
+{{{
+<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+<uses-permission android:name="android.permission.INTERNET" />
+}}}
+
+=Registering new purchases in the backend=
+
+For the system to work, we have to mantain a registry of all the valid purchases.
+
+Periodically, we obtain evidence of the new purchases from the Marketplace.
+
+At this time, new VALID purchases are added (manually or automatically) to the Activation Registry of the backend, along with the following information:
+
+ * Order Number (Google Order Number)
+ * Customer name
+ * Customer email address
+
+and an activation code is generated, written in the Installation record and sent to the customer by email.
+
+The generated activation code is an 8-digit string from a random number generator, and every generated code is unique among the not-activated records (the records which don't have an installation id yet).
+
+=Tracking your events=
+At any time you can make a call to the backend to track a particular event.
+
+The call is performed in an unobtrusive way in a separate thread. If the call fails because backend is not reachable nothing happens and the user does not notice anything.
+
+Also if the app is not activated yet, nothing happens.
+
+You can pass through your data as an int for the event code and a string for further details.
+For each call received, a new log record is written In the backend as a child of the Installation record.
