@@ -147,7 +147,7 @@ If, after the time has expired, the user reinstalls a fresh copy of the applicat
 
 Anyway, be aware that enabling this option may permit an awkward but unlicensed usage of your app.
 
-If a temporary activation has been issued,  !DroidActivator.isActivated() returns true for the current app session, even if the activation flag is off in cached data. You can still check if this activation is temporary or final by calling  DroidActivator.isTemporarilyActivated().
+If a temporary activation has been issued,  !DroidActivator.isActivated() returns true for the current app session, even if the activation flag is off in cached data. You can still check if this activation is temporary or final by calling *!DroidActivator.isTemporarilyActivated()*.
 
 The Temporary Activation feature is optional, it's enabled by default but you can disable it by calling !DroidActivator.setTemporaryActivationAvailable(false).
 
