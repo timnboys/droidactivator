@@ -23,9 +23,9 @@ import com.algos.droidactivator.dialog.InfoDialog;
  * have to keep track of an instance and can make only static calls.
  * Usage example:
  * <code>
- * DroidActivator.newInstance(this, "http://151.10.128.32:8080",new Runnable() {   
- *         public void run() {startMyApp();}
- * });
+ * <p>DroidActivator.newInstance(this, "http://151.10.128.32:8080",new Runnable() {   
+ * <p>        public void run() {startMyApp();}
+ * <p>});
  * </code>
  */
 public class DroidActivator {
