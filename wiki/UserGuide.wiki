@@ -280,7 +280,7 @@ private void startMyApp() {
 }
 }}}
 
-To check if the installation is activated, you call !DroidActivator.isActivated(). This method returns true also if the activation is temporary. If you want to distinguish between these cases, you can also call 'DroidActivator.isTemporarilyActivated()'.
+To check if the installation is activated, you call !DroidActivator.isActivated(). This method returns true also if the activation is temporary. If you want to distinguish between these cases, you can also call *!DroidActivator.isTemporarilyActivated()*.
 
 To check the application level, call !DroidActivator.getLevel().
 
