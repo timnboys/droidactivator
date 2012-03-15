@@ -70,11 +70,11 @@
             </li>
         </g:if>
 
-        <g:if test="${activationInstance?.userGoogleMail}">
+        <g:if test="${activationInstance?.userID}">
             <li class="fieldcontain">
-                <span id="userGoogleMail-label" class="property-label"><g:message code="activation.userGoogleMail.label" default="User Google Mail"/></span>
+                <span id="userID-label" class="property-label"><g:message code="activation.userID.label" default="User ID"/></span>
 
-                <span class="property-value" aria-labelledby="userGoogleMail-label"><g:fieldValue bean="${activationInstance}" field="userGoogleMail"/></span>
+                <span class="property-value" aria-labelledby="userID-label"><g:fieldValue bean="${activationInstance}" field="userID"/></span>
 
             </li>
         </g:if>
@@ -93,15 +93,6 @@
                 <span id="uniqueID-label" class="property-label"><g:message code="activation.uniqueID.label" default="Unique ID"/></span>
 
                 <span class="property-value" aria-labelledby="uniqueID-label"><g:fieldValue bean="${activationInstance}" field="uniqueID"/></span>
-
-            </li>
-        </g:if>
-
-        <g:if test="${activationInstance?.userID}">
-            <li class="fieldcontain">
-                <span id="userID-label" class="property-label"><g:message code="activation.userID.label" default="User ID"/></span>
-
-                <span class="property-value" aria-labelledby="userID-label"><g:fieldValue bean="${activationInstance}" field="userID"/></span>
 
             </li>
         </g:if>

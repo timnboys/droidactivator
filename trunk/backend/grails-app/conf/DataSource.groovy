@@ -20,12 +20,12 @@ hibernate {
 environments {
     development {
         dataSource {
-            //driverClassName = "com.mysql.jdbc.Driver"
-            //dbCreate = "update" // one of 'create', 'create-drop','update'
-            //url = "jdbc:mysql://localhost/${dataBase}?useUnicode=yes&characterEncoding=UTF-8"
-            driverClassName = "org.h2.Driver"
-            dbCreate = "create-drop" // one of 'create', 'create-drop', 'update', 'validate', ''
-            url = "jdbc:h2:mem:devDb;MVCC=TRUE"
+            driverClassName = "com.mysql.jdbc.Driver"
+            dbCreate = "update" // one of 'create', 'create-drop','update'
+            url = "jdbc:mysql://localhost/${dataBase}?useUnicode=yes&characterEncoding=UTF-8"
+            //driverClassName = "org.h2.Driver"
+            //dbCreate = "create-drop" // one of 'create', 'create-drop', 'update', 'validate', ''
+            //url = "jdbc:h2:mem:devDb;MVCC=TRUE"
         }
     }
     test {
@@ -37,7 +37,7 @@ environments {
     }
     production {
         dataSource {
-            driverClassName = "org.h2.Driver"
+            driverClassName = "com.mysql.jdbc.Driver"
             dbCreate = "update" // one of 'create', 'create-drop','update'
             url = "jdbc:mysql://localhost/${dataBase}?useUnicode=yes&characterEncoding=UTF-8"
         } // end of dataSource

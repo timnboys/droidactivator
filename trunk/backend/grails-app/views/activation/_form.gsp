@@ -42,12 +42,12 @@
     <g:field type="number" name="level" required="" value="${fieldValue(bean: activationInstance, field: 'level')}"/>
 </div>
 
-<div class="fieldcontain ${hasErrors(bean: activationInstance, field: 'userGoogleMail', 'error')} required">
-    <label for="userGoogleMail">
-        <g:message code="activation.userGoogleMail.label" default="User Google Mail"/>
+<div class="fieldcontain ${hasErrors(bean: activationInstance, field: 'userID', 'error')} required">
+    <label for="userID">
+        <g:message code="activation.userID.label" default="User ID"/>
         <span class="required-indicator">*</span>
     </label>
-    <g:field type="email" name="userGoogleMail" required="" value="${activationInstance?.userGoogleMail}"/>
+    <g:field type="email" name="userID" required="" value="${activationInstance?.userID}"/>
 </div>
 
 <div class="fieldcontain ${hasErrors(bean: activationInstance, field: 'expiration', 'error')} ">
@@ -64,14 +64,6 @@
 
     </label>
     <g:textField name="uniqueID" value="${activationInstance?.uniqueID}"/>
-</div>
-
-<div class="fieldcontain ${hasErrors(bean: activationInstance, field: 'userID', 'error')} required">
-    <label for="userID">
-        <g:message code="activation.userID.label" default="User ID"/>
-        <span class="required-indicator">*</span>
-    </label>
-    <g:field type="number" name="userID" required="" value="${fieldValue(bean: activationInstance, field: 'userID')}"/>
 </div>
 
 <div class="fieldcontain ${hasErrors(bean: activationInstance, field: 'userName', 'error')} ">
