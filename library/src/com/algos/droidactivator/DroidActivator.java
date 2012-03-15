@@ -18,13 +18,13 @@ import com.algos.droidactivator.dialog.InfoDialog;
 
 /**
  * Main DroidActivator's class.
- * <p>This is istantiated by calling the newInstance() method.
+ * <p>This is instantiated by calling the newInstance() method.
  * <p>DroidActivator uses the Singleton pattern, so after instantiation you don't 
- * have to keep track of an instance and can make only static calls.
- * Usage example:
+ * have to keep track of an instance and you make only static calls.
+ * <p>Usage example:
  * <code>
  * <p>DroidActivator.newInstance(this, "http://151.10.128.32:8080",new Runnable() {   
- * <p>        public void run() {startMyApp();}
+ * <p>	public void run() {startMyApp();}
  * <p>});
  * </code>
  */
@@ -74,8 +74,6 @@ public class DroidActivator {
 	static String KEY_INSTALLATION_UUID = "installation_UUID";
 	static String KEY_UNIQUEID = "uniqueid";
 	static String KEY_TS_FIRST_TEMP_ACTIVATION = "first_temp_activation";	// the timestamp of the first Temporary Activation
-	//static String KEY_BACKEND_URL = "backend_url";
-	//static String KEY_MAX_ACTIVATION_DELAY_DAYS = "max_activation_delay";
 
 	// the app name passed to the backend, defaults to the current App Name
 	private String appName = "";
@@ -153,7 +151,7 @@ public class DroidActivator {
 		// after the Activation Update the cached variables are updated
 		doUpdate();
 
-		// performs a Check (even if the update vas unsuccessful)
+		// performs a Check (even if the update was unsuccessful)
 		doCheck(context);
 
 	}
@@ -349,7 +347,22 @@ public class DroidActivator {
 	 * @return a failure string in the current language
 	 */
 	private static String getFailureString(int failureCode) {
-		return "generic failure";
+		String failureString="";
+		switch (failureCode) {
+		case 1:
+			failureString=getContext().getString(R.string.wrong_activation_code);
+			break;
+		case 2:
+			failureString=getContext().getString(R.string.wrong_app_name);		
+			break;
+		case 3:
+			failureString=getContext().getString(R.string.userid_not_found);		
+			break;
+		default:
+			failureString=getContext().getString(R.string.unrecognized_error)+": "+failureCode;
+			break;
+		}
+		return failureString;
 	}
 
 	/**
@@ -394,7 +407,14 @@ public class DroidActivator {
 			}
 			else {
 				setActivated(false);
-				this.failureCode = response.getInt("failurecode");
+				String failureString = response.getString("failurecode");
+				int code=0;
+				try {
+					code = Integer.parseInt(failureString);;
+				}
+				catch (Exception e) {
+				}
+				this.failureCode = code;
 				this.successful = false;
 			}
 
@@ -733,52 +753,6 @@ public class DroidActivator {
 	}
 
 
-//	/**
-//	 * Sets the URL of the backend.
-//	 * 
-//	 * @param the backend URL
-//	 */
-//	private static void setBackendURL(URL url) {
-//		if (url != null) {
-//			getPrefs().edit().putString(KEY_BACKEND_URL, url.toString()).commit();
-//		}
-//	}
-
-	
-//	/**
-//	 * Sets the backend address and port.
-//	 * <p>Valid address are in the form "http://123.123.123.123:8080" or "http://mydomain.com:8081".
-//	 * <p>The default backend port is 8080
-//	 * 
-//	 * @param the backend address 
-//	 */
-//	private static void setBackendAddress(String address) {
-//
-//		String urlString = address+"/activator/activation/check";
-//		setBackendURL(urlString);
-//		
-//	}
-
-
-//	/**
-//	 * Sets the URL of the backend.
-//	 * 
-//	 * @param the backend URL as a string
-//	 */
-//	private static void setBackendURL(String urlString) {
-//
-//		URL url;
-//		try {
-//			url = new URL(urlString);
-//			setBackendURL(url);
-//		}
-//		catch (MalformedURLException e) {
-//			e.printStackTrace();
-//		}
-//
-//	}
-
-
 	/**
 	 * Checks if the app is currently activated from cached data.
 	 * @return whether the app is activated
@@ -1060,19 +1034,6 @@ public class DroidActivator {
 	public static void setDialogCustomText(String text){
 		getInstance().dialogCustomText=text;
 	}
-
-	
-
-	// /**
-	// * Create the Singleton instance of this class.
-	// *
-	// * @param ctx the context
-	// * @param runnable the runnable to run when an Activation Cycle is finished
-	// */
-	// public static void newInstance(Context ctx, Runnable runnable) {
-	// if (ACTIVATOR == null)
-	// ACTIVATOR = new DroidActivator(ctx, runnable);
-	// }// end of method
 
 	/**
 	 * Create the Singleton instance of this class.
