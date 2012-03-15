@@ -36,7 +36,7 @@
 
             <g:sortableColumn property="level" title="${message(code: 'activation.level.label', default: 'Level')}"/>
 
-            <g:sortableColumn property="userGoogleMail" title="${message(code: 'activation.userGoogleMail.label', default: 'User Google Mail')}"/>
+            <g:sortableColumn property="userID" title="${message(code: 'activation.userID.label', default: 'User ID')}"/>
 
         </tr>
         </thead>
@@ -54,7 +54,7 @@
 
                 <td>${fieldValue(bean: activationInstance, field: "level")}</td>
 
-                <td>${fieldValue(bean: activationInstance, field: "userGoogleMail")}</td>
+                <td>${fieldValue(bean: activationInstance, field: "userID")}</td>
 
             </tr>
         </g:each>

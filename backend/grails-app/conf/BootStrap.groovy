@@ -18,8 +18,8 @@ class BootStrap {
     private void testData() {
         // Check whether the test data already exists.
         if (!Activation.count()) {
-            new Activation(appName: 'eStudio', paid: true, amount: 59, level: 1, userGoogleMail: 'alex@algos.it', expiration: new Date() + 7).save(failOnError: true)
-            new Activation(appName: 'eStudio', paid: true, amount: 59, active: true, level: 1, userGoogleMail: 'gac@algos.it', uniqueID: 'g8F3GvVNqi1RpJqIXN1QeJRibRME1fo8UZwiKZCddE').save(failOnError: true)
+            new Activation(appName: 'eStudio', paid: true, amount: 59, active: false, level: 1, userID: 'alex@algos.it', expiration: new Date() + 7).save(failOnError: true)
+            new Activation(appName: 'eStudio', paid: true, amount: 59, active: true, level: 1, userID: 'gac@algos.it', uniqueID: 'g8F3GvVNqi1RpJqIXN1QeJRibRME1fo8UZwiKZCddE').save(failOnError: true)
         }// fine del blocco if
     }
 
