@@ -34,6 +34,14 @@
     <g:checkBox name="active" value="${activationInstance?.active}"/>
 </div>
 
+<div class="fieldcontain ${hasErrors(bean: activationInstance, field: 'uniqueID', 'error')} ">
+    <label for="uniqueID">
+        <g:message code="activation.uniqueID.label" default="Unique ID"/>
+
+    </label>
+    <g:textField name="uniqueID" value="${activationInstance?.uniqueID}"/>
+</div>
+
 <div class="fieldcontain ${hasErrors(bean: activationInstance, field: 'level', 'error')} required">
     <label for="level">
         <g:message code="activation.level.label" default="Level"/>
@@ -58,12 +66,12 @@
     <g:datePicker name="expiration" precision="day" value="${activationInstance?.expiration}" default="none" noSelection="['': '']"/>
 </div>
 
-<div class="fieldcontain ${hasErrors(bean: activationInstance, field: 'uniqueID', 'error')} ">
-    <label for="uniqueID">
-        <g:message code="activation.uniqueID.label" default="Unique ID"/>
+<div class="fieldcontain ${hasErrors(bean: activationInstance, field: 'activationCode', 'error')} ">
+    <label for="activationCode">
+        <g:message code="activation.activationCode.label" default="Activation Code"/>
 
     </label>
-    <g:textField name="uniqueID" value="${activationInstance?.uniqueID}"/>
+    <g:textField name="activationCode" value="${activationInstance?.activationCode}"/>
 </div>
 
 <div class="fieldcontain ${hasErrors(bean: activationInstance, field: 'userName', 'error')} ">

@@ -12,10 +12,11 @@ class Activation {
     def boolean paid = false
     def int amount
     def boolean active = false
+    def String uniqueID = ''
     def int level = 0
     def String userID
     def Date expiration
-    def String uniqueID = ''
+    def String activationCode = ''
     def String userName = ''
     def String userAddress = ''
     def String userCategory = ''
@@ -28,10 +29,11 @@ class Activation {
         paid(nullable: false)
         amount(nullable: true, blank: true)
         active(nullable: false)
+        uniqueID(nullable: true, blank: true)
         level(nullable: false, blank: false)
         userID(nullable: false, blank: false, email: true)
         expiration(nullable: true, formatoData: SDF)
-        uniqueID(nullable: true, blank: true)
+        activationCode(nullable: true, blank: true)
         userName(nullable: true, blank: true)
         userCategory(nullable: true, blank: true)
         userCurrentMail(nullable: true, blank: true)

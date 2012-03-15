@@ -3,6 +3,9 @@ package com.algos.droidactivator.backend
 import org.springframework.dao.DataIntegrityViolationException
 
 class ActivationController {
+    // utilizzo di un service con la businessLogic per l'elaborazione dei dati
+    // il service viene iniettato automaticamente
+    def activationService
 
     static allowedMethods = [save: "POST", update: "POST", delete: "POST"]
 
@@ -13,72 +16,42 @@ class ActivationController {
 
 
     def check() {
-        boolean cont = true
-
         def action = request.getHeader('action')
         def appName = request.getHeader('appname')
 
-        if (action) {
 
-            if (action.equals('checkresponding')) {
-                response.setHeader("success", "true")
-                render 'OK'
-            }
-
-            if (action.equals('checkidpresent')) {
-                def uniqueid = request.getHeader('uniqueid')
-                response.setHeader("success", "true")
-                render 'OK'
-            }
-
-            /**
-             * The backend receives the activation request whth the params
-             * @param uniqueid - the unique id (always present)
-             * @param
-             *
-             */
-            if (action.equals('activate')) {
-                def uniqueid = request.getHeader('uniqueid')
-                def userid = request.getHeader('userid')
-                def activationCode = request.getHeader('activationcode')
-                response.setHeader("success", "false")
-                response.setHeader("failurecode", "3")
-                render 'OK'
-            }
-
-            if (action.equals('update')) {
-                def uniqueid = request.getHeader('uniqueid')
-                response.setHeader("success", "true")
-                response.setHeader("activated", "false")
-                response.setHeader("expiration", "0")
-                response.setHeader("level", "0")
-                render 'OK'
-            }
-
-
+        if (action && action.equals('checkresponding')) {
+            render activationService.connectionRequest(request, response)
         }
 
-//    def uniqueid = request.getHeader('uniqueid')
-//
-//    if (action && action.equals('checkresponding')) {
-//      response.setHeader("success", "true")
-//      render 'true'
-//    } else {
-//      response.setHeader("success", "true")
-//      if (action && action.equals('checkid')) {
-//        response.setHeader('action', 'true')
-//        response.setHeader('appname', 'appname')
-//        response.setHeader('uniqueid', 'true')
-//        render 'true'
-//      } else {
-//        response.setHeader("action", "topolinoz")
-//        render 'false'
-//      }// fine del blocco if-else
-//      render 'false'
-//    }// fine del blocco if-else
-    }
+        if (action && action.equals('checkidpresent')) {
+            render activationService.idRequest(request, response)
+        }
 
+        /**
+         * The backend receives the activation request whth the params
+         * First, the Installation record is searched by Unique ID.
+         * If not found, it is searched by User's e-mail address.
+         *
+         * @param uniqueid - Unique Id (always present)
+         * @param userid - User's e-mail address (if provided)
+         * @param activationcode - Activation Code (always present)
+         */
+        if (action && action.equals('activate')) {
+            render activationService.activationRequest(request, response)
+        }// fine del blocco if
 
+        /**
+         * The backend receives the update request along with the following parameters:
+         *
+         * @param uniqueid - the cached Unique Id
+         */
+        if (action && action.equals('update')) {
+            render activationService.updateRequest(request, response)
+        }
+
+        render 'FAILURE'
+    }// end of closure
 
 
     def list() {

@@ -61,6 +61,15 @@
             </li>
         </g:if>
 
+        <g:if test="${activationInstance?.uniqueID}">
+            <li class="fieldcontain">
+                <span id="uniqueID-label" class="property-label"><g:message code="activation.uniqueID.label" default="Unique ID"/></span>
+
+                <span class="property-value" aria-labelledby="uniqueID-label"><g:fieldValue bean="${activationInstance}" field="uniqueID"/></span>
+
+            </li>
+        </g:if>
+
         <g:if test="${activationInstance?.level}">
             <li class="fieldcontain">
                 <span id="level-label" class="property-label"><g:message code="activation.level.label" default="Level"/></span>
@@ -88,11 +97,11 @@
             </li>
         </g:if>
 
-        <g:if test="${activationInstance?.uniqueID}">
+        <g:if test="${activationInstance?.activationCode}">
             <li class="fieldcontain">
-                <span id="uniqueID-label" class="property-label"><g:message code="activation.uniqueID.label" default="Unique ID"/></span>
+                <span id="activationCode-label" class="property-label"><g:message code="activation.activationCode.label" default="Activation Code"/></span>
 
-                <span class="property-value" aria-labelledby="uniqueID-label"><g:fieldValue bean="${activationInstance}" field="uniqueID"/></span>
+                <span class="property-value" aria-labelledby="activationCode-label"><g:fieldValue bean="${activationInstance}" field="activationCode"/></span>
 
             </li>
         </g:if>

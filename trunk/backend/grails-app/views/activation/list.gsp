@@ -34,9 +34,9 @@
 
             <g:sortableColumn property="active" title="${message(code: 'activation.active.label', default: 'Active')}"/>
 
-            <g:sortableColumn property="level" title="${message(code: 'activation.level.label', default: 'Level')}"/>
+            <g:sortableColumn property="uniqueID" title="${message(code: 'activation.uniqueID.label', default: 'Unique ID')}"/>
 
-            <g:sortableColumn property="userID" title="${message(code: 'activation.userID.label', default: 'User ID')}"/>
+            <g:sortableColumn property="level" title="${message(code: 'activation.level.label', default: 'Level')}"/>
 
         </tr>
         </thead>
@@ -52,9 +52,9 @@
 
                 <td><g:formatBoolean boolean="${activationInstance.active}"/></td>
 
-                <td>${fieldValue(bean: activationInstance, field: "level")}</td>
+                <td>${fieldValue(bean: activationInstance, field: "uniqueID")}</td>
 
-                <td>${fieldValue(bean: activationInstance, field: "userID")}</td>
+                <td>${fieldValue(bean: activationInstance, field: "level")}</td>
 
             </tr>
         </g:each>
