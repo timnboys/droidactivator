@@ -11,6 +11,8 @@ import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
+import android.view.View;
+import android.widget.TextView;
 
 import com.algos.droidactivator.dialog.InfoDialog;
 
@@ -40,6 +42,14 @@ public class DroidActivator {
 	// flag turned on when a Temporary Activation is issued.
 	// if this flag is on, the isActivated() method returns always true
 	private boolean temporarilyActivated;
+	
+	// a view to display in the message area of the dialog instead of the default message view
+	// if a custom view is specified, the custom view takes precedence over the custom text
+	private View dialogCustomView;
+	
+	// a text to display in the message view instead of the standard message
+	// if a custom view is specified, the custom view takes precedence over the custom text
+	private String dialogCustomText;
 
 	// the shared preferences file name
 	private static String SHARED_PREFS_FILE_NAME = "droidActivatorData";
@@ -240,8 +250,35 @@ public class DroidActivator {
 	 * @param context useridRequested true if userid must be requested by the dialog
 	 */
 	private static void openDialog(Context context, boolean useridRequested) {
-		ActivationDialog dialog = new ActivationDialog(context, useridRequested, isTemporaryActivationAvailable());
+		ActivationDialog dialog = new ActivationDialog(context, useridRequested, isTemporaryActivationAvailable(), createDialogView(context));
 		dialog.show();
+	}
+	
+	/**
+	 * Creates the View shown in the message area the dialog.
+	 * 
+	 * @param the context for the view if created here
+	 * @return the message view
+	 */
+	private static View createDialogView(Context context){
+		View view;
+		if (getInstance().dialogCustomView!=null) {
+			view=getInstance().dialogCustomView;
+		}
+		else {
+			
+			TextView tv = new TextView(context);
+			String cText = getInstance().dialogCustomText;
+			if (!Lib.getString(cText).equals("")) {
+				tv.setText(cText);
+			}
+			else {
+				tv.setText(R.string.dialog_message);
+			}
+			view=tv;
+
+		}
+		return view;
 	}
 
 
@@ -985,6 +1022,34 @@ public class DroidActivator {
 	}
 
 
+	// a view to display in the message area of the dialog instead of the default message view
+	// if a custom view is specified, the custom view takes precedence over the custom text
+
+	/**
+	 * Sets a view to be displayed in the message area of the 
+	 * dialog instead of the default message view.
+	 * <p>If a custom view is specified, the custom view takes precedence 
+	 * over the custom text.
+	 * 
+	 * @param view the custom view
+	 */
+	public static void setDialogCustomView(View view){
+		getInstance().dialogCustomView=view;
+	}
+	
+	
+	/**
+	 * Sets a text to display in the message view instead of the standard message.
+	 * <p>If a custom view is specified, the custom view takes precedence 
+	 * over the custom text.
+	 * 
+	 * @param text the custom text
+	 */
+	public static void setDialogCustomText(String text){
+		getInstance().dialogCustomText=text;
+	}
+
+	
 
 	// /**
 	// * Create the Singleton instance of this class.

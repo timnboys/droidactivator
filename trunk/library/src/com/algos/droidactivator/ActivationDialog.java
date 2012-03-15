@@ -36,12 +36,20 @@ class ActivationDialog extends Dialog {
 	private boolean waitTimeElapsed = false; // turned on when the wait time to press Later has elapsed
 	private EditText inputUseridField;
 	private EditText inputCodeField;
+	private View messageView;
 
 
-	ActivationDialog(Context context, boolean useridRequested, boolean temporaryActivationAvailable) {
+	/**
+	 * @param context the context
+	 * @param useridRequested true if the userid field is requested
+	 * @param temporaryActivationAvailable whether the Temporary Activation option should be available
+	 * @param messageView the view to show in the message area of the dialog
+	 */
+	ActivationDialog(Context context, boolean useridRequested, boolean temporaryActivationAvailable, View messageView) {
 		super(context);
 		this.useridRequested = useridRequested;
 		this.temporaryActivationAvailable = temporaryActivationAvailable;
+		this.messageView=messageView;
 		init();
 	}
 
@@ -92,10 +100,8 @@ class ActivationDialog extends Dialog {
 		vLayout.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 		vLayout.setPadding(10, 10, 10, 10);
 
-		// add message panel
-		tv = new TextView(getContext());
-		tv.setText(R.string.dialog_message);
-		vLayout.addView(tv);
+		// add message view
+		vLayout.addView(this.messageView);
 
 		// add input panel
 		vLayout.addView(createInputPanel());
@@ -109,8 +115,8 @@ class ActivationDialog extends Dialog {
 		return vLayout;
 
 	}
-
-
+	
+	
 	/**
 	 * Creates the input panel
 	 */
