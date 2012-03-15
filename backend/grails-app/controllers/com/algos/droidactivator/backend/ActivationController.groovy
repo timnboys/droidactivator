@@ -19,7 +19,6 @@ class ActivationController {
         def action = request.getHeader('action')
         def appName = request.getHeader('appname')
 
-
         if (action && action.equals('checkresponding')) {
             render activationService.connectionRequest(request, response)
         }

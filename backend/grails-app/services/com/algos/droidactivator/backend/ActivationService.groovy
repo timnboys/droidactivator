@@ -31,7 +31,13 @@ class ActivationService {
                 // Success: send back Success flag,
                 response.setHeader('success', 'true')
                 risposta = 'OK'
-            }// fine del blocco if
+            } else {
+                // Failure: send back Failure flag.
+                response.setHeader('success', 'false')
+
+                // Failure: Failure code.
+                response.setHeader("failurecode", '5')
+            }// fine del blocco if-else
         }// fine del blocco if
 
         return risposta
@@ -83,7 +89,7 @@ class ActivationService {
                     response.setHeader('success', 'false')
 
                     // Failure: Failure code.
-                    response.setHeader("failurecode", "3")
+                    response.setHeader("failurecode", '1')
                 }// fine del blocco if-else
             } else {
                 // If not found, it is searched by User's e-mail address.
@@ -91,7 +97,7 @@ class ActivationService {
                 if (activationRecord) {
 
                     // This is a new activation: check the code.
-                    if (isActivationCodeAndAppName(activationcode, appName)) {
+                    if (isActivationCodeAndAppName(response, activationRecord, activationcode, appName)) {
                         // Success: set the Activation flag to true
                         activationRecord.active = true
                         activationRecord.save(flush: true)
@@ -114,9 +120,6 @@ class ActivationService {
                     } else {
                         // Failure: send back Failure flag.
                         response.setHeader('success', 'false')
-
-                        // Failure: Failure code.
-                        response.setHeader("failurecode", "4")
                     }// fine del blocco if-else
 
                 } else {
@@ -126,7 +129,7 @@ class ActivationService {
                     response.setHeader('success', 'false')
 
                     // Failure: Failure code.
-                    response.setHeader("failurecode", "5")
+                    response.setHeader("failurecode", '3')
                 }// fine del blocco if-else
             }// fine del blocco if-else
         } else {
@@ -134,7 +137,7 @@ class ActivationService {
             response.setHeader('success', 'false')
 
             // Failure: Failure code.
-            response.setHeader("failurecode", "6")
+            response.setHeader("failurecode", '4')
         }// fine del blocco if-else
 
         return risposta
@@ -162,6 +165,13 @@ class ActivationService {
                 response.setHeader('success', 'true')
                 risposta = 'OK'
 
+                //
+                if (activationRecord.active) {
+                    response.setHeader('activated', 'true')
+                } else {
+                    response.setHeader('activated', 'false')
+                }// fine del blocco if-else
+
                 // Success: set the Activation flag to true
                 activationRecord.active = true
                 activationRecord.save(flush: true)
@@ -181,7 +191,7 @@ class ActivationService {
                 response.setHeader('success', 'false')
 
                 // Failure: Failure code.
-                response.setHeader("failurecode", "7")
+                response.setHeader("failurecode", '5')
             }// fine del blocco if-else
 
         }// fine del blocco if
@@ -261,20 +271,33 @@ class ActivationService {
      * @param appName - Application name
      */
 
-    private boolean isActivationCodeAndAppName(String activationcode, String appName) {
+    private boolean isActivationCodeAndAppName(HttpServletResponse response, Activation activationRecord, String activationcode, String appName) {
         boolean found = false
-        Activation activationRecord
+        String recActivationCode
+        String recAppName
 
-        if (activationcode && appName) {
-            if (isActivationCodeTrue(activationcode)) {
-                activationRecord = Activation.findByActivationCode(activationcode)
-                if (appName.equals(activationRecord.appName)) {
-                    found = true
+        if (activationRecord && activationcode && appName) {
+            recActivationCode = activationRecord.activationCode
+            recAppName = activationRecord.appName
+
+            if (activationcode.equals(recActivationCode) && appName.equals(recAppName)) {
+                found = true
+            } else {
+                if (!activationcode.equals(recActivationCode)) {
+                    // Failure: Failure code.
+                    response.setHeader("failurecode", '1')
                 }// fine del blocco if
-            }// fine del blocco if
+
+                if (!appName.equals(recAppName)) {
+                    // Failure: Failure code.
+                    response.setHeader("failurecode", '2')
+                }// fine del blocco if
+            }// fine del blocco if-else
+
         }// fine del blocco if
 
         return found
     }// fine del metodo
+
 
 }// fine del service

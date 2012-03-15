@@ -39,7 +39,7 @@
         <g:message code="activation.uniqueID.label" default="Unique ID"/>
 
     </label>
-    <g:textField name="uniqueID" value="${activationInstance?.uniqueID}"/>
+    <g:textField name="uniqueID" readonly="readonly" value="${activationInstance?.uniqueID}"/>
 </div>
 
 <div class="fieldcontain ${hasErrors(bean: activationInstance, field: 'level', 'error')} required">
