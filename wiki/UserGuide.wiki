@@ -2,7 +2,7 @@
 
 = Introduction =
 
-DroidActivator is designed to:
+!DroidActivator is designed to:
  * perform application activation on your remote server and block stolen apps
  * manage application levels (sell app in different levels or configurations)
  * manage activation expiration (i.e. renewal, yearly fees)
@@ -11,7 +11,7 @@ DroidActivator is designed to:
 
 It is composed by a grails/mysql backend where valid purchases along with activation data are stored, and an Android library acting as a bridge between the backend and the application.
 
-DroidActivator's philosophy is to perform the activation in an unobtrusive and non-blocking way. User is asked to perform activation only when really needed, he is allowed to change the device, to reinstall a fresh app and re-obtain his rights easily, and both the user and the activation manager have the time to manage the activation smoothly and with no hassle.
+!DroidActivator's philosophy is to perform the activation in an unobtrusive and non-blocking way. User is asked to perform activation only when really needed, he is allowed to change the device, to reinstall a fresh app and re-obtain his rights easily, and both the user and the activation manager have the time to manage the activation smoothly and with no hassle.
 
 Only when all the time margins are gone, activation becomes mandatory, and even in that case, its up to you to decide what to do in case of activation failure (e.g. run in demo mode).
 
@@ -141,15 +141,15 @@ When the Activation dialog comes up, there is an option to perform a Temporary A
 
 This is intended to allow the user to use your app while he/she is waiting to receive from you the Activation Code (you have to receive proof of the purchase from the marketplace and load it to the backend first!).
 
-This option will be available for a limited number of days since the first run (you configure it by calling DroidActivator.setMaximumActivationDelay()), then activation will become mandatory (the option is disabled and the user can only Confirm or Cancel the activation dialog).
+This option will be available for a limited number of days since the first run (you configure it by calling !DroidActivator.setMaximumActivationDelay()), then activation will become mandatory (the option is disabled and the user can only Confirm or Cancel the activation dialog).
 
-If, after the time has expired, the user reinstalls a fresh copy of the application (therefore loosing all data!) the temporary activation option becomes available again. You can make this more annoying by specifying the time the user has to wait to press the “Later” button and have acces to your application. This is done by calling DroidActivator.setTemporaryWaitTime().
+If, after the time has expired, the user reinstalls a fresh copy of the application (therefore loosing all data!) the temporary activation option becomes available again. You can make this more annoying by specifying the time the user has to wait to press the “Later” button and have acces to your application. This is done by calling !DroidActivator.setTemporaryWaitTime().
 
 Anyway, be aware that enabling this option may permit an awkward but unlicensed usage of your app.
 
-If a temporary activation has been issued,  DroidActivator.isActivated() returns true for the current app session, even if the activation flag is off in cached data. You can still check if this activation is temporary or final by calling  DroidActivator.isTemporarilyActivated().
+If a temporary activation has been issued,  !DroidActivator.isActivated() returns true for the current app session, even if the activation flag is off in cached data. You can still check if this activation is temporary or final by calling  DroidActivator.isTemporarilyActivated().
 
-The Temporary Activation feature is optional, it's enabled by default but you can disable it by calling DroidActivator.setTemporaryActivationAvailable(false).
+The Temporary Activation feature is optional, it's enabled by default but you can disable it by calling !DroidActivator.setTemporaryActivationAvailable(false).
 
 =From the backend perspective=
 
@@ -202,13 +202,13 @@ This is an attempt to activate the installation before purchase data is added to
 
 =In your code=
 
-1. As soon as you have a Context (usually in the onCreate() method) instantiate DroidActivator calling
+1. As soon as you have a Context (usually in the onCreate() method) instantiate !DroidActivator calling
 
 {{{
 DroidActivator.newInstance(context, backendAddress, runnable)
 }}}
 
-DroidActivator uses the Singleton pattern, so after instantiation you don't have to keep an instance and can make only static calls.
+!DroidActivator uses the Singleton pattern, so after instantiation you don't have to keep an instance and can make only static calls.
 
  * A context is needed for accessing Shared Preferences and resources
  * backendAddress is a string containing the network address of your backend, in the form "http://151.10.128.32:8080" or "http://mydomain.com:8080" (8080 is the default application server port, you can change it to match your server).
@@ -235,7 +235,7 @@ DroidActivator.doActivationCycle(this);
 
 After the Activation Cycle, your startup method is called.
 
-There, you can obtain the activation status from DroidActivator and put your actions in place.
+There, you can obtain the activation status from !DroidActivator and put your actions in place.
 
 This is an example of a full implementation in your startup Activity:
 
@@ -280,9 +280,9 @@ private void startMyApp() {
 }
 }}}
 
-To check if the installation is activated, you call !DroidActivator.isActivated(). This method returns true also if the activation is temporary. If you want to distinguish between these cases, you can also call DroidActivator.isTemporarilyActivated().
+To check if the installation is activated, you call !DroidActivator.isActivated(). This method returns true also if the activation is temporary. If you want to distinguish between these cases, you can also call `DroidActivator.isTemporarilyActivated()`.
 
-To check the application level, call DroidActivator.getLevel().
+To check the application level, call !DroidActivator.getLevel().
 
 To use DroidActivator, your application requires the ACCESS_NETWORK_STATE permission and the INTERNET permission in the Manifest file:
 
