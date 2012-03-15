@@ -29,7 +29,7 @@ class Activation {
         paid(nullable: false)
         amount(nullable: true, blank: true)
         active(nullable: false)
-        uniqueID(nullable: true, blank: true)
+        uniqueID(nullable: true, blank: true, editable: false)
         level(nullable: false, blank: false)
         userID(nullable: false, blank: false, email: true)
         expiration(nullable: true, formatoData: SDF)
