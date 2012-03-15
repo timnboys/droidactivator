@@ -16,6 +16,18 @@ import android.widget.TextView;
 
 import com.algos.droidactivator.dialog.InfoDialog;
 
+/**
+ * Main DroidActivator's class.
+ * <p>This is istantiated by calling the newInstance() method.
+ * <p>DroidActivator uses the Singleton pattern, so after instantiation you don't 
+ * have to keep track of an instance and can make only static calls.
+ * Usage example:
+ * <code>
+ * DroidActivator.newInstance(this, "http://151.10.128.32:8080",new Runnable() {   
+ *         public void run() {startMyApp();}
+ * });
+ * </code>
+ */
 public class DroidActivator {
 
 	// a variable holding the Singleton instance of the Activator
