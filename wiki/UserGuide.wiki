@@ -118,7 +118,7 @@ So, before presenting the activation dialog, we perform a check on the backend f
 
 ===The Unique Id is not present in cached data===
 
-This means it is the first activation or a re-activation after a fresh reinstallation or a device change (when a device change is detected by !DroidActivator, activation is revoked and Unique Id is wiped out). We need to identify the customer again, so we need the registered e-mail address.
+This means it is the first activation or a re-activation after a fresh reinstallation or a device change (when a device change is detected by !DroidActivator, activation is revoked and Unique Id is wiped out to de-couple all existing installations from the Activation Record). We need to identify the customer again, so we need the registered e-mail address.
 
 In both cases, for a limited time, the user has the option to perform a Temporary Activation if he didn't receive his code yet. To perform a Temporary activation, neither the code nor the e-mail is needed.
 
@@ -179,7 +179,7 @@ This is the standard situation. Send back Success code and data bundle. Activati
 
 The Activation record is searched by User Id.
 
- * If found, set the Activation flag off in the backend record and send back success code and data bundle.
+ * If found, set the Activation flag off and clear the Unique Id in the Activation Record. Send send back success code and data bundle.
 
  * If not found, send back Failure code.
 
