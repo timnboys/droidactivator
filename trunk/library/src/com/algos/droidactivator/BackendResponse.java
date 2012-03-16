@@ -122,24 +122,22 @@ public class BackendResponse {
 
 
 	/**
-	 * Retuns a Date from the response map.
-	 * 
-	 * @param key the key to search
-	 * @return the date
-	 */
-	Date getDate(String key) {
-		return Lib.getDate(this.responseMap.get(key));
-	}
-
-
-	/**
 	 * Retuns a int from the response map.
 	 * 
 	 * @param key the key to search
 	 * @return the int
 	 */
 	int getInt(String key) {
-		return Lib.getInt(this.responseMap.get(key));
+		int num=0;
+		String string = Lib.getString(this.responseMap.get(key));
+		try {
+			num=Integer.parseInt(string);
+		}
+		catch (Exception e) {
+		}
+		
+		//return Lib.getInt(this.responseMap.get(key));
+		return num;
 	}
 
 
@@ -150,7 +148,16 @@ public class BackendResponse {
 	 * @return the long
 	 */
 	long getLong(String key) {
-		return Lib.getLong(this.responseMap.get(key));
+		long num=0;
+		String string = Lib.getString(this.responseMap.get(key));
+		try {
+			num=Long.parseLong(string);
+		}
+		catch (Exception e) {
+		}
+		
+		//return Lib.getInt(this.responseMap.get(key));
+		return num;
 	}
 
 
