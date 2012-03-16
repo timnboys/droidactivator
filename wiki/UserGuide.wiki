@@ -171,11 +171,11 @@ The backend receives the update request along with the following parameters:
 
 The Activation record is searched by Unique Id.
 
-===Activation Record found===
+===Activation Record found by Unique Id===
 
 This is the standard situation. Send back Success code and data bundle. Activation parameters could be changed by the backend.
 
-===Activation Record not found===
+===Activation Record not found by Unique Id===
 
 The Activation record is searched by User Id.
 
