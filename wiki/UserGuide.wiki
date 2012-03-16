@@ -95,7 +95,7 @@ If not found by Unique Id but found by User Id, then another installation has be
 
 Applying this pattern, the last activated installation for a User  "steals" the activation to other installations of the same User, and so forth, every last user "steals" back the activation, so all users with the same credentials are requested to re-activate more or less each time they start the app. This can be annoying enough for our current goals. Maybe we'll implement some kind of license-swap limitation in the backend in the future.
 
-If not found by Unique Id nor by User Id, the installation is not coupled to the backend anymore. Maybe we deleted the Activation Record in the backend or the user is a really good hacker and he tampered with cached data. Sorry, we can do nothing anymore. Activation data will not be updated.
+If not found by Unique Id nor by User Id, the installation is not coupled to the backend anymore. Maybe we didn't receive the record from the Market yet, or we deleted the Activation Record in the backend or the user is a really good hacker and he tampered with cached data. We can do nothing. Activation data will not be updated.
 
 == The Activation Check ==
 
@@ -167,6 +167,7 @@ The Temporary Activation feature is optional, it's enabled by default but you ca
 The backend receives the update request along with the following parameters:
 
  * the cached Unique Id
+ * the cached User Id
 
 The  Activation record is searched by Unique Id.
 
