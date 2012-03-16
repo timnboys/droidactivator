@@ -23,7 +23,7 @@ Activation tracking on the device is controlled by some pieces of information ke
  * Expiration Date (long, represents the expiration date of the issued activation (0 if no expiration control is needed)
  * Application Level (int, the application level, usually 0 for demo 1 for base, 2 for pro and so forth...)
  * Unique id (calculated unique ID, identifying an installation/device combination) 
- * User id (the User Id provided at the time of the last succssful activation) 
+ * User id (the User Id provided at the time of the last successful activation) 
 
 Master activation values are kept in the backend an can be changed by you at any time. Changes will be reflected in the application as soon as possible.
 
@@ -39,7 +39,7 @@ The App Level is maintained in Shared Preferences and can be changed only by you
 
 = Application Activation =
 
-The Activation represents an authorization to the Application to run at its current Level until a given expiration date.
+The Activation represents an authorization to an Application to run at a given Level until a given Expiration date.
 
 Activation data (activation flag, expiration date and app Level) is maintained in Shared Preferences and is overwritten on the device (with data from the backend) after each successful Activation Update.
 
@@ -139,6 +139,7 @@ In the response is True, the activation succeeded and the following actions are 
  * the Expiration Date on the device is set as returned by the backend
  * the Application Level on the device is set as returned by the backend
  * the Unique Id is written in the backend and cached in the device
+ * the User Id (if provided) is cached in the device
 
 If the response is False:
 
