@@ -103,15 +103,15 @@ The information requested in the dialog always includes the activation code and 
 ===The Unique Id is present in cached data===
 This means the app has been activated previously and if a re-activation is needed (and this is the case) it is because the activation has been for some reason revoked by you from the backend during a previous Update (probably the activation has expired, but it could have been manually revoked too, and the Activation Code on the backend has probably changed). Since the Unique Id is already cached, we expect to find a corresponding installation record in the backend. So, we look for this record:
 
- * If we find it, everything is ok, we only need the activation code from the user, we do a code check and if it is successful we update the cached activation data from the backend.
+ * If we find it, everything is ok, we only need the activation code from the user, we check the code and if it is successful we update the cached activation data from the backend to the device.
 
- * If we don't find it, is a data failure in the backend, maybe data lost or corrupted. In this case it's our fault and we must provide a way to the user to re-activate. Provided we have fixed the problem in the backend and reloaded clean purchase data, we must re-identify the customer, so we also need the registered e-mail.
+ * If we don't find it, it's a data failure in the backend, maybe data lost or corrupted. In this case it's our fault and we must provide a way to the user to re-activate. Provided we have fixed the problem in the backend and reloaded clean purchase data, we must re-identify the customer, so we also need the registered e-mail.
 
-So, before presenting the activation dialog, we perform a check on the backend for the presence of the activation record by Unique Id. If the activation record is found, only the code is requested. If the activation  record is not found, e-mail and code are requested. In the case the backend is unreachable, we assume the activation record will be found, don't ask for the e-mail, and delay the problem to the moment of the activation request (when the Activate button is pressed), which will fail if backend is not available or activation record is not found.
+So, before presenting the activation dialog, we perform a check on the backend for the presence of the activation record by Unique Id. If the activation record is found, only the code is requested to the user. If the activation  record is not found, e-mail and code are requested. In the case the backend is unreachable, we assume the activation record will be found, don't ask for the e-mail, and delay the problem to the moment of the activation request (when the Activate button is pressed) which will fail if backend is not available or the activation record is not found.
 
 ===The Unique Id is not present in cached data===
 
-This means it is the first activation or a re-activation after a fresh reinstallation or a device change (when a device change is detected, activation data is wiped out). We need to identify the customer again, so we need the registered e-mail address.
+This means it is the first activation or a re-activation after a fresh reinstallation or a device change (when a device change is detected by !DroidActivator, activation is revoked and Unique Id is wiped out). We need to identify the customer again, so we need the registered e-mail address.
 
 In both cases, for a limited time, the user has the option to perform a Temporary Activation if he didn't receive his code yet. To perform a Temporary activation, neither the code nor the e-mail is needed.
 
@@ -119,22 +119,23 @@ If an activation has been requested in the dialog, we check if the backend is re
 
 The request to the backend contains:
 
+ * the App name (useful to manage multiple licensed apps on the same backend)
  * the Unique Id (from the cached data if present, otherwise calculated on the fly)
  * the User's e-mail address (if provided)
  * the Activation Code (as of received by email)
 
-The backend validates the request and responds with a Success or Failure boolean.
+The backend validates the request by checking the app name and the activation code, and responds with a Success or Failure boolean and an error code.
 
 In the response is True, the activation succeeded and the following actions are taken:
 
- * the Activated flag is set to True
- * the Expiration Date is set as returned by the backend
- * the Application Level is set as returned by the backend
- * the Unique Id is written in the cache
+ * the Activated flag is set to True on the device and the backend
+ * the Expiration Date on the device is set as returned by the backend
+ * the Application Level on the device is set as returned by the backend
+ * the Unique Id is written in the backend and cached in the device
 
 If the response is False:
- * the Activated flag is set to False
- * a failure message is displayed based on the failure code reported by the backend
+
+ * a failure message is displayed on the device, based on the failure code reported by the backend
 
 ==The temporary Activation==
 When the Activation dialog comes up, there is an option to perform a Temporary Activation.
