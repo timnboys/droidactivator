@@ -197,6 +197,7 @@ The backend receives the activation request along with the following parameters:
  * the Unique Id (always present)
  * the User's e-mail address (if provided)
  * the Activation Code (always present)
+ * the App Name (always present)
 
 First, the Installation record is searched by Unique ID. If not found, it is searched by User's e-mail address.
 
@@ -207,7 +208,7 @@ This is a renewal. Check the Activation code.
  * Failure: send back Failure flag, Failure code.
 
 ===Found by User's e-mail address===
-This is a new activation: check the code.
+This is a new activation: check the code and the app name
 
  * Success:  set the Activation flag to true, register the Unique id, send back Success flag, Expiration Date, Application Level.
  * Failure: send back  Failure flag, Failure code.
