@@ -177,8 +177,9 @@ class ActivationService {
 
         if (activationRecord) {      // Activation Record found by User Id
 
-          // turn off activation flag
+          // turn off activation flag and reset Unique Id
           activationRecord.active = false
+          activationRecord.uniqueID = ""
           activationRecord.save(flush: true)
 
           // put bundle in response and return success
