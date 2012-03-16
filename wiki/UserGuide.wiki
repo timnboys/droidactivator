@@ -23,6 +23,7 @@ Activation tracking on the device is controlled by some pieces of information ke
  * Expiration Date (long, represents the expiration date of the issued activation (0 if no expiration control is needed)
  * Application Level (int, the application level, usually 0 for demo 1 for base, 2 for pro and so forth...)
  * Unique id (calculated unique ID, identifying an installation/device combination) 
+ * User id (the User Id provided at the time of the last succssful activation) 
 
 Master activation values are kept in the backend an can be changed by you at any time. Changes will be reflected in the application as soon as possible.
 
