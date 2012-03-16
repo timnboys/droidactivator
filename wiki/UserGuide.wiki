@@ -133,7 +133,7 @@ The request to the backend contains:
 
 The backend validates the request by checking the app name and the activation code, and responds with a Success or Failure boolean and an error code.
 
-In the response is True, the activation succeeded and the following actions are taken:
+If the response is True, the activation succeeded and the following actions are taken:
 
  * the Activated flag is set to True on the device and the backend
  * the Expiration Date on the device is set as returned by the backend
@@ -199,7 +199,7 @@ The backend receives the activation request along with the following parameters:
  * the Activation Code (always present)
  * the App Name (always present)
 
-First, the Installation record is searched by Unique ID. If not found, it is searched by User's e-mail address.
+First, the Installation record is searched by Unique ID. If not found, it is searched by the couple User's e-mail address + App name.
 
 ===Found by Unique ID===
 This is a renewal. Check the Activation code.
@@ -207,7 +207,7 @@ This is a renewal. Check the Activation code.
  * Success: set the Activation flag to true, send back Success flag, Expiration Date, Application Level
  * Failure: send back Failure flag, Failure code.
 
-===Found by User's e-mail address===
+===Found by User's e-mail address + App Name===
 This is a new activation: check the code and the app name
 
  * Success:  set the Activation flag to true, register the Unique id, send back Success flag, Expiration Date, Application Level.
