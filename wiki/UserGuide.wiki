@@ -169,7 +169,7 @@ The backend receives the update request along with the following parameters:
  * the cached Unique Id
  * the cached User Id
 
-The  Activation record is searched by Unique Id.
+The Activation record is searched by Unique Id.
 
 ===Activation Record found===
 
@@ -177,7 +177,12 @@ This is the standard situation. Send back Success code and data bundle. Activati
 
 ===Activation Record not found===
 
-This is an attempt to update before Installation record or Unique Id are available to the backend. Send back Failure code. Do nothing on the app.
+The Activation record is searched by User Id.
+
+ * If found, set the Activation flag off in the backend record and send back success code and data bundle.
+
+ * If not found, send back Failure code.
+
 
 The data bundle returned in case of success contains:
 
