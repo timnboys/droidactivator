@@ -72,23 +72,29 @@ At the end of the Activation Cycle you can access the new cached activation data
 
 == The Activation Update ==
 
-The Activation Update process is performed at every startup, and consists in a call to the backend to read activation data and update cached data in the app. After an Activation Update, you can access updated activation data and set your app's behaviour accordingly.
+The Activation Update process is performed at every startup, and consists in a call to the backend to read activation data and update cached data in the app. After an Activation Update, you can access updated data and set your app's behaviour accordingly.
 
-The Activation Update is very fault-tolerant: it is performed in an unobtrusive way (only if the backend is reachable, in a separate thread, and with short timeouts). The user should never be annoyed or even notice anything during an Activation Update. It an Activation Update fails, nothing in the cached activation data is changed. This guarantees the customer retains his rights until an Update is successfully performed, so you can tear off your backend at any time with no hassle.
+The Activation Update is very fault-tolerant: it is performed in an unobtrusive way (only if the backend is reachable, in a separate thread, and with short timeouts). The user should never be annoyed or even notice anything during an Activation Update.
 
-Yes, if the customers turns off networking at every startup or configures a firewall on the device after activation, he can avoid updates and still use your app indefinitely, avoiding the annual upgrade fee (if applicable). But we consider this a minor issue, compared to the advantage of managing an easily interruptible backend, and considering than one single update is enough to give you control again over activation.
+If an Activation Update fails, nothing in the cached activation data is changed. This guarantees the customer retains his rights until an Update is successfully performed, so you can tear off your backend at any time with no hassle.
 
-So, if network is found and everything else is ok, the Update is performed, and after a successful Update, cached activation data may have changed.
+Yes, if the customers turns off networking at every startup or configures a firewall on the device after activation, he can avoid updates and still use your app indefinitely, avoiding the annual upgrade fee (if applicable). But we consider this a minor issue, compared to the advantage of managing an easily interruptible backend, and considering than one single update is enough to bring you control back over activation.
 
-For example, you could at any time change in the backend the app level or the expiration date based on an agreement with a single customer, or revoke an activation changing the activation flag. Be careful!
+So, if network is found and everything else is ok, the Update is performed, and cached activation data may have changed.
 
-The Activation Update process is performed only after the first Activation, since the backend is searched by Unique Id, and this information is available to the backend only after the first activation.
+For example, you could at any time change in the backend the app level or the expiration date based on an agreement with a single customer, or completely revoke an activation changing the activation flag. Be careful!
 
-After a successful Activation Update, a bundle of data is returned and written in the cache.
+The Activation Update process is performed only after the first Activation.
 
- * Activation Flag
- * Expiration Date
- * Application Level
+In the Update process, the record is searched by Unique Id. If found, activation data in the device (activation flag, level, expiration) is updated from the backend and the update is finished.
+
+If the Activation Record is not found by Unique Id, then it is searched by User Id. 
+
+If not found by Unique Id but found by User Id, then another installation has been activated with the same credentials (maybe the user reinstalled on the same device, or reinstalled on another device, or the credentials were stolen or given away and someone else activated the application with them). In this case, re-activation is requested, so we turn the Activation Flag off in the backend, and update device data (activation flag, level, expiration). In the subsequent Activation Check, the user will be requested to re-activate. 
+
+Applying this pattern, the last activated installation for a User  "steals" the activation to other installations of the same User, and so forth, every last user "steals" back the activation, so all users with the same credentials are requested to re-activate more or less each time they start the app. This can be annoying enough for our current goals. Maybe we'll implement some kind of license-swap limitation in the backend in the future.
+
+If not found by Unique Id nor by User Id, the installation is not coupled to the backend anymore. Maybe we deleted the Activation Record in the backend or the user is a really good hacker and he tampered with cached data. Sorry, we can do nothing anymore. Activation data will not be updated.
 
 == The Activation Check ==
 
