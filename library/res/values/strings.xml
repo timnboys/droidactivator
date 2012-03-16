@@ -37,11 +37,11 @@
 	<string name="invalid_email_address">Invalid e-mail address</string>
 	
 	<string name="congratulations">Congratulations!</string>
-	<string name="app_successfully_activated">Your application has been successfully activated.\nThank You.</string>
+	<string name="app_successfully_activated">has been successfully activated.\nThank You.</string>
 	<string name="activation_error">Activation error</string>
 	
 	<string name="wrong_activation_code">Wrong activation code. Make sure you typed it correctly.\nIf the problem persists, contact the support service.</string>
-	<string name="wrong_app_name">The user id was found but application name does not match the licensed name.\nPlease contact the support service.</string>
+	<string name="wrong_app_name">Your user id was found but the application name does not match the licensed name. Please contact the support service.</string>
 	<string name="userid_not_found">User id not found in the activation database.\nMaybe your purchase data has not yet been received. Please retry later.</string>
 	<string name="unrecognized_error">Unrecognized error code</string>
 					

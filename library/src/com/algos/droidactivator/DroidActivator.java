@@ -1,8 +1,11 @@
 package com.algos.droidactivator;
 
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.UUID;
 
 import android.content.Context;
@@ -35,30 +38,30 @@ public class DroidActivator {
 
 	// the global Application context, used to obtain Resources, SharedPreferences etc
 	private Context context;
-	
+
 	// the backend address as supplied in the constructor
 	private String address;
-	
+
 	// the runnable to run to start the app when an Activation Cycle is completed
 	private Runnable runnable;
 
 	// flag to control if the Temporary Activation mechanism is available
 	private boolean temporaryActivationAvailable;
-	
+
 	// maximum number of days activation can be delayed pressing "Later"
 	private int maxActivationDelay;
-	
+
 	// Number of seconds the user must wait before "Later" becomes enabled
 	private int temporaryWaitTime;
-	
+
 	// flag turned on when a Temporary Activation is issued.
 	// if this flag is on, the isActivated() method returns always true
 	private boolean temporarilyActivated;
-	
+
 	// a view to display in the message area of the dialog instead of the default message view
 	// if a custom view is specified, the custom view takes precedence over the custom text
 	private View dialogCustomView;
-	
+
 	// a text to display in the message view instead of the standard message
 	// if a custom view is specified, the custom view takes precedence over the custom text
 	private String dialogCustomText;
@@ -73,39 +76,34 @@ public class DroidActivator {
 	static String KEY_EXPIRATION = "expiration";
 	static String KEY_INSTALLATION_UUID = "installation_UUID";
 	static String KEY_UNIQUEID = "uniqueid";
-	static String KEY_TS_FIRST_TEMP_ACTIVATION = "first_temp_activation";	// the timestamp of the first Temporary Activation
+	static String KEY_TS_FIRST_TEMP_ACTIVATION = "first_temp_activation"; // the timestamp of the first Temporary Activation
+	static String KEY_USERID = "userid";// the user id entered in the last full activation
 
 	// the app name passed to the backend, defaults to the current App Name
 	private String appName = "";
 
 
-	// private ArrayList<OnActivationDoneListener> activationDoneListeners = new ArrayList<OnActivationDoneListener>();
-
-	/**
-	 * Constructor
-	 */
-	private DroidActivator(Context context, String address, Runnable runnable) {
-		super();
-		this.context = context.getApplicationContext(); // this survives for all the app lifetime!
-		this.address = address;
-		this.runnable = runnable;
-	}
-
+	// /**
+	// * Constructor
+	// */
+	// private DroidActivator() {
+	// super();
+	// }
 
 	/**
 	 * init() is called by newInstance() after the ACTIVATOR variable is set!
 	 */
 	private void init() {
-		
+
 		// default for temporary activation mechanism availability
 		setTemporaryActivationAvailable(true);
 
 		// default number of days for maximum activation delay
 		setMaximumActivationDelay(7);
-		
+
 		// default number of seconds user must wait before "Later" button becomes enabled
 		setTemporaryWaitTime(10);
-		
+
 		// set the temporary activation flag to off
 		setTemporarilyActivated(false);
 
@@ -121,13 +119,13 @@ public class DroidActivator {
 			UUID uuid = UUID.randomUUID();
 			setInstallationUuid(uuid.toString());
 		}
-		
-		// Device change detection: if device chenges, activation data is wiped out.
-		// If the cached UniqueId is present (activation already done), but it doesn't 
-		// correspond to the calculated Unique Id anymore, then device has changed.
-		// The app has to be re-activated. Revoke activation and delete Unique Id.
+
+		// Device change detection: if device changes, activation is revoked,
+		// cached Unique Id is deleted, and the app has to be re-activated.
 		String cachedUid = getUniqueId();
 		if (!cachedUid.equals("")) {
+			// If the cached Unique Id is present (activation already done), but it doesn't
+			// correspond to the calculated Unique Id anymore, then device has changed.
 			String currUid = calcUniqueId();
 			if (!currUid.equals(cachedUid)) {
 				setActivated(false);
@@ -135,7 +133,6 @@ public class DroidActivator {
 			}
 		}
 
-		
 	}
 
 
@@ -165,11 +162,15 @@ public class DroidActivator {
 	private static boolean doUpdate() {
 		boolean success = false;
 
-		if (isNetworkAvailable()) {
+		if (isBackendURLValid()) {
 
-			if (isBackendResponding()) {
+			if (isNetworkAvailable()) {
 
-				success = requestUpdate();
+				if (isBackendResponding()) {
+
+					success = requestUpdate();
+
+				}
 
 			}
 
@@ -182,15 +183,25 @@ public class DroidActivator {
 
 	/**
 	 * Performs the Check operation.
+	 * After this operation the Runnable is always run.
 	 * 
 	 * @param context the current context
 	 */
 	private static void doCheck(Context context) {
 
 		if (!isActivatedInCache()) {
-			openDialog(context, isUseridRequested());
+			if (isBackendURLValid()) {
+				// show the dialog, when dismissed the Runnable will always be run
+				openDialog(context, isUseridRequested());
+			}
+			else {
+				runRunnable();
+			}
 		}
-
+		else {
+			runRunnable();
+		}
+		
 	}
 
 
@@ -260,23 +271,25 @@ public class DroidActivator {
 	 * @param context useridRequested true if userid must be requested by the dialog
 	 */
 	private static void openDialog(Context context, boolean useridRequested) {
-		ActivationDialog dialog = new ActivationDialog(context, useridRequested, isTemporaryActivationAvailable(), createDialogView(context));
+		ActivationDialog dialog = new ActivationDialog(context, useridRequested, isTemporaryActivationAvailable(),
+				createDialogView(context));
 		dialog.show();
 	}
-	
+
+
 	/**
 	 * Creates the View shown in the message area the dialog.
 	 * 
 	 * @param the context for the view if created here
 	 * @return the message view
 	 */
-	private static View createDialogView(Context context){
+	private static View createDialogView(Context context) {
 		View view;
-		if (getInstance().dialogCustomView!=null) {
-			view=getInstance().dialogCustomView;
+		if (getInstance().dialogCustomView != null) {
+			view = getInstance().dialogCustomView;
 		}
 		else {
-			
+
 			TextView tv = new TextView(context);
 			String cText = getInstance().dialogCustomText;
 			if (!Lib.getString(cText).equals("")) {
@@ -285,7 +298,7 @@ public class DroidActivator {
 			else {
 				tv.setText(R.string.dialog_message);
 			}
-			view=tv;
+			view = tv;
 
 		}
 		return view;
@@ -326,12 +339,14 @@ public class DroidActivator {
 		// final message
 		InfoDialog dialog = new InfoDialog(context);
 		if (task.isSuccessful()) {
+			dialog.setIcon(getContext().getResources().getDrawable(R.drawable.greencheck48));
 			dialog.setTitle(R.string.congratulations);
-			dialog.setMessage(getContext().getString(R.string.app_successfully_activated));
+			dialog.setMessage(getInstance().appName+" "+getContext().getString(R.string.app_successfully_activated));
 		}
 		else {
 			int failureCode = task.getFailureCode();
 			String failureString = getFailureString(failureCode);
+			dialog.setIcon(getContext().getResources().getDrawable(R.drawable.redcross48));
 			dialog.setTitle(R.string.activation_error);
 			dialog.setMessage(failureString);
 		}
@@ -347,19 +362,19 @@ public class DroidActivator {
 	 * @return a failure string in the current language
 	 */
 	private static String getFailureString(int failureCode) {
-		String failureString="";
+		String failureString = "";
 		switch (failureCode) {
 		case 1:
-			failureString=getContext().getString(R.string.wrong_activation_code);
+			failureString = getContext().getString(R.string.wrong_activation_code);
 			break;
 		case 2:
-			failureString=getContext().getString(R.string.wrong_app_name);		
+			failureString = getContext().getString(R.string.wrong_app_name);
 			break;
 		case 3:
-			failureString=getContext().getString(R.string.userid_not_found);		
+			failureString = getContext().getString(R.string.userid_not_found);
 			break;
 		default:
-			failureString=getContext().getString(R.string.unrecognized_error)+": "+failureCode;
+			failureString = getContext().getString(R.string.unrecognized_error) + ": " + failureCode;
 			break;
 		}
 		return failureString;
@@ -391,34 +406,40 @@ public class DroidActivator {
 		@Override
 		protected Void doInBackground(Void... params) {
 
-			BackendRequest request = new BackendRequest("activate");
-			request.setRequestProperty(KEY_UNIQUEID, this.uniqueId);
-			request.setRequestProperty("userid", this.userId);
-			request.setRequestProperty("activationcode", this.activationCode);
-			BackendResponse response = new BackendResponse(request);
+			try {
+				BackendRequest request = new BackendRequest("activate");
+				request.setRequestProperty(KEY_UNIQUEID, this.uniqueId);
+				request.setRequestProperty("userid", this.userId);
+				request.setRequestProperty("activationcode", this.activationCode);
+				BackendResponse response = new BackendResponse(request);
 
-			// write returned data in shared preferences
-			if (response.isResponseSuccess()) {
-				setActivated(true);
-				setExpiration(response.getExpirationTime());
-				setLevel(response.getLevel());
-				setUniqueId(this.uniqueId);// this can be new, write it back!
-				this.successful = true;
-			}
-			else {
-				setActivated(false);
-				String failureString = response.getString("failurecode");
-				int code=0;
-				try {
-					code = Integer.parseInt(failureString);;
+				// write returned data in shared preferences
+				if (response.isResponseSuccess()) {
+					setActivated(true);
+					setExpiration(response.getExpirationTime());
+					setLevel(response.getLevel());
+					setUniqueId(this.uniqueId);// cache the current Unique Id
+					if (!this.userId.equals("")) {
+						setActivationUserid(this.userId);// cache the user Id used for activation if present
+					}
+					this.successful = true;
 				}
-				catch (Exception e) {
+				else {
+					String failureString = response.getString("failurecode");
+					int code = 0;
+					try {
+						code = Integer.parseInt(failureString);
+					}
+					catch (Exception e) {
+					}
+					this.failureCode = code;
+					this.successful = false;
 				}
-				this.failureCode = code;
-				this.successful = false;
-			}
 
-			request.disconnect();
+				request.disconnect();
+			}
+			catch (Exception e) {
+			}
 			this.finished = true;
 
 			return null;
@@ -453,14 +474,14 @@ public class DroidActivator {
 	 * <p>Called by the Activation Dialog when Later button is pressed.
 	 */
 	static void doTemporaryActivation() {
-		
+
 		// turns the temporary activation flag on
 		setTemporarilyActivated(true);
-		
+
 		// save the time of the first temporary activation
 		long ts = getFirstTempActivationTS();
-		if (ts==0) {
-			Calendar c = Calendar.getInstance(); 
+		if (ts == 0) {
+			Calendar c = Calendar.getInstance();
 			ts = c.getTimeInMillis();
 			setFirstTempActivationTS(ts);
 		}
@@ -528,22 +549,27 @@ public class DroidActivator {
 		@Override
 		protected Void doInBackground(Void... params) {
 
-			BackendRequest request = new BackendRequest("update");
-			request.setRequestProperty(KEY_UNIQUEID, this.uniqueId);
-			BackendResponse response = new BackendResponse(request);
+			try {
+				BackendRequest request = new BackendRequest("update");
+				request.setRequestProperty(KEY_UNIQUEID, this.uniqueId);
+				request.setRequestProperty(KEY_USERID, getActivationUserId());
+				BackendResponse response = new BackendResponse(request);
 
-			// write returned data in shared preferences
-			if (response.isResponseSuccess()) {
-				setActivated(response.isActivated());
-				setExpiration(response.getExpirationTime());
-				setLevel(response.getLevel());
-				this.successful = true;
-			}
-			else {
-				this.successful = false;
-			}
+				// write returned data in shared preferences
+				if (response.isResponseSuccess()) {
+					setActivated(response.isActivated());
+					setExpiration(response.getExpirationTime());
+					setLevel(response.getLevel());
+					this.successful = true;
+				}
+				else {
+					this.successful = false;
+				}
 
-			request.disconnect();
+				request.disconnect();
+			}
+			catch (Exception e) {
+			}
 			this.finished = true;
 
 			return null;
@@ -632,14 +658,18 @@ public class DroidActivator {
 		@Override
 		protected Void doInBackground(Void... params) {
 
-			BackendRequest request = new BackendRequest("checkresponding");
-			BackendResponse response = new BackendResponse(request);
+			try {
+				BackendRequest request = new BackendRequest("checkresponding");
+				BackendResponse response = new BackendResponse(request);
 
-			if (response.isResponseSuccess()) {
-				this.responding = true;
+				if (response.isResponseSuccess()) {
+					this.responding = true;
+				}
+
+				request.disconnect();
 			}
-
-			request.disconnect();
+			catch (Exception e) {
+			}
 			this.finished = true;
 
 			return null;
@@ -678,15 +708,19 @@ public class DroidActivator {
 		@Override
 		protected Void doInBackground(Void... params) {
 
-			BackendRequest request = new BackendRequest("checkidpresent");
-			request.setRequestProperty(KEY_UNIQUEID, getUniqueId());
-			BackendResponse response = new BackendResponse(request);
+			try {
+				BackendRequest request = new BackendRequest("checkidpresent");
+				request.setRequestProperty(KEY_UNIQUEID, getUniqueId());
+				BackendResponse response = new BackendResponse(request);
 
-			if (response.isResponseSuccess()) {
-				this.present = true;
+				if (response.isResponseSuccess()) {
+					this.present = true;
+				}
+
+				request.disconnect();
 			}
-
-			request.disconnect();
+			catch (Exception e) {
+			}
 			this.finished = true;
 
 			return null;
@@ -718,8 +752,7 @@ public class DroidActivator {
 	 * @return the SharedPreferences object
 	 */
 	private static SharedPreferences getPrefs() {
-		SharedPreferences prefs = getContext().getSharedPreferences(SHARED_PREFS_FILE_NAME,
-				Context.MODE_PRIVATE);
+		SharedPreferences prefs = getContext().getSharedPreferences(SHARED_PREFS_FILE_NAME, Context.MODE_PRIVATE);
 		return prefs;
 	}
 
@@ -730,25 +763,35 @@ public class DroidActivator {
 
 
 	/**
-	 * Returns the URL of the backend
-	 * 
+	 * Returns the URL of the backend.
+	 * Performs some validity checking
 	 * @return the backend URL
 	 */
 	static URL getBackendURL() {
-		URL url=null;
-		
-		String urlString = getInstance().address+"/activator/activation/check";
-		try {
-			url = new URL(urlString);
-		}
-		catch (MalformedURLException e) {
-			e.printStackTrace();
+		URL url = null;
+
+		String address = getInstance().address;
+		if (address != null) {
+			if (address.length() >= 16) { // cant be less than http://x.xx:0000
+				if (address.contains(".")) {// at least one dot is mandatory
+					if (address.contains(":")) {// at least one : is mandatory
+						String urlString = address + "/activator/activation/check";
+						try {
+							url = new URL(urlString);
+						}
+						catch (MalformedURLException e) {
+							e.printStackTrace();
+						}
+					}
+				}
+			}
 		}
 
 		return url;
 	}
-	
-	static void runRunnable(){
+
+
+	static void runRunnable() {
 		getRunnable().run();
 	}
 
@@ -761,6 +804,25 @@ public class DroidActivator {
 		return getPrefs().getBoolean(KEY_ACTIVATED, false);
 	}
 
+
+	/**
+	 * Check if the registered Backend URL is valid
+	 */
+	private static boolean isBackendURLValid() {
+		boolean valid = false;
+		URL url = getBackendURL();
+		if (url != null) {
+			try {
+				url.toURI();// performs some more validation...
+				valid = true;// if we reach this line is valid.
+			}
+			catch (URISyntaxException e) {
+			}
+		}
+		return valid;
+	}
+
+
 	/**
 	 * Checks if the app is currently activated.
 	 * <p>Uses a combination of cached data and temporary activation.
@@ -770,10 +832,10 @@ public class DroidActivator {
 	public static boolean isActivated() {
 		boolean activated;
 		if (isTemporarilyActivated()) {
-			activated=true;
+			activated = true;
 		}
 		else {
-			activated=isActivatedInCache();
+			activated = isActivatedInCache();
 		}
 		return activated;
 	}
@@ -816,16 +878,25 @@ public class DroidActivator {
 		return getPrefs().getLong(KEY_EXPIRATION, 0);
 	}
 
-
 	/**
 	 * Sets the expiration timestamp value in cached data.
 	 * 
 	 * @param expirationTs the expiration timestamp
 	 */
-	static void setExpiration(long expirationTs) {
+	public static void setExpiration(long expirationTs) {
 		getPrefs().edit().putLong(KEY_EXPIRATION, expirationTs).commit();
 	}
 	
+	/**
+	 * Returns the current expiration date from cached data.
+	 * @return the current expiration date
+	 */
+	public static Date getExpirationDate() {
+		long millis = getPrefs().getLong(KEY_EXPIRATION, 0);
+		return new Date(millis);
+	}
+
+
 	/**
 	 * Saves the timestamp of the first Temporary Activation in shared preferences.
 	 * 
@@ -834,7 +905,8 @@ public class DroidActivator {
 	private static void setFirstTempActivationTS(long timestamp) {
 		getPrefs().edit().putLong(KEY_TS_FIRST_TEMP_ACTIVATION, timestamp).commit();
 	}
-	
+
+
 	/**
 	 * Returns the timestamp of the first Temporary Activation from shared preferences.
 	 * 
@@ -844,17 +916,17 @@ public class DroidActivator {
 		return getPrefs().getLong(KEY_TS_FIRST_TEMP_ACTIVATION, 0);
 	}
 
-	
+
 	/**
 	 * Sets the temporary activation flag.
 	 * 
 	 * @param flag the temporary activation flag
 	 */
 	public static void setTemporarilyActivated(boolean flag) {
-		getInstance().temporarilyActivated=flag;
+		getInstance().temporarilyActivated = flag;
 	}
 
-	
+
 	/**
 	 * Checks if the activation is temporary.
 	 * 
@@ -863,7 +935,6 @@ public class DroidActivator {
 	public static boolean isTemporarilyActivated() {
 		return getInstance().temporarilyActivated;
 	}
-
 
 
 	/**
@@ -902,6 +973,25 @@ public class DroidActivator {
 	public static void setUniqueId(String uidString) {
 		getPrefs().edit().putString(KEY_UNIQUEID, uidString).commit();
 	}
+	
+	/**
+	 * Returns the User Id used for the last activation from shared preferences.
+	 * @return the User Id used for the last activation
+	 */
+	public static String getActivationUserId() {
+		return getPrefs().getString(KEY_USERID, "");
+	}
+
+
+	/**
+	 * Sets the User Id used for the last activation in shared preferences.
+	 * 
+	 * @param userId used for the last activation
+	 */
+	public static void setActivationUserid(String userId) {
+		getPrefs().edit().putString(KEY_USERID, userId).commit();
+	}
+
 
 
 	/**
@@ -953,9 +1043,11 @@ public class DroidActivator {
 		return getInstance().context;
 	}
 
+
 	private static Runnable getRunnable() {
 		return getInstance().runnable;
 	}
+
 
 	/**
 	 * Control the availability of the Temporary Activation mechanism.
@@ -963,47 +1055,51 @@ public class DroidActivator {
 	 * @param true if you want it to be available to the user, false otherwise
 	 */
 	public static void setTemporaryActivationAvailable(boolean available) {
-		getInstance().temporaryActivationAvailable=available;
+		getInstance().temporaryActivationAvailable = available;
 	}
-	
-	private static boolean isTemporaryActivationAvailable(){
+
+
+	private static boolean isTemporaryActivationAvailable() {
 		return getInstance().temporaryActivationAvailable;
 	}
-	
+
+
 	/**
 	 * Maximum number of days the user can delay activation by pressing "Later".
 	 * 
 	 * @param days number of days
 	 */
-	public static void setMaximumActivationDelay(int days){
-		getInstance().maxActivationDelay=days;
+	public static void setMaximumActivationDelay(int days) {
+		getInstance().maxActivationDelay = days;
 	}
-	
+
+
 	/**
 	 * Maximum number of days the user can delay activation by pressing "Later".
 	 * 
 	 * @return max number of days
 	 */
-	static int getMaximumActivationDelay(){
+	static int getMaximumActivationDelay() {
 		return getInstance().maxActivationDelay;
 	}
-	
-	
+
+
 	/**
 	 * Number of seconds the user must wait before "Later" becomes enabled
 	 * 
 	 * @param days number of seconds
 	 */
-	public static void setTemporaryWaitTime(int seconds){
-		getInstance().temporaryWaitTime=seconds;
+	public static void setTemporaryWaitTime(int seconds) {
+		getInstance().temporaryWaitTime = seconds;
 	}
-	
+
+
 	/**
 	 * Retrieve the number of seconds the user must wait before "Later" becomes enabled.
 	 * 
 	 * @return number of seconds
 	 */
-	static int getTemporaryWaitTime(){
+	static int getTemporaryWaitTime() {
 		return getInstance().temporaryWaitTime;
 	}
 
@@ -1019,11 +1115,11 @@ public class DroidActivator {
 	 * 
 	 * @param view the custom view
 	 */
-	public static void setDialogCustomView(View view){
-		getInstance().dialogCustomView=view;
+	public static void setDialogCustomView(View view) {
+		getInstance().dialogCustomView = view;
 	}
-	
-	
+
+
 	/**
 	 * Sets a text to display in the message view instead of the standard message.
 	 * <p>If a custom view is specified, the custom view takes precedence 
@@ -1031,9 +1127,10 @@ public class DroidActivator {
 	 * 
 	 * @param text the custom text
 	 */
-	public static void setDialogCustomText(String text){
-		getInstance().dialogCustomText=text;
+	public static void setDialogCustomText(String text) {
+		getInstance().dialogCustomText = text;
 	}
+
 
 	/**
 	 * Create the Singleton instance of this class.
@@ -1047,8 +1144,11 @@ public class DroidActivator {
 	 */
 	public static void newInstance(Context ctx, String address, Runnable runnable) {
 		if (ACTIVATOR == null) {
-			ACTIVATOR = new DroidActivator(ctx, address, runnable);
+			ACTIVATOR = new DroidActivator();
 		}
+		ACTIVATOR.context = ctx.getApplicationContext(); // this survives for all the app lifetime!
+		ACTIVATOR.address = address;
+		ACTIVATOR.runnable = runnable;
 		ACTIVATOR.init();
 
 	}// end of method
@@ -1061,6 +1161,5 @@ public class DroidActivator {
 	private static DroidActivator getInstance() {
 		return ACTIVATOR;
 	}// end of method
-
 
 }

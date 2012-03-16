@@ -45,7 +45,13 @@ public class DeviceUuidFactory {
                             if (!"9774d56d682e549c".equals(androidId)) {
                                 uuid = UUID.nameUUIDFromBytes(androidId.getBytes("utf8"));
                             } else {
-                                final String deviceId = ((TelephonyManager) context.getSystemService( Context.TELEPHONY_SERVICE )).getDeviceId();
+                            	String deviceId=null;;
+                            	try {
+                                    deviceId = ((TelephonyManager) context.getSystemService( Context.TELEPHONY_SERVICE )).getDeviceId();
+								}
+								catch (Exception e) {
+									// this can throw a security exception if permission READ_PHONE_STATE is not available, so we protect it
+								}
                                 uuid = deviceId!=null ? UUID.nameUUIDFromBytes(deviceId.getBytes("utf8")) : UUID.randomUUID();
                             }
                         } catch (UnsupportedEncodingException e) {
