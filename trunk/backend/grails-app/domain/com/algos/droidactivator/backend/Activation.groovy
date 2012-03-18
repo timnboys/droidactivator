@@ -25,7 +25,7 @@ class Activation {
     // Attributi dei vari campi
     // Ordine in cui vengono mostrate le colonne nella lista
     static constraints = {
-        appName(nullable: true, blank: true)
+        appName(nullable: false, blank: false)
         paid(nullable: false)
         amount(nullable: true, blank: true)
         active(nullable: false)

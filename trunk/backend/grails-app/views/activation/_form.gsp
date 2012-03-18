@@ -1,10 +1,13 @@
 <%@ page import="com.algos.droidactivator.backend.Activation" %>
 
-<div class="fieldcontain ${hasErrors(bean: activationInstance, field: 'appName', 'error')} ">
+
+
+<div class="fieldcontain ${hasErrors(bean: activationInstance, field: 'appName', 'error')} required">
     <label for="appName">
         <g:message code="activation.appName.label" default="App Name"/>
+        <span class="required-indicator">*</span>
     </label>
-    <g:textField name="appName" value="${activationInstance?.appName}"/>
+    <g:textField name="appName" required="" value="${activationInstance?.appName}"/>
 </div>
 
 <div class="fieldcontain ${hasErrors(bean: activationInstance, field: 'paid', 'error')} ">
