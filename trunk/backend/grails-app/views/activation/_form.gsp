@@ -1,11 +1,8 @@
 <%@ page import="com.algos.droidactivator.backend.Activation" %>
 
-
-
 <div class="fieldcontain ${hasErrors(bean: activationInstance, field: 'appName', 'error')} ">
     <label for="appName">
         <g:message code="activation.appName.label" default="App Name"/>
-
     </label>
     <g:textField name="appName" value="${activationInstance?.appName}"/>
 </div>
