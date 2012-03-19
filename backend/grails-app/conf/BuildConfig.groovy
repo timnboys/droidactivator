@@ -13,7 +13,7 @@ grails.project.dependency.resolution = {
         // uncomment to disable ehcache
         // excludes 'ehcache'
     }
-    log "error" // log level of Ivy resolver, either 'error', 'warn', 'info', 'debug' or 'verbose'
+    log "warn" // log level of Ivy resolver, either 'error', 'warn', 'info', 'debug' or 'verbose'
     checksums true // Whether to verify checksums on resolve
 
     repositories {
@@ -41,7 +41,13 @@ grails.project.dependency.resolution = {
         runtime ":hibernate:$grailsVersion"
         runtime ":jquery:1.7.1"
         runtime ":resources:1.1.6"
+        //@TODO
+        //@TODO You MUST fix a bug, pasting the whole _dialog file into the corresponding
+        //@TODO usage in settings/grails-app/views/settings/create and edit views
         runtime ":settings:1.4"
+        //@TODO
+        runtime ":spring-security-core:1.2.7.1"
+        runtime ":mail:1.0"
 
         // Uncomment these (or add new ones) to enable additional resources capabilities
         //runtime ":zipped-resources:1.0"
