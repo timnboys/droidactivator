@@ -11,7 +11,7 @@ To get started with !DroidActivator, you need to perform the following steps:
  * Install the server and create a schema named "droidactivator"
 
 == Installing the backend ==
-The backend is supplied in a .war file suitable to be run on a standard WebApp container like Apache Tomcat. Here we assume you will use Tomcat. If you are using another container, refer to the container's guide.
+The backend is supplied in a .war file suitable to be run on a standard !WebApp container like Apache Tomcat. Here we assume you will use Tomcat. If you are using another container, refer to the container's guide.
 
  * [http://tomcat.apache.org/ Download and install Apache Tomcat]
  * Download the backend .war file and add it to the Tomcat folder
