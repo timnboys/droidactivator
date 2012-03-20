@@ -25,4 +25,11 @@ In the backend, go to the Actiovation's List and add a new record. Type the App 
 == Linking !DroidActivator's library to your app ==
 Download the !DroidAcrivator's library .jar file and put it in the "libs" folder of your Android application. If the folder does not exist create it.
 
-Open the 
+Open your app's Manifest file and check you have declared the following permissions:
+
+{{{
+<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+<uses-permission android:name="android.permission.INTERNET" />
+}}}
+
+Open your app's startup method and instantiate
