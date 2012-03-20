@@ -48,8 +48,9 @@ body {
 }
 
 #grailsLogo {
-	background-color: #abbf78;
+	background-color: #000000;
 }
+
 
 /* replace with .no-boxshadow body if you have modernizr available */
 .ie6 body,
@@ -108,7 +109,7 @@ img {
 }
 
 .footer {
-	background: #abbf78;
+	background: #000000;
 	color: #000;
 	clear: both;
 	font-size: 0.8em;

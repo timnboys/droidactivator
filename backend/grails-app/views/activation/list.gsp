@@ -28,13 +28,13 @@
 
             <g:sortableColumn property="appName" title="${message(code: 'activation.appName.label', default: 'App Name')}"/>
 
+            <g:sortableColumn property="userID" title="${message(code: 'activation.userID.label', default: 'User Id')}"/>
+
             <g:sortableColumn property="paid" title="${message(code: 'activation.paid.label', default: 'Paid')}"/>
 
             <g:sortableColumn property="amount" title="${message(code: 'activation.amount.label', default: 'Amount')}"/>
 
             <g:sortableColumn property="active" title="${message(code: 'activation.active.label', default: 'Active')}"/>
-
-            <g:sortableColumn property="uniqueID" title="${message(code: 'activation.uniqueID.label', default: 'Unique ID')}"/>
 
             <g:sortableColumn property="level" title="${message(code: 'activation.level.label', default: 'Level')}"/>
 
@@ -46,13 +46,13 @@
 
                 <td><g:link action="show" id="${activationInstance.id}">${fieldValue(bean: activationInstance, field: "appName")}</g:link></td>
 
+                <td>${fieldValue(bean: activationInstance, field: "userID")}</td>
+
                 <td><g:formatBoolean boolean="${activationInstance.paid}"/></td>
 
                 <td>${fieldValue(bean: activationInstance, field: "amount")}</td>
 
                 <td><g:formatBoolean boolean="${activationInstance.active}"/></td>
-
-                <td>${fieldValue(bean: activationInstance, field: "uniqueID")}</td>
 
                 <td>${fieldValue(bean: activationInstance, field: "level")}</td>
 
