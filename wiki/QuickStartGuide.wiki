@@ -2,13 +2,13 @@
 
 = Steps =
 To get started with DroidActivator, you need to perform these steps:
- * Install and configure a SQL server (we will use MySql Community Server)
+ * Install and configure a SQL server (we will use !MySql Community Server)
  * Install and configure the backend
  * Link the Android Library to your app and call it
  * Load activation records into the backend
 
-= Installing MySql server =
-Download MySql Community Server from the [http://dev.mysql.com/downloads/mysql/ Downloads Page]
+= Installing !MySql server =
+Download !MySql Community Server from the [http://dev.mysql.com/downloads/mysql/ Downloads Page]
 
 = Installing the backend =
 The backend is supplied in a .war file suitable to be run on a standard WebApp container like Apache Tomcat. Here we assume you will use Tomcat. If you are using another container, refer to the container's guide.
