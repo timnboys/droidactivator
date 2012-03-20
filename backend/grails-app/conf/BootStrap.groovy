@@ -32,15 +32,17 @@ class BootStrap {
         String adminNicName
         String adminPass
 
+      // create a new admin
+        adminNicName = 'admin'
+        adminPass = 'admin'
+        this.newAdmin(adminNicName, adminPass)
+
         // create a new admin
         adminNicName = 'Gac'
         adminPass = 'fulvia'
         this.newAdmin(adminNicName, adminPass)
 
-        // create a new admin
-        adminNicName = 'Alex'
-        adminPass = 'axel01'
-        this.newAdmin(adminNicName, adminPass)
+
     }// fine della closure
 
     private void newAdmin(String adminNicName, String adminPass) {
