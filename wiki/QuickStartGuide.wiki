@@ -1,13 +1,13 @@
-#summary DroidActivator's Quick Start Guide
+#summary DroidActivator Quick Start Guide
 
-= Introduction =
+= Steps =
+To get started with DroidActivator, you need to perform these steps:
+ * Install and configure the backend
+ * Link the Android Library to your app and call it
+ * Load activation records into the backend
 
-Add your content here.
+= Installing the backend =
+The backend is supplied in a .war file suitable to be run on a standard WebApp container like Apache Tomcat. Here we assume you will use Tomcat. If you are using another container, refer to the container's guide.
 
-
-= Details =
-
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+Download and install Apache Tomcat
+[http://tomcat.apache.org/ Download and install Apache Tomcat]
