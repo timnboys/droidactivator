@@ -194,10 +194,10 @@ The data bundle returned in case of success contains:
 
 The backend receives the activation request along with the following parameters:
 
- * the Unique Id (always present)
+ * the App Name (always present)
  * the User's e-mail address (if provided)
  * the Activation Code (always present)
- * the App Name (always present)
+ * the Unique Id (always present)
 
 First, the Installation record is searched by Unique ID. If not found, it is searched by the couple User's e-mail address + App name.
 
@@ -321,9 +321,9 @@ At this time, new VALID purchases are added (manually or automatically) to the A
 
 and an activation code is generated, written in the Installation record and sent to the customer by email.
 
-The generated activation code is an 8-digit string from a random number generator, and every generated code is unique among the not-activated records (the records which don't have an installation id yet).
+The generated activation code is an 8-digit string from a random number generator.
 
-=Tracking your events=
+=Tracking custom events=
 
 At any time you can make a call to the backend to track a particular event, passing to the backend an event code and a map containing custom data.
 
@@ -337,4 +337,4 @@ If an App requests activation after having been tracked for events, existing Eve
 
 When the backend receives an Event Tracking request, it looks for the device's Activation Record by Unique Id. If it isn't found, the record is created.
 
-Then a new Event Record is created as a child of the Activation Record, and event data is stored in the record.
+Then a new Event Record is created as a child of the Activation Record, and event data is stored in that record.
