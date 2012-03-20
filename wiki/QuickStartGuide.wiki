@@ -7,11 +7,11 @@ To get started with !DroidActivator, you need to perform these steps:
  * Link the Android Library to your app and call it
  * Load activation records into the backend
 
-= Installing !MySql server =
+== Installing !MySql server ==
  * Download !MySql Community Server from the [http://dev.mysql.com/downloads/mysql/ Downloads Page]
  * Install the server and create a schema named "droidactivator"
 
-= Installing the backend =
+== Installing the backend ==
 The backend is supplied in a .war file suitable to be run on a standard WebApp container like Apache Tomcat. Here we assume you will use Tomcat. If you are using another container, refer to the container's guide.
 
  * [http://tomcat.apache.org/ Download and install Apache Tomcat]
@@ -19,8 +19,10 @@ The backend is supplied in a .war file suitable to be run on a standard WebApp c
  * Restart Tomcat and check if the application droidactivator is running
  * Open your browser and type http://yourserveraddress:8080/activator/, the !DroidActivator's backend home page should appear
 
-= Adding activation records =
+== Adding activation records ==
 In the backend, go to the Actiovation's List and add a new record. Type the App Name esactly as declared in the "android:label" attribute of your Android App Manifest, type an e-mail address as  the UserId, and type an 8-digit random code in the Activation Code field. Then, save the record.
 
-= Linking !DroidActivator's library to your app =
-Download the DroidAcrivator's library .jar file and put it in the Lib folder of your Android application.
+== Linking !DroidActivator's library to your app ==
+Download the !DroidAcrivator's library .jar file and put it in the "libs" folder of your Android application. If the folder does not exist create it.
+
+Open the 
