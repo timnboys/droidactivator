@@ -15,3 +15,6 @@ To get started with !DroidActivator, you need to perform these steps:
 The backend is supplied in a .war file suitable to be run on a standard WebApp container like Apache Tomcat. Here we assume you will use Tomcat. If you are using another container, refer to the container's guide.
 
  * [http://tomcat.apache.org/ Download and install Apache Tomcat]
+ * Download the backend .war file and add it to the Tomcat folder
+ * Restart Tomcat and check if the application droidactivator is running
+ * Open your browser and type "http://yourserveraddress:8080/activator/", the !DroidActivator's backend home page should appear
