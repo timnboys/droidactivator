@@ -9,5 +9,4 @@ To get started with DroidActivator, you need to perform these steps:
 = Installing the backend =
 The backend is supplied in a .war file suitable to be run on a standard WebApp container like Apache Tomcat. Here we assume you will use Tomcat. If you are using another container, refer to the container's guide.
 
-Download and install Apache Tomcat
 [http://tomcat.apache.org/ Download and install Apache Tomcat]
