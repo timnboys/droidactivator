@@ -346,10 +346,10 @@ In your code, you send a Custom Event simply invoking:
 DroidActivator.sendCustomEvent(eventCode,eventDetails);
 }}}
 
-Remember that DroidActivator must have been instantiated the usual way before the call;
+Remember that !DroidActivator must have been instantiated the usual way before the call;
 
 {{{
 DroidActivator.newInstance(context, backendAddress, runnable)
 }}}
 
-If you don't need to manage activation but just want to send events to the backend, you can leave the Runnable null. Also, in this case avoid to perform the activation cycle.
+If you don't need to manage activation but just want to send events to the backend, you can leave the runnable null. Also, in this case avoid to perform the activation cycle.
