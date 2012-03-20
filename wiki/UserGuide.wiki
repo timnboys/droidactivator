@@ -343,10 +343,10 @@ If an App requests activation after having been tracked for events, existing Eve
 In your code, you send a Custom Event simply invoking:
 
 {{{
-DroidActivator.sendCustomEvent(eventCode,eventDetails);
+DroidActivator.sendCustomEvent(eventCode, eventDetails);
 }}}
 
-Remember that !DroidActivator must have been instantiated the usual way before the call;
+Remember to instantiate !DroidActivator somewhere before the call;
 
 {{{
 DroidActivator.newInstance(context, backendAddress, runnable);
