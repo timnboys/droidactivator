@@ -2,7 +2,7 @@
 
 To get started with !DroidActivator, you need to perform the following steps:
  * Install and configure a SQL server (we will use !MySql Community Server)
- * Install and configure the backend
+ * Install and configure the backend application
  * Link the Android Library to your app and call it
  * Load activation records into the backend
 
