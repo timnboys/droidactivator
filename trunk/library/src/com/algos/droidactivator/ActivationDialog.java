@@ -3,8 +3,6 @@ package com.algos.droidactivator;
 import java.util.Calendar;
 
 import com.algos.droidactivator.dialog.WarningDialog;
-import com.algos.droidactivator.util.ElasticSpacer;
-import com.algos.droidactivator.util.Spacer;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -18,6 +16,7 @@ import android.text.TextWatcher;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -607,5 +606,62 @@ class ActivationDialog extends Dialog {
 		}
 
 	}
+	
+	/**
+	 * Spacer Layout<br>
+	 * Can be used horizontally or vertically<br>
+	 */
+	private class Spacer extends LinearLayout {
+
+		public Spacer(Context context) {
+			this(context,4,4);
+		}
+		
+		/**
+		 * @param context the context
+		 * @param size of the spacer in dp
+		 */
+		public Spacer(Context context, int dpWidth, int dpHeight) {
+			super(context);
+			LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(dpWidth,dpHeight);
+			setLayoutParams(params);
+		}
+
+	}
+	
+	
+	/**
+	 * A spacer with a default weigth of 1.<br>
+	 * Can be used horizontally or vertically.<br>
+	 * You can change the weight with setWeigth()<br>
+	 */
+	private class ElasticSpacer extends Spacer {
+
+		public ElasticSpacer(Context context) {
+			super(context);
+			init();
+		}
+
+
+		private void init() {
+			setWeight(1);
+		}
+
+
+		/**
+		 * Sets the weigth of the spacer
+		 * @param weight the weight
+		 */
+		public void setWeight(int weight) {
+			ViewGroup.LayoutParams params = getLayoutParams();
+			if ((params != null) & (params instanceof LinearLayout.LayoutParams)) {
+				LinearLayout.LayoutParams lparams = (LinearLayout.LayoutParams) params;
+				lparams.weight = 1;
+			}
+		}
+
+	}
+
+
 
 }
