@@ -1,6 +1,6 @@
 #summary DroidActivator Quick Start Guide
 
-To get started with !DroidActivator, you need to perform these steps:
+To get started with !DroidActivator, you need to perform the following steps:
  * Install and configure a SQL server (we will use !MySql Community Server)
  * Install and configure the backend
  * Link the Android Library to your app and call it
