@@ -325,23 +325,16 @@ The generated activation code is an 8-digit string from a random number generato
 
 =Tracking your events=
 
-At any time you can make a call to the backend to track a particular event, passing to the backend an event code and a map containing your custom data.
+At any time you can make a call to the backend to track a particular event, passing to the backend an event code and a map containing custom data.
 
 The App does not need to be activated for the event tracking system to work. You can track events before the activation, or for demo versions which will never be activated.
 
-The event tracking is anonymous until the application is activated. From then on
+The event tracking is anonymous until the application is activated (you only know the device's Unique Id). After the activation, also the User Id is known.
 
 The call to the backend is performed in a separate thread with short timeouts. If the call fails because the backend is not reachable nothing happens and the user should not notice anything. Be aware that  this kind of event tracking can be used for statistic purposes but it does not guarantee that all events will be tracked! Events are tracked only when the device has an active connection and the backend is up.
 
-
-If an App requests activation after having been tracked for events, a new Activation Record is created and existing Event Records are associated to the new Activation Record and old events are 
+If an App requests activation after having been tracked for events, existing Event Records are associated to the new Activation Record.
 
 When the backend receives an Event Tracking request, it looks for the device's Activation Record by Unique Id. If it isn't found, the record is created.
 
 Then a new Event Record is created as a child of the Activation Record, and event data is stored in the record.
-
-
-Also if the app is not activated yet, nothing happens.
-
-You can pass through your data as an int for the event code and a string for further details.
-For each call received, a new log record is written In the backend as a child of the Installation record.
