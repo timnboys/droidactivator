@@ -17,4 +17,4 @@ The backend is supplied in a .war file suitable to be run on a standard WebApp c
  * [http://tomcat.apache.org/ Download and install Apache Tomcat]
  * Download the backend .war file and add it to the Tomcat folder
  * Restart Tomcat and check if the application droidactivator is running
- * Open your browser and type "!http://yourserveraddress:8080/activator/", the !DroidActivator's backend home page should appear
+ * Open your browser and type !http://yourserveraddress:8080/activator/, the !DroidActivator's backend home page should appear
