@@ -346,7 +346,7 @@ In your code, you send a Custom Event simply invoking:
 DroidActivator.sendCustomEvent(eventCode, eventDetails);
 }}}
 
-Remember to instantiate !DroidActivator somewhere before the call;
+Remember to instantiate !DroidActivator somewhere before the call:
 
 {{{
 DroidActivator.newInstance(context, backendAddress, runnable);
