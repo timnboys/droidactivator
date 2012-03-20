@@ -352,4 +352,4 @@ Remember to instantiate !DroidActivator somewhere before the call:
 DroidActivator.newInstance(context, backendAddress, runnable);
 }}}
 
-If you don't need to activate your app but just want to track events, you can leave the runnable null. Also, in this case avoid to perform the activation cycle.
+If you don't need to activate your app but just want to use the event tracking feature, you can leave the runnable null. Also, in this case avoid to perform the activation cycle.
