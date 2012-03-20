@@ -216,6 +216,7 @@ This is a new activation: check the code and the app name
 ===Record not found===
 This is an attempt to activate the installation before purchase data is added to the backend. send back  Failure flag, Failure code.
 
+
 =In your code=
 
 1. As soon as you have a Context (usually in the onCreate() method) instantiate !DroidActivator calling
@@ -338,3 +339,15 @@ When the backend receives an Event Tracking request, it looks for the device's A
 Then a new Event Record is created as a child, and event data is stored in that record.
 
 If an App requests activation after having been tracked for events, existing Event Records are associated to the Activation Record and the Tracking Record is deleted.
+
+In your code, you send a Custom Event simply invoking
+
+{{{
+		DroidActivator.sendCustomEvent(3,"event details string");
+}}}
+
+Remember that DroidActivator must have been instantiated the usual way before the call
+
+{{{
+DroidActivator.newInstance(context, backendAddress, runnable)
+}}}
