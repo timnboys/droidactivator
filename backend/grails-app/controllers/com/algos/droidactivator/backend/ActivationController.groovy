@@ -49,6 +49,14 @@ class ActivationController {
             render activationService.updateRequest(request, response)
         }
 
+      /**
+       * Custom Event
+       */
+      if (action && action.equals('event')) {
+        render activationService.eventRequest(request, response)
+      }
+
+
         render 'FAILURE'
     }// end of closure
 

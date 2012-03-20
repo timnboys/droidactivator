@@ -34,6 +34,15 @@
     <g:checkBox name="active" value="${activationInstance?.active}"/>
 </div>
 
+<div class="fieldcontain ${hasErrors(bean: activationInstance, field: 'trackingOnly', 'error')} ">
+  <label for="active">
+    <g:message code="activation.trackingOnly.label" default="Tracking only"/>
+
+  </label>
+  <g:checkBox name="trackingOnly" value="${activationInstance?.trackingOnly}"/>
+</div>
+
+
 <div class="fieldcontain ${hasErrors(bean: activationInstance, field: 'uniqueID', 'error')} ">
     <label for="uniqueID">
         <g:message code="activation.uniqueID.label" default="Unique ID"/>
