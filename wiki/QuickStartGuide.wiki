@@ -32,4 +32,42 @@ Open your app's Manifest file and check you have declared the following permissi
 <uses-permission android:name="android.permission.INTERNET" />
 }}}
 
-Open your app's startup method and instantiate
+Open your starting activity onCreate() method and implement the following code:
+
+{{{
+public void onCreate(Bundle savedInstanceState) {
+	super.onCreate(savedInstanceState);
+			
+	// instantiate DroidActivator
+	DroidActivator.newInstance(this, "http://yourserveraddress:8080",new Runnable() {	
+		public void run() {startMyApp();}
+	});
+
+	// perform the Activation cycle – your startup method is called when finished
+	DroidActivator.doActivationCycle(this);
+		
+}
+
+
+// start your app from here
+private void startMyApp() {
+
+	// test the activator variables and do whatever is appropriate	
+	if (DroidActivator.isActivated()) {
+		switch (DroidActivator.getLevel()) {
+		case 0:
+			//startInDemoMode();
+			break;
+		case 1:
+			//startInBasicMode();
+			break;
+		case 2:
+			//startInProMode();
+			break;
+		}
+	}
+	else {
+		//startInDemoMode();
+	}
+}
+}}}
