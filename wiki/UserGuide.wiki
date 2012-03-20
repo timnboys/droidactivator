@@ -340,14 +340,16 @@ Then a new Event Record is created as a child, and event data is stored in that 
 
 If an App requests activation after having been tracked for events, existing Event Records are associated to the Activation Record and the Tracking Record is deleted.
 
-In your code, you send a Custom Event simply invoking
+In your code, you send a Custom Event simply invoking:
 
 {{{
-		DroidActivator.sendCustomEvent(3,"event details string");
+DroidActivator.sendCustomEvent(eventCode,eventDetails);
 }}}
 
-Remember that DroidActivator must have been instantiated the usual way before the call
+Remember that DroidActivator must have been instantiated the usual way before the call;
 
 {{{
 DroidActivator.newInstance(context, backendAddress, runnable)
 }}}
+
+If you don't need to manage activation but just want to send events to the backend, you can leave the Runnable null. Also, in this case avoid to perform the activation cycle.
