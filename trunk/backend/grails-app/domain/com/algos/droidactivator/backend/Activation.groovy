@@ -12,6 +12,7 @@ class Activation {
     def boolean paid = false
     def int amount
     def boolean active = false
+    def boolean trackingOnly = false
     def String uniqueID = ''
     def int level = 0
     def String userID
@@ -29,6 +30,7 @@ class Activation {
         paid(nullable: false)
         amount(nullable: true, blank: true)
         active(nullable: false)
+        trackingOnly(nullable: false)
         uniqueID(nullable: true, blank: true, editable: false)
         level(nullable: false, blank: false)
         userID(nullable: false, blank: false, email: true)

@@ -219,6 +219,52 @@ class ActivationService {
 
   }// fine del metodo
 
+
+
+
+  /**
+   * Track a Custom Event
+   */
+  public String eventRequest(HttpServletRequest request, HttpServletResponse response) {
+
+    String appName = request.getHeader('appname')
+    String uniqueid = request.getHeader('uniqueid')
+    String eventCode = request.getHeader('eventcode')
+    String eventDetails = request.getHeader('eventdetails')
+
+    
+    // try to find a Parent Record
+    Activation parentRecord
+    parentRecord = Activation.findByUniqueIDAndTrackingOnly(uniqueid, false)   // search the Activation Record
+    if(!parentRecord){
+      parentRecord = Activation.findByUniqueIDAndTrackingOnly(uniqueid, true)   // search the Tracking Record
+    }
+    
+    // if not found, create it now as Tracking Only
+    if(!parentRecord){
+      parentRecord = new Activation()
+      parentRecord.appName=appName
+      parentRecord.uniqueID=uniqueid
+      parentRecord.trackingOnly=true
+      parentRecord.save(flush: true)
+    }
+
+    // create the Event Record as a child
+    Event event = new Event()
+    event.activation=parentRecord
+    event.timestamp=new Date().getTime();
+    try {event.code=Integer.parseInt(eventCode)}
+    catch (Exception exc) {event.code=0}
+    event.details=eventDetails
+    event.save(flush: true)
+
+    response.setHeader('success', 'true')
+
+    return 'OK'
+  }
+
+
+
 /**
  * Puts activation record data in a response
  * @param record the Activation record
