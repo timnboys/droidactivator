@@ -24,7 +24,9 @@ class ActivationService {
     Activation activationRecord
 
     if (uniqueid) {
-      activationRecord = this.findByUniqueId(uniqueid)
+
+      activationRecord = Activation.findByUniqueIDAndTrackingOnly(uniqueid, false)
+
       if (activationRecord) {
         // Success: send back Success flag,
         response.setHeader('success', 'true')
@@ -61,7 +63,7 @@ class ActivationService {
     if (uniqueid && activationcode) {
 
       // First, the Installation record is searched by Unique ID.
-      activationRecord = this.findByUniqueId(uniqueid)
+      activationRecord = Activation.findByUniqueIDAndTrackingOnly(uniqueid, false)
 
       if (activationRecord) {
 
@@ -121,7 +123,7 @@ class ActivationService {
         } else {
 
           // Record not found by User Id + AppName
-          // try by user id only
+          // try by user id only just to return a more clear response
           activationRecord = Activation.findByUserID(userid)
           if (activationRecord) {
             // found by user id but not appName:
@@ -166,7 +168,7 @@ class ActivationService {
     if (uniqueid) {
 
       // The Activation record is searched by Unique Id.
-      activationRecord = this.findByUniqueId(uniqueid)
+      activationRecord = Activation.findByUniqueIDAndTrackingOnly(uniqueid, false)
 
       if (activationRecord) {
 
@@ -183,7 +185,7 @@ class ActivationService {
         // Activation Record not found by Unique Id
         // search it by User Id
         String userid = request.getHeader('userid')
-        activationRecord = this.findByUserID(userid)
+        activationRecord = Activation.findByUserID(userid)
 
         if (activationRecord) {      // Activation Record found by User Id
 
@@ -290,34 +292,5 @@ class ActivationService {
 
   }
 
-/**
- * First, the Installation record is searched by Unique ID.
- *
- * @param uniqueid - Unique Id (always present)
- */
-  private Activation findByUniqueId(String uniqueid) {
-    Activation activationRecord = null
-
-    if (uniqueid) {
-      activationRecord = Activation.findByUniqueID(uniqueid)
-    }// fine del blocco if
-
-    return activationRecord
-  }// fine del metodo
-
-/**
- * If not found, it is searched by User's e-mail address.
- *
- * @param userid - User's e-mail address (if provided)
- */
-  private Activation findByUserID(String userid) {
-    Activation activationRecord = null
-
-    if (userid) {
-      activationRecord = Activation.findByUserID(userid)
-    }// fine del blocco if
-
-    return activationRecord
-  }// fine del metodo
 
 }// fine del service
