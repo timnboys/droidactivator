@@ -13,15 +13,32 @@ public class BackendRequest {
 
 	private HttpURLConnection connection;
 	private String action;
+	private int connTimeout;	// connection timeout in ms
+	private int readTimeout;	// read timeout in ms
+
+	private static final int DEFAULT_CONN_TIMEOUT=1000;	// default connection timeout in ms
+	private static final int DEFAULT_READ_TIMEOUT=1000;	// default read timeout in ms
+
+	/**
+	 * @param action to request to the backend
+	 * @param connTimeout the connection timeout in ms
+	 */
+	public BackendRequest(String action, int connTimeout) {
+		super();
+		this.action=action;
+		this.connTimeout=connTimeout;
+		this.readTimeout=DEFAULT_READ_TIMEOUT;
+		init();
+	}
 
 	/**
 	 * @param action to request to the backend
 	 */
 	public BackendRequest(String action) {
-		super();
-		this.action=action;
-		init();
+		this(action, DEFAULT_CONN_TIMEOUT);
 	}
+	
+
 
 	private void init(){
 		
@@ -34,8 +51,8 @@ public class BackendRequest {
 			catch (IOException e) {
 			}
 			if (this.connection!=null) {
-				this.connection.setConnectTimeout(1000);
-				this.connection.setReadTimeout(1000);
+				this.connection.setConnectTimeout(connTimeout);
+				this.connection.setReadTimeout(readTimeout);
 				setRequestProperty("action", this.action);
 				setRequestProperty("appname", DroidActivator.getAppName());
 			}

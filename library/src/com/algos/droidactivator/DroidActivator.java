@@ -26,9 +26,9 @@ import com.algos.droidactivator.dialog.InfoDialog;
  * have to keep track of an instance and you make only static calls.
  * <p>Usage example:
  * <code>
- * <p>DroidActivator.newInstance(this, "http://151.10.128.32:8080",new Runnable() {   
- * <p>	public void run() {startMyApp();}
- * <p>});
+ * <br>DroidActivator.newInstance(this, "http://151.10.128.32:8080",new Runnable() {   
+ * <br>	public void run() {startMyApp();}
+ * <br>});
  * </code>
  */
 public class DroidActivator {
@@ -78,6 +78,8 @@ public class DroidActivator {
 	static String KEY_UNIQUEID = "uniqueid";
 	static String KEY_TS_FIRST_TEMP_ACTIVATION = "first_temp_activation"; // the timestamp of the first Temporary Activation
 	static String KEY_USERID = "userid";// the user id entered in the last full activation
+	static String KEY_EVENT_CODE = "eventcode";// the custom event code
+	static String KEY_EVENT_DETAILS = "eventdetails";// the custom event details
 
 	// the app name passed to the backend, defaults to the current App Name
 	private String appName = "";
@@ -138,7 +140,7 @@ public class DroidActivator {
 
 	/**
 	 * Performs the Activation Cycle (update and check). 
-	 * When completed, your Runnable is run. 
+	 * When completed, the Runnable you supplied at instantiation time is run. 
 	 * 
 	 * @param context the current context
 	 */
@@ -152,6 +154,36 @@ public class DroidActivator {
 		doCheck(context);
 
 	}
+	
+	
+	/**
+	 * Sends a Custom Event. 
+	 * 
+	 * @param code custom event code
+	 * @param details the event details
+	 * @return true if the event has been acquired by the backend
+	 */
+	public static boolean sendCustomEvent(int code, String details) {
+		boolean acquired = false;
+
+		if (isBackendURLValid()) {
+
+			if (isNetworkAvailable()) {
+
+				if (isBackendResponding()) {
+
+					acquired = sendEvent(code, details);
+
+				}
+
+			}
+
+		}
+		
+		return acquired;
+
+	}
+
 
 
 	/**
@@ -191,7 +223,7 @@ public class DroidActivator {
 
 		if (!isActivatedInCache()) {
 			if (isBackendURLValid()) {
-				// show the dialog, when dismissed the Runnable will always be run
+				// show the dialog, when dismissed the Runnable will ALWAYS be run
 				openDialog(context, isUseridRequested());
 			}
 			else {
@@ -218,8 +250,8 @@ public class DroidActivator {
 		if (uid.equals("")) { // no uniqueid in cached data
 			requested = true;
 		}
-		else { // uniqueid present in cached data
-			if (isUniqueidPresentInBackend()) {// also in the backend?
+		else { // uniqueid is present in cached data
+			if (isUniqueidPresentInBackend()) {// is uniqueid also present in the backend?
 				requested = false;
 			}
 			else {
@@ -592,8 +624,113 @@ public class DroidActivator {
 		}
 
 	}
+	
+	
+	
+	/**
+	 * Sends a Custom Event to the backend.
+	 * @param code custom event code
+	 * @param details the event details
+	 * @return true if the event has been acquired by the backend
+	 */
+	private static boolean sendEvent(int code, String details) {
+		SendEventTask task = null;
+
+		// retrieve the cached Unique Id, create it now if not present
+		String uniqueId = getUniqueId();
+		if (uniqueId.equals("")) {
+			uniqueId = calcUniqueId();
+		}
+
+		// create the task
+		task = getInstance().new SendEventTask(uniqueId, code, details);
+
+		// start the background task
+		task.execute();
+
+		// wait until finished
+		while (!task.isFinished()) {
+			try {
+				Thread.sleep(50);
+			}
+			catch (InterruptedException e) {
+			}
+		}
+
+		return task.isSuccessful();
+
+	}
 
 
+
+	/**
+	 * An AsyncTask to send a Custom Event in a background process. 
+	 * This is needed to comply with Honeycomb Strict Mode wich doesn't allow 
+	 * networking operations in the UI thread.
+	 * <p>When finished, call isSuccessul() for the result.
+	 */
+	private class SendEventTask extends AsyncTask<Void, Void, Void> {
+
+		private boolean finished = false;
+		private String uniqueId;
+		private int code;
+		private String details;
+		private boolean successful;
+
+
+		public SendEventTask(String uniqueId, int code, String details) {
+			super();
+			this.uniqueId = uniqueId;
+			this.code = code;
+			this.details = details;
+		}
+
+
+		@Override
+		protected Void doInBackground(Void... params) {
+
+			try {
+				BackendRequest request = new BackendRequest("event");
+				request.setRequestProperty(KEY_UNIQUEID, this.uniqueId);
+				request.setRequestProperty(KEY_EVENT_CODE, ""+this.code);
+				request.setRequestProperty(KEY_EVENT_DETAILS, ""+this.details);
+				BackendResponse response = new BackendResponse(request);
+
+				if (response.isResponseSuccess()) {
+					this.successful = true;
+				}
+				else {
+					this.successful = false;
+				}
+
+				request.disconnect();
+			}
+			catch (Exception e) {
+			}
+			this.finished = true;
+
+			return null;
+		}
+
+
+		@Override
+		protected void onPostExecute(Void result) {
+			cancel(true);
+		}
+
+
+		private boolean isFinished() {
+			return this.finished;
+		}
+
+
+		private boolean isSuccessful() {
+			return this.successful;
+		}
+
+	}
+	
+	
 	/**
 	 * Check if network is configured and connected.
 	 * 
@@ -659,7 +796,7 @@ public class DroidActivator {
 		protected Void doInBackground(Void... params) {
 
 			try {
-				BackendRequest request = new BackendRequest("checkresponding");
+				BackendRequest request = new CheckRespondingRequest();
 				BackendResponse response = new BackendResponse(request);
 
 				if (response.isResponseSuccess()) {
@@ -889,11 +1026,15 @@ public class DroidActivator {
 	
 	/**
 	 * Returns the current expiration date from cached data.
-	 * @return the current expiration date
+	 * @return the current expiration date, null if not specified
 	 */
 	public static Date getExpirationDate() {
+		Date date=null;
 		long millis = getPrefs().getLong(KEY_EXPIRATION, 0);
-		return new Date(millis);
+		if (millis>0) {
+			date = new Date(millis);
+		}
+		return date;
 	}
 
 
