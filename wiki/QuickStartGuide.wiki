@@ -1,4 +1,4 @@
-#summary !DroidActivator Quick Start Guide
+#summary DroidActivator Quick Start Guide
 
 = Steps =
 To get started with !DroidActivator, you need to perform these steps:
