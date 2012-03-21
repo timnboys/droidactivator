@@ -14,11 +14,9 @@ class ActivationService {
   }
 
   /**
-   * Check the existence of Unique ID.
-   *
-   * @param uniqueid - the cached Unique Id
+   * Check for the existence of a Unique ID in the Activation Records.
    */
-  public String idRequest(HttpServletRequest request, HttpServletResponse response) {
+  public String uniqueIdRequest(HttpServletRequest request, HttpServletResponse response) {
     String risposta = 'FAILURE'
     String uniqueid = request.getHeader('uniqueid')
     Activation activationRecord
@@ -28,16 +26,13 @@ class ActivationService {
       activationRecord = Activation.findByUniqueIDAndTrackingOnly(uniqueid, false)
 
       if (activationRecord) {
-        // Success: send back Success flag,
         response.setHeader('success', 'true')
         risposta = 'OK'
       } else {
-        // Failure: send back Failure flag.
         response.setHeader('success', 'false')
-
-        // Failure: Failure code.
         response.setHeader("failurecode", '5')
       }// fine del blocco if-else
+      
     }// fine del blocco if
 
     return risposta
@@ -62,7 +57,7 @@ class ActivationService {
 
     if (uniqueid && activationcode) {
 
-      // First, the Installation record is searched by Unique ID.
+      // search the Activation record by Unique ID.
       activationRecord = Activation.findByUniqueIDAndTrackingOnly(uniqueid, false)
 
       if (activationRecord) {
@@ -90,7 +85,7 @@ class ActivationService {
 
       } else {
 
-        // Activation Record not found by Unique Id, search by User Id + App Name.
+        // search the Activation record by User Id + App Name.
         String appName = request.getHeader('appname')
         activationRecord = Activation.findByUserIDAndAppName(userid, appName)
 
@@ -183,9 +178,10 @@ class ActivationService {
       } else {
 
         // Activation Record not found by Unique Id
-        // search it by User Id
+        // search it by User Id + app name
         String userid = request.getHeader('userid')
-        activationRecord = Activation.findByUserID(userid)
+        String appname = request.getHeader('appname')
+        activationRecord = Activation.findByUserIDAndAppName(userid, appname)
 
         if (activationRecord) {      // Activation Record found by User Id
 

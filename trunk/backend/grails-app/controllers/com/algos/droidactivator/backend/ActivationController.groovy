@@ -24,7 +24,7 @@ class ActivationController {
         }
 
         if (action && action.equals('checkidpresent')) {
-            render activationService.idRequest(request, response)
+            render activationService.uniqueIdRequest(request, response)
         }
 
         /**
