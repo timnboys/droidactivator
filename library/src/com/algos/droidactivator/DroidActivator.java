@@ -384,14 +384,14 @@ public class DroidActivator {
 		// final message
 		InfoDialog dialog = new InfoDialog(context);
 		if (task.isSuccessful()) {
-			dialog.setIcon(getContext().getResources().getDrawable(R.drawable.greencheck48));
+			dialog.setIcon(getContext().getResources().getDrawable(R.drawable.droidactivator_greencheck48));
 			dialog.setTitle(R.string.congratulations);
 			dialog.setMessage(getInstance().appName+" "+getContext().getString(R.string.app_successfully_activated));
 		}
 		else {
 			int failureCode = task.getFailureCode();
 			String failureString = getFailureString(failureCode);
-			dialog.setIcon(getContext().getResources().getDrawable(R.drawable.redcross48));
+			dialog.setIcon(getContext().getResources().getDrawable(R.drawable.droidactivator_redcross48));
 			dialog.setTitle(R.string.activation_error);
 			dialog.setMessage(failureString);
 		}
