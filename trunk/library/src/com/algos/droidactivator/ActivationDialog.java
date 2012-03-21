@@ -68,7 +68,7 @@ class ActivationDialog extends Dialog {
 		setContentView(createContentView());
 
 		// Android bug: must be called after setContentView()!
-		setFeatureDrawableResource(Window.FEATURE_LEFT_ICON, R.drawable.warning_icon);
+		setFeatureDrawableResource(Window.FEATURE_LEFT_ICON, R.drawable.droidactivator_warning_icon);
 
 		// back is disabled in this dialog
 		setCancelable(false);

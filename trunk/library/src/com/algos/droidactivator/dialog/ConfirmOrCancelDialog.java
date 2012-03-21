@@ -26,7 +26,7 @@ public class ConfirmOrCancelDialog extends AlgosAlertDialog {
 	private void init(){
 		setTitle(getContext().getResources().getString(R.string.confirm_cancel_dialog_default_title));
 		setMessage(getContext().getResources().getString(R.string.confirm_cancel_dialog_default_message));
-		setIcon(getContext().getResources().getDrawable(R.drawable.warning_icon));
+		setIcon(getContext().getResources().getDrawable(R.drawable.droidactivator_warning_icon));
 		// use null listeners, real listeners are assigned after show()
 		setButton(BUTTON_POSITIVE, getContext().getResources().getString(R.string.button_confirm_dialog_text), (DialogInterface.OnClickListener)null);
 		setButton(BUTTON_NEGATIVE, getContext().getResources().getString(R.string.button_cancel_dialog_text), (DialogInterface.OnClickListener)null);

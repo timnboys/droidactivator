@@ -31,7 +31,7 @@ public class WarningDialog extends InfoDialog {
 	
 	private void init(){
 		setTitle(getContext().getResources().getString(R.string.notify_dialog_default_title));
-		setIcon(getContext().getResources().getDrawable(R.drawable.warning_icon));
+		setIcon(getContext().getResources().getDrawable(R.drawable.droidactivator_warning_icon));
 		setButton(BUTTON_POSITIVE, getContext().getResources().getString(R.string.notify_dialog_button_text), (DialogInterface.OnClickListener)null);
 	}
 	
