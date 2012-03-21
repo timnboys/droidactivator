@@ -1,13 +1,11 @@
 package com.algos.droidactivator.resources;
 
-import java.io.ByteArrayInputStream;
-
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 
-public class InfoIcon {
 
-	private static byte[] getBytes() {
+public class InfoIcon extends ByteArrayDrawable{
+
+	private static byte[] getBytes(){
 		byte[] buffer = { -119, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 32, 0, 0, 0, 32, 8,
 				6, 0, 0, 0, 115, 122, 122, -12, 0, 0, 0, 4, 115, 66, 73, 84, 8, 8, 8, 8, 124, 8, 100, -120, 0, 0, 7,
 				85, 73, 68, 65, 84, 88, -123, -19, -105, 107, -116, 93, 85, 21, -57, 127, -5, 113, -50, 61, 119, -18,
@@ -98,11 +96,10 @@ public class InfoIcon {
 				-30, 95, 102, -9, -16, 70, -40, -4, -25, -93, 0, 0, 0, 0, 73, 69, 78, 68, -82, 66, 96, -126 };
 		return buffer;
 	}
-
-
+	
 	public static Drawable getDrawable() {
-		ByteArrayInputStream stream = new ByteArrayInputStream(getBytes());
-		BitmapDrawable bDrawable = new BitmapDrawable(stream);
-		return bDrawable;
+		return ByteArrayDrawable.bytesToDrawable(getBytes());
 	}
+
+
 }

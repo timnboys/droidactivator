@@ -1,26 +1,11 @@
 package com.algos.droidactivator;
 
-import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.util.Calendar;
-
-import com.algos.droidactivator.dialog.WarningDialog;
-import com.algos.droidactivator.resources.DroidActivatorIcon;
-import com.algos.droidactivator.resources.WarningIcon;
 
 import android.app.Dialog;
 import android.content.Context;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
-import android.os.Environment;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.InputType;
@@ -37,6 +22,11 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
+
+import com.algos.droidactivator.dialog.WarningDialog;
+import com.algos.droidactivator.resources.DroidActivatorIcon;
+import com.algos.droidactivator.resources.Strings;
+import com.algos.droidactivator.resources.WarningIcon;
 
 class ActivationDialog extends Dialog {
 
@@ -76,7 +66,7 @@ class ActivationDialog extends Dialog {
 		// Android bug: this line should go here but if i put it here the icon is invisibe!
 		// setFeatureDrawableResource(Window.FEATURE_LEFT_ICON, R.drawable.warning_icon);
 
-		setTitle(R.string.dialog_title);
+		setTitle(Strings.dialog_title.get());
 		setContentView(createContentView());
 
 		// Android bug: must be called after setContentView()!
@@ -148,7 +138,7 @@ class ActivationDialog extends Dialog {
 
 		// input userid label
 		tv = new TextView(getContext());
-		tv.setText(R.string.input_userid_label);
+		tv.setText(Strings.input_userid_label.get());
 		useridPanel.addView(tv);
 
 		// input userid field
@@ -187,7 +177,7 @@ class ActivationDialog extends Dialog {
 
 		// "input code" label
 		tv = new TextView(getContext());
-		tv.setText(R.string.input_code_label);
+		tv.setText(Strings.input_code_label.get());
 		codePanel.addView(tv);
 
 		// input code field

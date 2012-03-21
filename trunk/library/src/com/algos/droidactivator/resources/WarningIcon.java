@@ -1,11 +1,9 @@
 package com.algos.droidactivator.resources;
 
-import java.io.ByteArrayInputStream;
-
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 
-public class WarningIcon {
+
+public class WarningIcon extends ByteArrayDrawable {
 
 	private static byte[] getBytes() {
 		byte[] buffer = { -119, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 32, 0, 0, 0, 32, 8,
@@ -90,12 +88,10 @@ public class WarningIcon {
 				86, -18, -32, 65, -107, -83, 115, 0, 0, 0, 0, 73, 69, 78, 68, -82, 66, 96, -126 };
 		return buffer;
 	}
-
-
+	
 	public static Drawable getDrawable() {
-		ByteArrayInputStream stream = new ByteArrayInputStream(getBytes());
-		BitmapDrawable bDrawable = new BitmapDrawable(stream);
-		return bDrawable;
+		return ByteArrayDrawable.bytesToDrawable(getBytes());
 	}
+
 
 }
