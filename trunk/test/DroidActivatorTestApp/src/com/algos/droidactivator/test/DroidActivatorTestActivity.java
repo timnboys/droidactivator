@@ -17,7 +17,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.algos.droidactivator.DroidActivator;
-import com.algos.droidactivator.util.Spacer;
 
 public class DroidActivatorTestActivity extends Activity {
 
@@ -40,6 +39,7 @@ public class DroidActivatorTestActivity extends Activity {
 			@Override
 			public void run() {startMyApp();}
 		});
+		
 		
 		setContentView(new MainView(this));
 
@@ -117,6 +117,9 @@ public class DroidActivatorTestActivity extends Activity {
 			public void run() {startMyApp();}
 		});
 		
+		DroidActivator.setDefaultSocketTimeout(1000);
+		DroidActivator.setDefaultConnectionTimeout(1000);
+
 		// perform the activation cycle, calls your runnable when finished
 		DroidActivator.doActivationCycle(this);
 
@@ -138,7 +141,16 @@ public class DroidActivatorTestActivity extends Activity {
 		SyncGui();
 		
 	}
+	
+	
+	// Send a Custom Event.
+	private void sendCustomEvent(){
+		DroidActivator.sendCustomEvent(3,"text:ciao");
+	}
 
+
+	
+	
 	
 	// save the current backend address in Shared Preferences
 	private void saveBackendAddress(){
@@ -218,7 +230,7 @@ public class DroidActivatorTestActivity extends Activity {
 			
 			// do Cycle button
 			Button buttonDoCycle = new Button(getContext());
-			buttonDoCycle.setText("do Activation Cycle");
+			buttonDoCycle.setText("Activation Cycle");
 			buttonDoCycle.setOnClickListener(new OnClickListener() {
 				
 				@Override
@@ -229,7 +241,7 @@ public class DroidActivatorTestActivity extends Activity {
 			
 			// Reset data button
 			Button buttonReset = new Button(getContext());
-			buttonReset.setText("Reset activation data");
+			buttonReset.setText("Reset");
 			buttonReset.setOnClickListener(new OnClickListener() {
 				
 				@Override
@@ -238,9 +250,22 @@ public class DroidActivatorTestActivity extends Activity {
 				}
 			});
 			
+			// Send custom event button
+			Button buttonEvent = new Button(getContext());
+			buttonEvent.setText("Send event");
+			buttonEvent.setOnClickListener(new OnClickListener() {
+				
+				@Override
+				public void onClick(View v) {
+					sendCustomEvent();
+				}
+			});
+
+			
 			layout.addView(new ElasticSpacer(getContext()));
 			layout.addView(buttonDoCycle);
 			layout.addView(buttonReset);
+			layout.addView(buttonEvent);
 			layout.addView(new ElasticSpacer(getContext()));
 			
 			addView(layout);
