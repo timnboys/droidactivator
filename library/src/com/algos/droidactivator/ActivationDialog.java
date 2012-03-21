@@ -1,14 +1,26 @@
 package com.algos.droidactivator;
 
+import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.Calendar;
 
 import com.algos.droidactivator.dialog.WarningDialog;
+import com.algos.droidactivator.resources.DroidActivatorIcon;
+import com.algos.droidactivator.resources.WarningIcon;
 
 import android.app.Dialog;
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.InputType;
@@ -48,7 +60,7 @@ class ActivationDialog extends Dialog {
 		super(context);
 		this.useridRequested = useridRequested;
 		this.temporaryActivationAvailable = temporaryActivationAvailable;
-		this.messageView=messageView;
+		this.messageView = messageView;
 		init();
 	}
 
@@ -68,7 +80,8 @@ class ActivationDialog extends Dialog {
 		setContentView(createContentView());
 
 		// Android bug: must be called after setContentView()!
-		setFeatureDrawableResource(Window.FEATURE_LEFT_ICON, R.drawable.droidactivator_warning_icon);
+		setFeatureDrawable(Window.FEATURE_LEFT_ICON, WarningIcon.getDrawable());
+		//setFeatureDrawableResource(Window.FEATURE_LEFT_ICON, R.drawable.droidactivator_warning_icon);
 
 		// back is disabled in this dialog
 		setCancelable(false);
@@ -114,8 +127,8 @@ class ActivationDialog extends Dialog {
 		return vLayout;
 
 	}
-	
-	
+
+
 	/**
 	 * Creates the input panel
 	 */
@@ -232,7 +245,7 @@ class ActivationDialog extends Dialog {
 		layout.setPadding(0, 15, 0, 15);
 		if (isUseridRequested()) {
 			layout.addView(centeredUseridPanel);
-			layout.addView(new Spacer(getContext(),0,10));
+			layout.addView(new Spacer(getContext(), 0, 10));
 		}
 		layout.addView(centeredCodePanel);
 
@@ -276,7 +289,7 @@ class ActivationDialog extends Dialog {
 
 			// if time isn't over, start a countdown task
 			// to show remaining seconds in the Later button text
-			if (calcDaysRemaining()>0) {
+			if (calcDaysRemaining() > 0) {
 				ButtonCountdownTask task = new ButtonCountdownTask();
 				task.execute();
 			}
@@ -330,7 +343,8 @@ class ActivationDialog extends Dialog {
 		return layout;
 
 	}
-	
+
+
 	/**
 	 * Creates the Powered By panel
 	 */
@@ -341,25 +355,23 @@ class ActivationDialog extends Dialog {
 		layout.setOrientation(LinearLayout.HORIZONTAL);
 		layout.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
 		layout.setGravity(Gravity.BOTTOM);
-		
+
 		tv = new TextView(getContext());
 		tv.setTextSize(12);
 		tv.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
 		tv.setGravity(Gravity.LEFT);
 		tv.setText(R.string.powered_by);
 		layout.addView(tv);
-		
-		layout.addView(new Spacer(getContext(),4,0));
 
-		Drawable d = getContext().getResources().getDrawable(R.drawable.droidactivator_logo);
+		layout.addView(new Spacer(getContext(), 4, 0));
+
 		ImageView iv = new ImageView(getContext());
-		iv.setImageDrawable(d);
+		iv.setImageDrawable(DroidActivatorIcon.getDrawable());
 		layout.addView(iv);
-		
+
+
 		return layout;
 	}
-
-	
 
 
 	/**
@@ -587,8 +599,8 @@ class ActivationDialog extends Dialog {
 		@Override
 		protected void onProgressUpdate(Integer... values) {
 			int elapsedSecs = values[0];
-			int remainingSecs = getMaxSec()-elapsedSecs;
-			laterButton.setText("" + remainingSecs+"s");
+			int remainingSecs = getMaxSec() - elapsedSecs;
+			laterButton.setText("" + remainingSecs + "s");
 		}
 
 
@@ -606,7 +618,7 @@ class ActivationDialog extends Dialog {
 		}
 
 	}
-	
+
 	/**
 	 * Spacer Layout<br>
 	 * Can be used horizontally or vertically<br>
@@ -614,22 +626,22 @@ class ActivationDialog extends Dialog {
 	private class Spacer extends LinearLayout {
 
 		public Spacer(Context context) {
-			this(context,4,4);
+			this(context, 4, 4);
 		}
-		
+
+
 		/**
 		 * @param context the context
 		 * @param size of the spacer in dp
 		 */
 		public Spacer(Context context, int dpWidth, int dpHeight) {
 			super(context);
-			LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(dpWidth,dpHeight);
+			LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(dpWidth, dpHeight);
 			setLayoutParams(params);
 		}
 
 	}
-	
-	
+
 	/**
 	 * A spacer with a default weigth of 1.<br>
 	 * Can be used horizontally or vertically.<br>
@@ -661,7 +673,5 @@ class ActivationDialog extends Dialog {
 		}
 
 	}
-
-
 
 }

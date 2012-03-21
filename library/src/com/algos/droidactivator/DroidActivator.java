@@ -19,6 +19,8 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.algos.droidactivator.dialog.InfoDialog;
+import com.algos.droidactivator.resources.GreenCheck48Icon;
+import com.algos.droidactivator.resources.RedCross48Icon;
 
 /**
  * Main DroidActivator's class.
@@ -384,14 +386,14 @@ public class DroidActivator {
 		// final message
 		InfoDialog dialog = new InfoDialog(context);
 		if (task.isSuccessful()) {
-			dialog.setIcon(getContext().getResources().getDrawable(R.drawable.droidactivator_greencheck48));
+			dialog.setIcon(GreenCheck48Icon.getDrawable());
 			dialog.setTitle(R.string.congratulations);
 			dialog.setMessage(getInstance().appName+" "+getContext().getString(R.string.app_successfully_activated));
 		}
 		else {
 			int failureCode = task.getFailureCode();
 			String failureString = getFailureString(failureCode);
-			dialog.setIcon(getContext().getResources().getDrawable(R.drawable.droidactivator_redcross48));
+			dialog.setIcon(RedCross48Icon.getDrawable());
 			dialog.setTitle(R.string.activation_error);
 			dialog.setMessage(failureString);
 		}

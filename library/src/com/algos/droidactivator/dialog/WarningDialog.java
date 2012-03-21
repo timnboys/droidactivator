@@ -2,6 +2,7 @@ package com.algos.droidactivator.dialog;
 
 
 import com.algos.droidactivator.R;
+import com.algos.droidactivator.resources.WarningIcon;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -31,7 +32,7 @@ public class WarningDialog extends InfoDialog {
 	
 	private void init(){
 		setTitle(getContext().getResources().getString(R.string.notify_dialog_default_title));
-		setIcon(getContext().getResources().getDrawable(R.drawable.droidactivator_warning_icon));
+		setIcon(WarningIcon.getDrawable());
 		setButton(BUTTON_POSITIVE, getContext().getResources().getString(R.string.notify_dialog_button_text), (DialogInterface.OnClickListener)null);
 	}
 	
