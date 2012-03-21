@@ -1,15 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="dialog_title">Activation required</string>
     
-    <string name="dialog_message">Welcome!\nA confirmation e-mail containing activation 
-        data will be sent to you as soon as we receive your purchase data.\n\nIn the meanwhile, 
-        you can still activate your app temporarily by pressing <b>Later</b>.</string>
         
-    <string name="input_userid_label">Enter your email</string>
-    <string name="input_code_label">Enter your code</string>
-    
     <string name="cancel_button_text">Cancel</string>
     <string name="confirm_button_text">Activate</string>
     <string name="temporary_button_text">Later</string>

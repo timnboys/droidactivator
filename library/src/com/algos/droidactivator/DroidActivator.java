@@ -21,6 +21,7 @@ import android.widget.TextView;
 import com.algos.droidactivator.dialog.InfoDialog;
 import com.algos.droidactivator.resources.GreenCheck48Icon;
 import com.algos.droidactivator.resources.RedCross48Icon;
+import com.algos.droidactivator.resources.Strings;
 
 /**
  * Main DroidActivator's class.
@@ -343,7 +344,7 @@ public class DroidActivator {
 				tv.setText(cText);
 			}
 			else {
-				tv.setText(R.string.dialog_message);
+				tv.setText(Strings.dialog_message.get());
 			}
 			view = tv;
 
