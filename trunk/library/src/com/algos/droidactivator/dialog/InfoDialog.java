@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 
 import com.algos.droidactivator.R;
+import com.algos.droidactivator.resources.InfoIcon;
 
 
 
@@ -51,7 +52,7 @@ public class InfoDialog extends AlgosAlertDialog {
 	
 	private void init(){
 		setTitle(getContext().getResources().getString(R.string.info_dialog_default_title));
-		setIcon(getContext().getResources().getDrawable(R.drawable.droidactivator_info_icon));
+		setIcon(InfoIcon.getDrawable());
 		setButtonText(getContext().getResources().getString(R.string.info_dialog_button_text));
 	}
 	
