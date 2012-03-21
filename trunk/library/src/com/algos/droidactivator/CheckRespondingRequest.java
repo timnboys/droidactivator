@@ -6,7 +6,7 @@ package com.algos.droidactivator;
 public class CheckRespondingRequest extends BackendRequest {
 
 	public CheckRespondingRequest() {
-		super("checkresponding", 1000);
+		super("checkresponding", 5000);
 	}
 
 }

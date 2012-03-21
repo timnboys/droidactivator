@@ -16,8 +16,13 @@ public class BackendRequest {
 	private int connTimeout;	// connection timeout in ms
 	private int readTimeout;	// read timeout in ms
 
-	private static final int DEFAULT_CONN_TIMEOUT=1000;	// default connection timeout in ms
-	private static final int DEFAULT_READ_TIMEOUT=1000;	// default read timeout in ms
+	private static final int DEFAULT_CONN_TIMEOUT=5000;	// default connection timeout in ms
+	
+	// default read timeout in ms
+	// specifies the timeout when reading from Input stream when a connection is established
+	// in this application we don't read from InputStreams so it should not be meaningful
+	// set it to a short value (but not 0 because 0 = infinity)
+	private static final int DEFAULT_READ_TIMEOUT=100;
 
 	/**
 	 * @param action to request to the backend
@@ -51,7 +56,7 @@ public class BackendRequest {
 			catch (IOException e) {
 			}
 			if (this.connection!=null) {
-				this.connection.setConnectTimeout(connTimeout);
+
 				this.connection.setReadTimeout(readTimeout);
 				setRequestProperty("action", this.action);
 				setRequestProperty("appname", DroidActivator.getAppName());

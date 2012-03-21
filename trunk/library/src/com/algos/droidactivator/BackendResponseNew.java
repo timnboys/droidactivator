@@ -1,24 +1,21 @@
 package com.algos.droidactivator;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.util.Calendar;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+
+import org.apache.http.Header;
+import org.apache.http.HttpResponse;
 
 /**
  * Object representing a response from the Backend.
  */
-public class BackendResponse {
+public class BackendResponseNew {
 
-	private BackendRequest request;
+	private BackendRequestNew request;
 	private HashMap<String, Object> responseMap = new HashMap<String, Object>();
 	private int httpResultCode = 0;
 
 
-	public BackendResponse(BackendRequest request) {
+	public BackendResponseNew(BackendRequestNew request) {
 		super();
 		this.request = request;
 		init();
@@ -27,61 +24,30 @@ public class BackendResponse {
 
 	private void init() {
 
-		// send the request and retrieve http response code
-		long start = Calendar.getInstance().getTimeInMillis();
-		long curr=start;
-		long elapsed=curr-start;
-		while (elapsed<5000) {
-			elapsed=curr-start;
-			curr = Calendar.getInstance().getTimeInMillis();
-			
-			try {
-				if (this.getConnection() != null) {
-					this.httpResultCode = this.getConnection().getResponseCode();
-					elapsed=10000;
-					int a = 87;
-					int b = a;
-				}
-			}
-			catch (IOException e) {
-				e.printStackTrace();
-			}
-
-		}
+		HttpResponse response=null;
 		
+		// send the request and retrieve http response code
+		response = this.request.execute();
+		this.httpResultCode = response.getStatusLine().getStatusCode();
 
 		// if the call succeeded, put all response headers in the map
 		if (isHttpSuccess()) {
-
-			Map<String, List<String>> responseMap = this.getConnection().getHeaderFields();
-			if (responseMap != null) {
-
-				String key = "";
-				String valueStr = "";
-
-				for (Iterator<String> iterator = responseMap.keySet().iterator(); iterator.hasNext();) {
-					key = (String) iterator.next();
-
-					List values = (List) responseMap.get(key);
-					if (values.size() > 0) {
-						Object value = values.get(0);
-						valueStr = Lib.getString(value);
-					}
-
-					this.responseMap.put(key, valueStr);
-
-				}
-
+			
+			Header[] headers = response.getAllHeaders();
+			
+			for (int i = 0; i < headers.length; i++) {
+				Header h = headers[i];
+				this.responseMap.put(h.getName(), h.getValue());
 			}
-
+			
 		}
 
 	}
 
 
-	private HttpURLConnection getConnection() {
-		return this.request.getConnection();
-	}
+//	private HttpURLConnection getConnection() {
+//		return this.request.getConnection();
+//	}
 
 
 	/**

@@ -13,6 +13,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.view.View;
 import android.widget.TextView;
@@ -57,6 +58,12 @@ public class DroidActivator {
 	// flag turned on when a Temporary Activation is issued.
 	// if this flag is on, the isActivated() method returns always true
 	private boolean temporarilyActivated;
+	
+	// the default connection timeout
+	private int defaultConnectionTimeout;
+	
+	// the default socket timeout
+	private int defaultSocketTimeout;
 
 	// a view to display in the message area of the dialog instead of the default message view
 	// if a custom view is specified, the custom view takes precedence over the custom text
@@ -105,6 +112,12 @@ public class DroidActivator {
 
 		// default number of seconds user must wait before "Later" button becomes enabled
 		setTemporaryWaitTime(10);
+		
+		// default connection timeout in millis
+		setDefaultConnectionTimeout(2000);
+		
+		// default socket timeout in millis
+		setDefaultSocketTimeout(5000);
 
 		// set the temporary activation flag to off
 		setTemporarilyActivated(false);
@@ -439,11 +452,19 @@ public class DroidActivator {
 		protected Void doInBackground(Void... params) {
 
 			try {
-				BackendRequest request = new BackendRequest("activate");
+				
+//				BackendRequest request = new BackendRequest("activate");
+//				request.setRequestProperty(KEY_UNIQUEID, this.uniqueId);
+//				request.setRequestProperty("userid", this.userId);
+//				request.setRequestProperty("activationcode", this.activationCode);
+//				BackendResponse response = new BackendResponse(request);
+
+				
+				BackendRequestNew request = new BackendRequestNew("activate");
 				request.setRequestProperty(KEY_UNIQUEID, this.uniqueId);
-				request.setRequestProperty("userid", this.userId);
+				request.setRequestProperty(KEY_USERID, this.userId);
 				request.setRequestProperty("activationcode", this.activationCode);
-				BackendResponse response = new BackendResponse(request);
+				BackendResponseNew response = new BackendResponseNew(request);
 
 				// write returned data in shared preferences
 				if (response.isResponseSuccess()) {
@@ -468,7 +489,6 @@ public class DroidActivator {
 					this.successful = false;
 				}
 
-				request.disconnect();
 			}
 			catch (Exception e) {
 			}
@@ -582,10 +602,16 @@ public class DroidActivator {
 		protected Void doInBackground(Void... params) {
 
 			try {
-				BackendRequest request = new BackendRequest("update");
+				
+//				BackendRequest request = new BackendRequest("update");
+//				request.setRequestProperty(KEY_UNIQUEID, this.uniqueId);
+//				request.setRequestProperty(KEY_USERID, getActivationUserId());
+//				BackendResponse response = new BackendResponse(request);
+
+				BackendRequestNew request = new BackendRequestNew("update");
 				request.setRequestProperty(KEY_UNIQUEID, this.uniqueId);
 				request.setRequestProperty(KEY_USERID, getActivationUserId());
-				BackendResponse response = new BackendResponse(request);
+				BackendResponseNew response = new BackendResponseNew(request);
 
 				// write returned data in shared preferences
 				if (response.isResponseSuccess()) {
@@ -598,7 +624,6 @@ public class DroidActivator {
 					this.successful = false;
 				}
 
-				request.disconnect();
 			}
 			catch (Exception e) {
 			}
@@ -690,11 +715,18 @@ public class DroidActivator {
 		protected Void doInBackground(Void... params) {
 
 			try {
-				BackendRequest request = new BackendRequest("event");
+				
+//				BackendRequest request = new BackendRequest("event");
+//				request.setRequestProperty(KEY_UNIQUEID, this.uniqueId);
+//				request.setRequestProperty(KEY_EVENT_CODE, ""+this.code);
+//				request.setRequestProperty(KEY_EVENT_DETAILS, this.details);
+//				BackendResponse response = new BackendResponse(request);
+
+				BackendRequestNew request = new BackendRequestNew("event");
 				request.setRequestProperty(KEY_UNIQUEID, this.uniqueId);
 				request.setRequestProperty(KEY_EVENT_CODE, ""+this.code);
-				request.setRequestProperty(KEY_EVENT_DETAILS, ""+this.details);
-				BackendResponse response = new BackendResponse(request);
+				request.setRequestProperty(KEY_EVENT_DETAILS, this.details);
+				BackendResponseNew response = new BackendResponseNew(request);
 
 				if (response.isResponseSuccess()) {
 					this.successful = true;
@@ -703,7 +735,6 @@ public class DroidActivator {
 					this.successful = false;
 				}
 
-				request.disconnect();
 			}
 			catch (Exception e) {
 			}
@@ -765,6 +796,8 @@ public class DroidActivator {
 
 		// start the background task
 		task.execute();
+		
+		boolean finished = task.isFinished();
 
 		// wait until finished
 		while (!task.isFinished()) {
@@ -774,9 +807,12 @@ public class DroidActivator {
 			catch (InterruptedException e) {
 			}
 		}
+		
+		finished = task.isFinished();
 
 		// get the result
-		return task.isResponding();
+		boolean responding = task.isResponding();
+		return responding;
 
 	}
 
@@ -796,16 +832,16 @@ public class DroidActivator {
 		protected Void doInBackground(Void... params) {
 
 			try {
-				BackendRequest request = new CheckRespondingRequest();
-				BackendResponse response = new BackendResponse(request);
+				BackendRequestNew request = new CheckRespondingRequestNew();
+				BackendResponseNew response = new BackendResponseNew(request);
 
 				if (response.isResponseSuccess()) {
 					this.responding = true;
 				}
 
-				request.disconnect();
 			}
 			catch (Exception e) {
+				int a = 87;
 			}
 			this.finished = true;
 
@@ -846,15 +882,20 @@ public class DroidActivator {
 		protected Void doInBackground(Void... params) {
 
 			try {
-				BackendRequest request = new BackendRequest("checkidpresent");
+				
+				
+//				BackendRequest request = new BackendRequest("checkidpresent");
+//				request.setRequestProperty(KEY_UNIQUEID, getUniqueId());
+//				BackendResponse response = new BackendResponse(request);
+				
+				BackendRequestNew request = new BackendRequestNew("checkidpresent");
 				request.setRequestProperty(KEY_UNIQUEID, getUniqueId());
-				BackendResponse response = new BackendResponse(request);
+				BackendResponseNew response = new BackendResponseNew(request);
 
 				if (response.isResponseSuccess()) {
 					this.present = true;
 				}
 
-				request.disconnect();
 			}
 			catch (Exception e) {
 			}
@@ -926,6 +967,22 @@ public class DroidActivator {
 
 		return url;
 	}
+	
+	/**
+	 * Returns the URI of the backend.
+	 * @return the backend URI
+	 */
+	static URI getBackendURI() {
+		URI uri = null;
+		try {
+			uri = getBackendURL().toURI();
+		}
+		catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
+		return uri;
+	}
+
 
 
 	static void runRunnable() {
@@ -1243,6 +1300,44 @@ public class DroidActivator {
 	static int getTemporaryWaitTime() {
 		return getInstance().temporaryWaitTime;
 	}
+
+	/**
+	 * Sets the default connection timeout in milliseconds.
+	 * <p>A connection timeout can occurr if the host machine is active, 
+	 * but no service is responding
+	 * 
+	 * @param days number of seconds
+	 */
+	public static void setDefaultConnectionTimeout(int millis) {
+		getInstance().defaultConnectionTimeout = millis;
+	}
+
+
+	/**
+	 * @return the default connection timeout in millis
+	 */
+	static int getDefaultConnectionTimeout() {
+		return getInstance().defaultConnectionTimeout;
+	}
+	
+	/**
+	 * Sets the default socket timeout in milliseconds.
+	 * <p>A socket timeout can occurr if the machine is down, 
+	 * or if there is no route to that host. 
+	 * @param days number of seconds
+	 */
+	public static void setDefaultSocketTimeout(int millis) {
+		getInstance().defaultSocketTimeout = millis;
+	}
+
+
+	/**
+	 * @return the default socket timeout in millis
+	 */
+	static int getDefaultSocketTimeout() {
+		return getInstance().defaultSocketTimeout;
+	}
+
 
 
 	// a view to display in the message area of the dialog instead of the default message view
