@@ -22,7 +22,7 @@ The backend is supplied in a .war file suitable to be run on a standard !WebApp 
 In the backend, go to the Activation's List and add a new record. Type the App Name exactly as declared in the "android:label" attribute of your Android App Manifest, type an e-mail address as  the !UserId, and type an 8-digit random code in the Activation Code field. Then, save the record.
 
 == Linking !DroidActivator's library to your app ==
-Download the !DroidAcrivator's library .jar file, open your project's properties -> Java Build Path-> Libraries, and add the Jar. !DroidActivator's classes hould now be available to your app.
+Download the !DroidAcrivator's library .jar file, open your project's Properties -> Java Build Path-> Libraries, and add the Jar. !DroidActivator's classes hould now be available to your app.
 
 Open your app's Manifest file and check you have declared the following permissions:
 
