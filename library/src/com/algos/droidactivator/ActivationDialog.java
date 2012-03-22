@@ -256,7 +256,7 @@ class ActivationDialog extends Dialog {
 		Button button;
 
 		// cancel button
-		button = new DialogButton(getContext(), R.string.cancel_button_text, new View.OnClickListener() {
+		button = new DialogButton(getContext(), Strings.cancel_button_text.get(), new View.OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
@@ -267,7 +267,7 @@ class ActivationDialog extends Dialog {
 
 		// later button
 		if (this.temporaryActivationAvailable) {
-			button = new DialogButton(getContext(), R.string.temporary_button_text, new View.OnClickListener() {
+			button = new DialogButton(getContext(), Strings.temporary_button_text.get(), new View.OnClickListener() {
 
 				@Override
 				public void onClick(View v) {
@@ -287,7 +287,7 @@ class ActivationDialog extends Dialog {
 		}
 
 		// activate button
-		button = new DialogButton(getContext(), R.string.confirm_button_text, new View.OnClickListener() {
+		button = new DialogButton(getContext(), Strings.confirm_button_text.get(), new View.OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
@@ -319,7 +319,7 @@ class ActivationDialog extends Dialog {
 			tv.setTextSize(12);
 			tv.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
 			tv.setGravity(Gravity.LEFT);
-			String text = getContext().getString(R.string.time_remaining) + ": " + calcDaysRemaining();
+			String text = Strings.time_remaining.get() + ": " + calcDaysRemaining();
 			tv.setText(text);
 			layout.addView(tv);
 		}
@@ -350,7 +350,7 @@ class ActivationDialog extends Dialog {
 		tv.setTextSize(12);
 		tv.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
 		tv.setGravity(Gravity.LEFT);
-		tv.setText(R.string.powered_by);
+		tv.setText(Strings.powered_by.get());
 		layout.addView(tv);
 
 		layout.addView(new Spacer(getContext(), 4, 0));
@@ -464,7 +464,7 @@ class ActivationDialog extends Dialog {
 			if (isUseridRequested()) {
 				if (!Lib.checkEmail(getUseridString())) {
 					WarningDialog dialog = new WarningDialog(getContext());
-					dialog.setMessage(getContext().getString(R.string.invalid_email_address));
+					dialog.setMessage(Strings.invalid_email_address.get());
 					dialog.show();
 					cont = false;
 				}
@@ -474,7 +474,7 @@ class ActivationDialog extends Dialog {
 		// check if network is available
 		if (cont) {
 			if (!DroidActivator.isNetworkAvailable()) {
-				new WarningDialog(getContext(), getResourceString(R.string.network_unavailable)).show();
+				new WarningDialog(getContext(), Strings.network_unavailable.get()).show();
 				cont = false;
 			}
 		}
@@ -482,7 +482,7 @@ class ActivationDialog extends Dialog {
 		// check if backend is reachable
 		if (cont) {
 			if (!DroidActivator.isBackendResponding()) {
-				new WarningDialog(getContext(), getResourceString(R.string.backend_not_responding)).show();
+				new WarningDialog(getContext(), Strings.backend_not_responding.get()).show();
 				cont = false;
 			}
 		}
@@ -523,12 +523,12 @@ class ActivationDialog extends Dialog {
 	}
 
 
-	/**
-	 * @return a string from the resources
-	 */
-	private String getResourceString(int id) {
-		return getContext().getResources().getString(id);
-	}
+//	/**
+//	 * @return a string from the resources
+//	 */
+//	private String getResourceString(int id) {
+//		return getContext().getResources().getString(id);
+//	}
 
 	// public void setOnActivationRequestedListener(OnActivationRequestedListener l){
 	// this.activationRequestedListener=l;
@@ -536,9 +536,9 @@ class ActivationDialog extends Dialog {
 
 	private class DialogButton extends Button {
 
-		public DialogButton(Context context, int textRes, View.OnClickListener listener) {
+		public DialogButton(Context context, String text, View.OnClickListener listener) {
 			super(context);
-			setText(textRes);
+			setText(text);
 			setOnClickListener(listener);
 			init();
 		}
@@ -596,7 +596,7 @@ class ActivationDialog extends Dialog {
 
 		@Override
 		protected void onPostExecute(Void result) {
-			laterButton.setText(R.string.temporary_button_text);
+			laterButton.setText(Strings.temporary_button_text.get());
 			waitTimeElapsed = true;
 			sync(); // update the GUI
 			cancel(true);

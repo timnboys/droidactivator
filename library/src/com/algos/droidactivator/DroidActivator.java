@@ -13,7 +13,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.view.View;
 import android.widget.TextView;
@@ -388,14 +387,14 @@ public class DroidActivator {
 		InfoDialog dialog = new InfoDialog(context);
 		if (task.isSuccessful()) {
 			dialog.setIcon(GreenCheck48Icon.getDrawable());
-			dialog.setTitle(R.string.congratulations);
-			dialog.setMessage(getInstance().appName+" "+getContext().getString(R.string.app_successfully_activated));
+			dialog.setTitle(Strings.congratulations.get());
+			dialog.setMessage(getInstance().appName+" "+Strings.app_successfully_activated.get());
 		}
 		else {
 			int failureCode = task.getFailureCode();
 			String failureString = getFailureString(failureCode);
 			dialog.setIcon(RedCross48Icon.getDrawable());
-			dialog.setTitle(R.string.activation_error);
+			dialog.setTitle(Strings.activation_error.get());
 			dialog.setMessage(failureString);
 		}
 		dialog.show();
@@ -413,16 +412,16 @@ public class DroidActivator {
 		String failureString = "";
 		switch (failureCode) {
 		case 1:
-			failureString = getContext().getString(R.string.wrong_activation_code);
+			failureString = Strings.wrong_activation_code.get();
 			break;
 		case 2:
-			failureString = getContext().getString(R.string.wrong_app_name);
+			failureString = Strings.wrong_app_name.get();
 			break;
 		case 3:
-			failureString = getContext().getString(R.string.userid_not_found);
+			failureString = Strings.userid_not_found.get();
 			break;
 		default:
-			failureString = getContext().getString(R.string.unrecognized_error) + ": " + failureCode;
+			failureString = Strings.unrecognized_error.get() + ": " + failureCode;
 			break;
 		}
 		return failureString;
@@ -1390,6 +1389,17 @@ public class DroidActivator {
 		ACTIVATOR.runnable = runnable;
 		ACTIVATOR.init();
 
+	}// end of method
+	
+	
+	/**
+	 * Create the Singleton instance of this class.
+	 * <p>Uses the public DroidActivator's backend on the web
+	 * @param ctx the context
+	 * @param runnable the runnable to run to start your app when an Activation Cycle is completed.
+	 */
+	public static void newInstance(Context ctx, Runnable runnable) {
+		newInstance(ctx, "droidactivator.algos.it:8080", runnable);
 	}// end of method
 
 
