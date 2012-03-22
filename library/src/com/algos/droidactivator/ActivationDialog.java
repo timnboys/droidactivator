@@ -97,7 +97,6 @@ class ActivationDialog extends Dialog {
 	 * @return the v
 	 */
 	private View createContentView() {
-		TextView tv;
 
 		// main container
 		LinearLayout vLayout = new LinearLayout(getContext());
@@ -235,10 +234,11 @@ class ActivationDialog extends Dialog {
 		LinearLayout layout = new LinearLayout(getContext());
 		layout.setOrientation(LinearLayout.VERTICAL);
 		layout.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
-		layout.setPadding(0, 15, 0, 15);
+		layout.setPadding(0, 8, 0, 10);
+		//layout.setPadding(0, 0, 0, 0);
 		if (isUseridRequested()) {
 			layout.addView(centeredUseridPanel);
-			layout.addView(new Spacer(getContext(), 0, 10));
+			layout.addView(new Spacer(getContext(), 0, 6));
 		}
 		layout.addView(centeredCodePanel);
 
