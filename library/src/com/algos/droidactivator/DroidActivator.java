@@ -74,6 +74,10 @@ public class DroidActivator {
 	// a text to display in the message view instead of the standard message
 	// if a custom view is specified, the custom view takes precedence over the custom text
 	private String dialogCustomText;
+	
+	// a text for the Cancel button  in the dialog
+	private String cancelButtonText;
+
 
 	// the shared preferences file name
 	private static String SHARED_PREFS_FILE_NAME = "droidActivatorData";
@@ -137,7 +141,7 @@ public class DroidActivator {
 			setInstallationUuid(uuid.toString());
 		}
 
-		// Device change detection: if device changes, activation is revoked,
+		// Device change detection: if device changes, activation is revoked locally,
 		// cached Unique Id is deleted, and the app has to be re-activated.
 		String cachedUid = getUniqueId();
 		if (!cachedUid.equals("")) {
@@ -1355,6 +1359,22 @@ public class DroidActivator {
 	 */
 	public static void setDialogCustomView(View view) {
 		getInstance().dialogCustomView = view;
+	}
+	
+	/**
+	 * Sets the text to use for the Cancel button in the Activation dialog 
+	 * 
+	 * @param text the text for the Cancel button
+	 */
+	public static void setCancelButtonText(String text) {
+		getInstance().cancelButtonText = text;
+	}
+
+	/**
+	 * @return the text for the Cancel button
+	 */
+	static String getCancelButtonText() {
+		return getInstance().cancelButtonText;
 	}
 
 
