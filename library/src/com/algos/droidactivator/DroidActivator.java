@@ -17,9 +17,6 @@ import android.os.AsyncTask;
 import android.view.View;
 import android.widget.TextView;
 
-import com.algos.droidactivator.dialog.InfoDialog;
-import com.algos.droidactivator.resources.GreenCheck48Icon;
-import com.algos.droidactivator.resources.RedCross48Icon;
 import com.algos.droidactivator.resources.Strings;
 
 /**
@@ -362,9 +359,9 @@ public class DroidActivator {
 	 * @param context the context for displaying the final message
 	 * @param userId the activation userid to use.
 	 * @param activationCode the activation code to use.
-	 * @return true if the ativation succeeded
+	 * @return a wrapper containin activation result information
 	 */
-	static boolean requestActivation(Context context, String userId, String activationCode) {
+	static ActivationResult requestActivation(Context context, String userId, String activationCode) {
 
 		// retrieve the Unique Id (the cached one if present, otherwise calculated on the fly)
 		String uniqueId = getUniqueId();
@@ -387,49 +384,11 @@ public class DroidActivator {
 			}
 		}
 
-		// final message
-		InfoDialog dialog = new InfoDialog(context);
-		if (task.isSuccessful()) {
-			dialog.setIcon(GreenCheck48Icon.getDrawable());
-			dialog.setTitle(Strings.congratulations.get());
-			dialog.setMessage(getInstance().appName+" "+Strings.app_successfully_activated.get());
-		}
-		else {
-			int failureCode = task.getFailureCode();
-			String failureString = getFailureString(failureCode);
-			dialog.setIcon(RedCross48Icon.getDrawable());
-			dialog.setTitle(Strings.activation_error.get());
-			dialog.setMessage(failureString);
-		}
-		dialog.show();
-
-		return task.isSuccessful();
+		return new ActivationResult(task.isSuccessful(), task.getFailureCode());
 
 	}
 
 
-	/**
-	 * @param failureCode a failure code
-	 * @return a failure string in the current language
-	 */
-	private static String getFailureString(int failureCode) {
-		String failureString = "";
-		switch (failureCode) {
-		case 1:
-			failureString = Strings.wrong_activation_code.get();
-			break;
-		case 2:
-			failureString = Strings.wrong_app_name.get();
-			break;
-		case 3:
-			failureString = Strings.userid_not_found.get();
-			break;
-		default:
-			failureString = Strings.unrecognized_error.get() + ": " + failureCode;
-			break;
-		}
-		return failureString;
-	}
 
 	/**
 	 * An AsyncTask to request the activation in a background process. 
@@ -525,6 +484,7 @@ public class DroidActivator {
 		}
 
 	}
+	
 
 
 	/**
@@ -1248,7 +1208,7 @@ public class DroidActivator {
 	}
 
 
-	private static Runnable getRunnable() {
+	static Runnable getRunnable() {
 		return getInstance().runnable;
 	}
 

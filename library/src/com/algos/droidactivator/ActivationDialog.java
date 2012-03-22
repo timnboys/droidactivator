@@ -23,8 +23,11 @@ import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 
+import com.algos.droidactivator.dialog.InfoDialog;
 import com.algos.droidactivator.dialog.WarningDialog;
 import com.algos.droidactivator.resources.DroidActivatorIcon;
+import com.algos.droidactivator.resources.GreenCheck48Icon;
+import com.algos.droidactivator.resources.RedCross48Icon;
 import com.algos.droidactivator.resources.Strings;
 import com.algos.droidactivator.resources.WarningIcon;
 
@@ -500,14 +503,66 @@ class ActivationDialog extends Dialog {
 			}
 		}
 
-		// perform the activation
+		// perform the activation, 
+		// if successful, dissmiss this dialog, show success message, run runnable when confirmed
+		// if failed, show fail message
 		if (cont) {
-			if (DroidActivator.requestActivation(getContext(), getUseridString(), getCodeString())) {
-				dismiss();
-				DroidActivator.runRunnable();
+			
+			// perform the activation and retrieve the result
+			ActivationResult result = DroidActivator.requestActivation(getContext(), getUseridString(), getCodeString());
+			boolean success = result.success;
+			int failureCode= result.failureCode;
+			
+			// show the result dialog
+			InfoDialog dialog;
+			if (success) {
+				
+				dismiss(); // dismiss this dialog
+				
+				// show success message, run runnable when confirmed
+				dialog = new InfoDialog(getContext(), DroidActivator.getRunnable());
+				dialog.setIcon(GreenCheck48Icon.getDrawable());
+				dialog.setTitle(Strings.congratulations.get());
+				dialog.setMessage(DroidActivator.getAppName()+" "+Strings.app_successfully_activated.get());
+				
 			}
+			else {
+				
+				// show fail dialog
+				dialog = new InfoDialog(getContext());
+				dialog.setIcon(RedCross48Icon.getDrawable());
+				dialog.setTitle(Strings.activation_error.get());
+				dialog.setMessage(getFailureString(failureCode));
+				
+			}
+			dialog.show();
+			
 		}
 
+	}
+
+	
+	/**
+	 * @param failureCode a failure code
+	 * @return a failure string in the current language
+	 */
+	private String getFailureString(int failureCode) {
+		String failureString = "";
+		switch (failureCode) {
+		case 1:
+			failureString = Strings.wrong_activation_code.get();
+			break;
+		case 2:
+			failureString = Strings.wrong_app_name.get();
+			break;
+		case 3:
+			failureString = Strings.userid_not_found.get();
+			break;
+		default:
+			failureString = Strings.unrecognized_error.get() + ": " + failureCode;
+			break;
+		}
+		return failureString;
 	}
 
 
