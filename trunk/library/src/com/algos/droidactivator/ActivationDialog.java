@@ -71,7 +71,7 @@ class ActivationDialog extends Dialog {
 
 		// Android bug: must be called after setContentView()!
 		setFeatureDrawable(Window.FEATURE_LEFT_ICON, WarningIcon.getDrawable());
-		//setFeatureDrawableResource(Window.FEATURE_LEFT_ICON, R.drawable.droidactivator_warning_icon);
+		// setFeatureDrawableResource(Window.FEATURE_LEFT_ICON, R.drawable.droidactivator_warning_icon);
 
 		// back is disabled in this dialog
 		setCancelable(false);
@@ -256,7 +256,11 @@ class ActivationDialog extends Dialog {
 		Button button;
 
 		// cancel button
-		button = new DialogButton(getContext(), Strings.cancel_button_text.get(), new View.OnClickListener() {
+		String text = DroidActivator.getCancelButtonText();
+		if ((text == null) || (text.equals(""))) {
+			text = Strings.cancel_button_text.get();
+		}
+		button = new DialogButton(getContext(), text, new View.OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
@@ -359,7 +363,6 @@ class ActivationDialog extends Dialog {
 		iv.setImageDrawable(DroidActivatorIcon.getDrawable());
 		layout.addView(iv);
 
-
 		return layout;
 	}
 
@@ -372,17 +375,27 @@ class ActivationDialog extends Dialog {
 	private int calcDaysRemaining() {
 		int daysLeft = 0;
 
-		long firstMillis = DroidActivator.getFirstTempActivationTS();
-		long todayMillis = Calendar.getInstance().getTimeInMillis();
-		long diff = todayMillis - firstMillis; // result in millis
+		if (temporaryActivationAvailable) {
+			
+			long firstMillis = DroidActivator.getFirstTempActivationTS();
+			int maxDays = DroidActivator.getMaximumActivationDelay();
+			
+			if (firstMillis>0) {
+				long todayMillis = Calendar.getInstance().getTimeInMillis();
+				long diff = todayMillis - firstMillis; // result in millis
 
-		int elapsedDays = (int) diff / (24 * 60 * 60 * 1000);
-		int maxDays = DroidActivator.getMaximumActivationDelay();
+				int elapsedDays = (int) diff / (24 * 60 * 60 * 1000);
 
-		daysLeft = maxDays - elapsedDays;
+				daysLeft = maxDays - elapsedDays;
 
-		if (daysLeft < 0) {
-			daysLeft = 0;
+				if (daysLeft < 0) {
+					daysLeft = 0;
+				}
+			}
+			else {
+				daysLeft=maxDays;	// temporary activation never issued yet
+			}
+
 		}
 
 		return daysLeft;
@@ -522,13 +535,12 @@ class ActivationDialog extends Dialog {
 		return this.inputCodeField.getText().toString();
 	}
 
-
-//	/**
-//	 * @return a string from the resources
-//	 */
-//	private String getResourceString(int id) {
-//		return getContext().getResources().getString(id);
-//	}
+	// /**
+	// * @return a string from the resources
+	// */
+	// private String getResourceString(int id) {
+	// return getContext().getResources().getString(id);
+	// }
 
 	// public void setOnActivationRequestedListener(OnActivationRequestedListener l){
 	// this.activationRequestedListener=l;
