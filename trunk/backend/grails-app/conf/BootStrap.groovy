@@ -1,13 +1,18 @@
-import com.algos.droidactivator.backend.Activation
-import com.algos.droidactivator.backend.Role
-import com.algos.droidactivator.backend.User
-import com.algos.droidactivator.backend.UserRole
+import org.grails.plugins.settings.Setting
+import org.springframework.mail.MailSender
+import com.algos.droidactivator.backend.*
 
 class BootStrap {
+
+    // utilizzo di un service con la businessLogic per l'elaborazione dei dati
+    // il service viene iniettato automaticamente
+    MailSender mailSender
 
     def init = { servletContext ->
 
         this.testData()
+        this.testMessage()
+        this.mailSettings()
         this.securitySetup()
 
         // nome dell'eventuale controller da invocare automaticamente
@@ -28,34 +33,57 @@ class BootStrap {
     }
 
 
+    private void testMessage() {
+        // Check whether the test data already exists.
+        if (!MessageType.count()) {
+            new MessageType(body: 'Prova in italiano. \nFunziona?').save(failOnError: true)
+        }// fine del blocco if
+    }
+
+
+    private void mailSettings() {
+
+        // host
+        this.mailProperty('host', 'mailHost', 'smtp.somemailprovider.com')
+
+        // userName
+        this.mailProperty('username', 'mailUser', 'user@domain.com')
+
+        // password
+        this.mailProperty('password', 'mailPassword', 'password')
+
+    }
+
+
+    private void mailProperty(String property, String code, String value) {
+        if (!Setting.valueFor(code)) {
+            new Setting(code: code, type: 'string', value: value).save(flush: true)
+        }// fine del blocco if
+
+        mailSender."$property" = Setting.valueFor(code)
+    }
+
+
     private void securitySetup() {
         String adminNicName
         String adminPass
 
-      // create a new admin
+        // create a new admin
         adminNicName = 'admin'
         adminPass = 'admin'
         this.newAdmin(adminNicName, adminPass)
-
-        // create a new admin
-        adminNicName = 'Gac'
-        adminPass = 'fulvia'
-        this.newAdmin(adminNicName, adminPass)
-
 
     }// fine della closure
 
     private void newAdmin(String adminNicName, String adminPass) {
         def adminRole = Role.findByAuthority('ROLE_ADMIN') ?: new Role(authority: 'ROLE_ADMIN').save()
-        def userRole = Role.findByAuthority('ROLE_USER') ?: new Role(authority: 'ROLE_USER').save()
         User user
 
         if (!User.findAllByUsername(adminNicName)) {
             user = new User(username: adminNicName, password: adminPass, enabled: true)
-            if (userRole && adminRole && user) {
+            if (adminRole && user) {
                 user.save(flush: true)
                 UserRole.create user, adminRole, true
-                UserRole.create user, userRole, true
             }// fine del blocco if
         }// fine del blocco if
     }// fine della closure

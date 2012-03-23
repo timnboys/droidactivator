@@ -98,10 +98,15 @@ grails.plugins.springsecurity.authority.className = 'com.algos.droidactivator.ba
 
 grails {
     mail {
+        //host = "smtp.algos.it"
         host = "smtp.gmail.com"
         port = 465
-        username = " youraccount@gmail.com "
-        password = "yourpassword"
+
+        //username = "gac@algos.it"
+        username = "ppp1600@gmail.com"
+
+        //password = "fulvia"
+        password = "alfabeto"
         props = ["mail.smtp.auth": "true",
                 "mail.smtp.socketFactory.port": "465",
                 "mail.smtp.socketFactory.class": "javax.net.ssl.SSLSocketFactory",
