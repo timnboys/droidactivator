@@ -72,6 +72,8 @@ public enum Strings {
 			"al tuo acquisto non sono ancora stati ricevuti. Riprova più tardi."), //
 
 	unrecognized_error("Unrecognized error code", "Codice di errore non riconosciuto"), //
+			
+	trial_period_expired("Trial period expired", "Periodo di prova scaduto"), //
 
 	
 	;
