@@ -4,10 +4,10 @@ import java.text.SimpleDateFormat
 
 class Activation {
 
-    // formattazione della data
+    // date format
     private static SimpleDateFormat SDF = new SimpleDateFormat('d MMM yy')
 
-    // nomi interni dei campi (ordine non garantito)
+    // internal fields name (random order)
     def String appName
     def boolean paid = false
     def int amount
@@ -23,8 +23,8 @@ class Activation {
     def String userCategory = ''
     def String userCurrentMail = ''
 
-    // Attributi dei vari campi
-    // Ordine in cui vengono mostrate le colonne nella lista
+    // differents constraints for fields
+    // effective order for showing columns on the list
     static constraints = {
         appName(nullable: false, blank: false)
         paid(nullable: false)

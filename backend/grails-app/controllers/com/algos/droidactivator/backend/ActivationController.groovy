@@ -1,17 +1,36 @@
 package com.algos.droidactivator.backend
 
+import grails.plugins.springsecurity.Secured
 import org.springframework.dao.DataIntegrityViolationException
 
 class ActivationController {
     // utilizzo di un service con la businessLogic per l'elaborazione dei dati
     // il service viene iniettato automaticamente
     def activationService
+    def mailService
 
     static allowedMethods = [save: "POST", update: "POST", delete: "POST"]
 
 
+    @Secured(['ROLE_ADMIN'])
     def index() {
         redirect(action: "list", params: params)
+    }
+
+
+    @Secured(['ROLE_ADMIN'])
+    def sendMail() {
+        try {
+            mailService.sendMail {
+                to "gac@algos.it"
+                subject "pippoz"
+                body "valida"
+            }
+            flash.message = "posta inviata"
+        } catch (Exception e) {
+            log.error "posta non mandata", e
+            flash.message = "not sent"
+        }
     }
 
 
@@ -49,18 +68,19 @@ class ActivationController {
             render activationService.updateRequest(request, response)
         }
 
-      /**
-       * Custom Event
-       */
-      if (action && action.equals('event')) {
-        render activationService.eventRequest(request, response)
-      }
+        /**
+         * Custom Event
+         */
+        if (action && action.equals('event')) {
+            render activationService.eventRequest(request, response)
+        }
 
 
         render 'FAILURE'
     }// end of closure
 
 
+    @Secured(['ROLE_ADMIN'])
     def list() {
         servletContext.startController = null
         params.max = Math.min(params.max ? params.int('max') : 10, 100)
@@ -68,11 +88,13 @@ class ActivationController {
     }
 
 
+    @Secured(['ROLE_ADMIN'])
     def create() {
         [activationInstance: new Activation(params)]
     }
 
 
+    @Secured(['ROLE_ADMIN'])
     def save() {
         def activationInstance = new Activation(params)
         if (!activationInstance.save(flush: true)) {
@@ -85,6 +107,7 @@ class ActivationController {
     }
 
 
+    @Secured(['ROLE_ADMIN'])
     def show() {
         def activationInstance = Activation.get(params.id)
         if (!activationInstance) {
@@ -97,6 +120,7 @@ class ActivationController {
     }
 
 
+    @Secured(['ROLE_ADMIN'])
     def edit() {
         def activationInstance = Activation.get(params.id)
         if (!activationInstance) {
@@ -109,6 +133,7 @@ class ActivationController {
     }
 
 
+    @Secured(['ROLE_ADMIN'])
     def update() {
         def activationInstance = Activation.get(params.id)
         if (!activationInstance) {
@@ -140,6 +165,7 @@ class ActivationController {
     }
 
 
+    @Secured(['ROLE_ADMIN'])
     def delete() {
         def activationInstance = Activation.get(params.id)
         if (!activationInstance) {
