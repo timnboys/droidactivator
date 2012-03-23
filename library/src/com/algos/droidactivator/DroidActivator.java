@@ -75,7 +75,14 @@ public class DroidActivator {
 	// a text for the Cancel button  in the dialog
 	private String cancelButtonText;
 
+	// a text for the Later button  in the dialog
+	private String laterButtonText;
+	
+	// a text for the Activation Dialog title
+	private String dialogTitle;
 
+
+	
 	// the shared preferences file name
 	private static String SHARED_PREFS_FILE_NAME = "droidActivatorData";
 
@@ -1334,7 +1341,53 @@ public class DroidActivator {
 	 * @return the text for the Cancel button
 	 */
 	static String getCancelButtonText() {
-		return getInstance().cancelButtonText;
+		String text = getInstance().cancelButtonText;
+		if ((text == null) || (text.equals(""))) {
+			text = Strings.cancel_button_text.get();
+		}
+		return text;
+	}
+	
+	/**
+	 * Sets the text to use for the Later button in the Activation dialog 
+	 * 
+	 * @param text the text for the Later button
+	 */
+	public static void setLaterButtonText(String text) {
+		getInstance().laterButtonText = text;
+	}
+
+	/**
+	 * @return the text for the Later button
+	 */
+	static String getLaterButtonText() {
+		String text = getInstance().laterButtonText;
+		if ((text == null) || (text.equals(""))) {
+			text = Strings.temporary_button_text.get();
+		}
+		return text;
+
+	}
+	
+	/**
+	 * Sets the text to use for the Activation dialog title
+	 * 
+	 * @param text the text for the Activation dialog title
+	 */
+	public static void setDialogTitle(String text) {
+		getInstance().dialogTitle = text;
+	}
+
+	/**
+	 * @return the text for the Activation dialog title
+	 */
+	static String getDialogTitle() {
+		String text = getInstance().dialogTitle;
+		if ((text == null) || (text.equals(""))) {
+			text = Strings.dialog_title.get();
+		}
+		return text;
+
 	}
 
 

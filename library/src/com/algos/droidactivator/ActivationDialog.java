@@ -69,7 +69,7 @@ class ActivationDialog extends Dialog {
 		// Android bug: this line should go here but if i put it here the icon is invisibe!
 		// setFeatureDrawableResource(Window.FEATURE_LEFT_ICON, R.drawable.warning_icon);
 
-		setTitle(Strings.dialog_title.get());
+		setTitle(DroidActivator.getDialogTitle());
 		setContentView(createContentView());
 
 		// Android bug: must be called after setContentView()!
@@ -251,7 +251,8 @@ class ActivationDialog extends Dialog {
 	 * Creates the button panel
 	 */
 	private View createButtonPanel() {
-
+		String text;
+		
 		LinearLayout layout = new LinearLayout(getContext());
 		layout.setOrientation(LinearLayout.HORIZONTAL);
 		layout.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
@@ -259,11 +260,7 @@ class ActivationDialog extends Dialog {
 		Button button;
 
 		// cancel button
-		String text = DroidActivator.getCancelButtonText();
-		if ((text == null) || (text.equals(""))) {
-			text = Strings.cancel_button_text.get();
-		}
-		button = new DialogButton(getContext(), text, new View.OnClickListener() {
+		button = new DialogButton(getContext(), DroidActivator.getCancelButtonText(), new View.OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
@@ -274,7 +271,7 @@ class ActivationDialog extends Dialog {
 
 		// later button
 		if (this.temporaryActivationAvailable) {
-			button = new DialogButton(getContext(), Strings.temporary_button_text.get(), new View.OnClickListener() {
+			button = new DialogButton(getContext(),DroidActivator.getLaterButtonText(), new View.OnClickListener() {
 
 				@Override
 				public void onClick(View v) {
@@ -308,6 +305,9 @@ class ActivationDialog extends Dialog {
 
 	}
 
+	
+	
+
 
 	/**
 	 * Creates the bottom panel (time remaining & powered by)
@@ -326,7 +326,15 @@ class ActivationDialog extends Dialog {
 			tv.setTextSize(12);
 			tv.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
 			tv.setGravity(Gravity.LEFT);
-			String text = Strings.time_remaining.get() + ": " + calcDaysRemaining();
+			
+			String text="";
+			int days = calcDaysRemaining();
+			if (days>0) {
+				text = Strings.time_remaining.get() + ": " + calcDaysRemaining();
+			}
+			else {
+				text = Strings.trial_period_expired.get();
+			}
 			tv.setText(text);
 			layout.addView(tv);
 		}
@@ -663,7 +671,7 @@ class ActivationDialog extends Dialog {
 
 		@Override
 		protected void onPostExecute(Void result) {
-			laterButton.setText(Strings.temporary_button_text.get());
+			laterButton.setText(DroidActivator.getLaterButtonText());
 			waitTimeElapsed = true;
 			sync(); // update the GUI
 			cancel(true);
