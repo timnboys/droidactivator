@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta name="layout" content="main"/>
-    <title>Welcome to Grails</title>
+    <title>Welcome to DroidActivator</title>
     <style type="text/css" media="screen">
     #status {
         background-color: #eee;
@@ -118,12 +118,9 @@ Se la variabile non è il nome di un controller esistente va in errore.
     </div>
 
     <div id="page-body" role="main">
-        <h1>Welcome to Grails</h1>
+        <h1>Welcome to DroidActivator</h1>
 
-        <p>Congratulations, you have successfully started your first Grails application! At the moment
-        this is the default page, feel free to modify it to either redirect to a controller or display whatever
-        content you may choose. Below is a list of controllers that are currently deployed in this application,
-        click on each to execute its default action:</p>
+        <p>Congratulations, this is DroidAcrivator's backend control interface!</p>
 
         <div id="controller-list" role="navigation">
             <h2>Available Controllers:</h2>
