@@ -8,14 +8,14 @@ import org.apache.http.HttpResponse;
 /**
  * Object representing a response from the Backend.
  */
-public class BackendResponseNew {
+public class BackendResponse {
 
-	private BackendRequestNew request;
+	private BackendRequest request;
 	private HashMap<String, Object> responseMap = new HashMap<String, Object>();
 	private int httpResultCode = 0;
 
 
-	public BackendResponseNew(BackendRequestNew request) {
+	public BackendResponse(BackendRequest request) {
 		super();
 		this.request = request;
 		init();

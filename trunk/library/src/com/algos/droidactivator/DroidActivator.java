@@ -41,6 +41,9 @@ public class DroidActivator {
 
 	// the backend address as supplied in the constructor
 	private String address;
+	
+	// the application's Producer id
+	private int producer_id;
 
 	// the runnable to run to start the app when an Activation Cycle is completed
 	private Runnable runnable;
@@ -432,11 +435,11 @@ public class DroidActivator {
 //				BackendResponse response = new BackendResponse(request);
 
 				
-				BackendRequestNew request = new BackendRequestNew("activate");
+				BackendRequest request = new BackendRequest("activate");
 				request.setRequestProperty(KEY_UNIQUEID, this.uniqueId);
 				request.setRequestProperty(KEY_USERID, this.userId);
 				request.setRequestProperty("activationcode", this.activationCode);
-				BackendResponseNew response = new BackendResponseNew(request);
+				BackendResponse response = new BackendResponse(request);
 
 				// write returned data in shared preferences
 				if (response.isResponseSuccess()) {
@@ -581,10 +584,10 @@ public class DroidActivator {
 //				request.setRequestProperty(KEY_USERID, getActivationUserId());
 //				BackendResponse response = new BackendResponse(request);
 
-				BackendRequestNew request = new BackendRequestNew("update");
+				BackendRequest request = new BackendRequest("update");
 				request.setRequestProperty(KEY_UNIQUEID, this.uniqueId);
 				request.setRequestProperty(KEY_USERID, getActivationUserId());
-				BackendResponseNew response = new BackendResponseNew(request);
+				BackendResponse response = new BackendResponse(request);
 
 				// write returned data in shared preferences
 				if (response.isResponseSuccess()) {
@@ -695,11 +698,11 @@ public class DroidActivator {
 //				request.setRequestProperty(KEY_EVENT_DETAILS, this.details);
 //				BackendResponse response = new BackendResponse(request);
 
-				BackendRequestNew request = new BackendRequestNew("event");
+				BackendRequest request = new BackendRequest("event");
 				request.setRequestProperty(KEY_UNIQUEID, this.uniqueId);
 				request.setRequestProperty(KEY_EVENT_CODE, ""+this.code);
 				request.setRequestProperty(KEY_EVENT_DETAILS, this.details);
-				BackendResponseNew response = new BackendResponseNew(request);
+				BackendResponse response = new BackendResponse(request);
 
 				if (response.isResponseSuccess()) {
 					this.successful = true;
@@ -805,8 +808,8 @@ public class DroidActivator {
 		protected Void doInBackground(Void... params) {
 
 			try {
-				BackendRequestNew request = new CheckRespondingRequestNew();
-				BackendResponseNew response = new BackendResponseNew(request);
+				BackendRequest request = new CheckRespondingRequest();
+				BackendResponse response = new BackendResponse(request);
 
 				if (response.isResponseSuccess()) {
 					this.responding = true;
@@ -861,9 +864,9 @@ public class DroidActivator {
 //				request.setRequestProperty(KEY_UNIQUEID, getUniqueId());
 //				BackendResponse response = new BackendResponse(request);
 				
-				BackendRequestNew request = new BackendRequestNew("checkidpresent");
+				BackendRequest request = new BackendRequest("checkuidpresent");
 				request.setRequestProperty(KEY_UNIQUEID, getUniqueId());
-				BackendResponseNew response = new BackendResponseNew(request);
+				BackendResponse response = new BackendResponse(request);
 
 				if (response.isResponseSuccess()) {
 					this.present = true;
@@ -911,6 +914,11 @@ public class DroidActivator {
 	static String getAppName() {
 		return getInstance().appName;
 	}
+	
+	static int getProducerId() {
+		return getInstance().producer_id;
+	}
+
 
 
 	/**
@@ -926,7 +934,8 @@ public class DroidActivator {
 			if (address.length() >= 16) { // cant be less than http://x.xx:0000
 				if (address.contains(".")) {// at least one dot is mandatory
 					if (address.contains(":")) {// at least one : is mandatory
-						String urlString = address + "/activator/activation/check";
+						//String urlString = address + "/activator/activation/check";
+						String urlString = address;
 						try {
 							url = new URL(urlString);
 						}
@@ -1408,17 +1417,19 @@ public class DroidActivator {
 	 * 
 	 * @param ctx the context
 	 * @param address the backend address
+	 * @param producerId your producer Id
 	 * @param runnable the runnable to run to start your app when an Activation Cycle is completed.
-	 * <p>Valid backend addresses are in the form "http://123.123.123.123:8080" or 
-	 * "http://mydomain.com:8081".
-	 * <p>The default backend port is 8080.
+	 * The producer id identifies the application producer. Can be left to 0 if DroidAcrivator
+	 * is used anly for applications of the same producer.
+	 * <p>Valid backend addresses are in the form "http://123.123.123.123" or "http://mydomain.com:12100".
 	 */
-	public static void newInstance(Context ctx, String address, Runnable runnable) {
+	public static void newInstance(Context ctx, String address, int producerId, Runnable runnable) {
 		if (ACTIVATOR == null) {
 			ACTIVATOR = new DroidActivator();
 		}
 		ACTIVATOR.context = ctx.getApplicationContext(); // this survives for all the app lifetime!
 		ACTIVATOR.address = address;
+		ACTIVATOR.producer_id = producerId;
 		ACTIVATOR.runnable = runnable;
 		ACTIVATOR.init();
 
@@ -1429,10 +1440,11 @@ public class DroidActivator {
 	 * Create the Singleton instance of this class.
 	 * <p>Uses the public DroidActivator's backend on the web
 	 * @param ctx the context
+	 * @param producerId your producer Id
 	 * @param runnable the runnable to run to start your app when an Activation Cycle is completed.
 	 */
-	public static void newInstance(Context ctx, Runnable runnable) {
-		newInstance(ctx, "droidactivator.algos.it:8080", runnable);
+	public static void newInstance(Context ctx, int producerId, Runnable runnable) {
+		newInstance(ctx, "droidactivator.algos.it:8080", producerId, runnable);
 	}// end of method
 
 
