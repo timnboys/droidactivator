@@ -15,7 +15,7 @@ import android.net.http.AndroidHttpClient;
  * An object representing a request to the backend.
  * <p>Encapsulates an HttpClient.
  */
-public class BackendRequestNew {
+public class BackendRequest {
 
 	private String action;
 	private int connTimeout;	// connection timeout in ms
@@ -27,7 +27,7 @@ public class BackendRequestNew {
 	 * @param action to request to the backend
 	 * @param connTimeout the connection timeout in ms
 	 */
-	public BackendRequestNew(String action, int connTimeout) {
+	public BackendRequest(String action, int connTimeout) {
 		super();
 		this.action=action;
 		this.connTimeout=connTimeout;
@@ -38,7 +38,7 @@ public class BackendRequestNew {
 	/**
 	 * @param action to request to the backend
 	 */
-	public BackendRequestNew(String action) {
+	public BackendRequest(String action) {
 		this(action, DroidActivator.getDefaultConnectionTimeout());
 	}
 	
@@ -48,6 +48,7 @@ public class BackendRequestNew {
 
 		// standard request properties (always present)
 		setRequestProperty("action", this.action);
+		setRequestProperty("producerid", ""+DroidActivator.getProducerId());
 		setRequestProperty("appname", DroidActivator.getAppName());
 
 	}
@@ -72,6 +73,7 @@ public class BackendRequestNew {
 		
 		// create an HTTPGet request
 		HttpGet request = new HttpGet(DroidActivator.getBackendURI());
+		//HttpPost request = new HttpPost(DroidActivator.getBackendURI());
 		
 		// add request headers
 		for (Entry<String, String> entry : this.properties.entrySet()) {
