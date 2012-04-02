@@ -33,16 +33,17 @@ Now the backend is ready to respond to the activation requests of your Android a
 
 == Linking !DroidActivator's library to your app ==
  * Download [http://droidactivator.googlecode.com/files/droidactivator.jar droidactivator.jar] from the Downloads section and put it somewhere inside your Android app's folder
- * In Eclipse, open your project's Properties -> Java Build Path-> Libraries, and add the Jar. !DroidActivator's classes hould now be available to your app.
-
-== Call the activation process from within your code ==
-
-Open your app's Manifest file and check you have declared the following permissions:
+ * In Eclipse, open your project's Properties -> Java Build Path-> Libraries, and add the Jar. !DroidActivator's classes should now be available to your app.
+ * Open your app's Manifest file and check you have declared the following permissions:
 
 {{{
 <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 <uses-permission android:name="android.permission.INTERNET" />
 }}}
+
+
+== Call the activation process from within your code ==
+
 
 Open your starting activity onCreate() method and implement the following code:
 
