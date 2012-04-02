@@ -24,7 +24,8 @@ Type <b>da</b> and submit (you can change the default password in the dbconfig.p
 an empty database is created and a a page is shown where you can manage activation records. 
 
 == Adding activation records ==
-In the backend, go to the Activation's List and add a new record. Type the App Name exactly as declared in the "android:label" attribute of your Android App Manifest, type an e-mail address as  the !UserId, and type an 8-digit random code in the Activation Code field. Then, save the record.
+Fill the fields with activation data. User Id, App Name and Activation code are mandatory. You can leave the other fields blank.
+Type an e-mail address as  the !UserId, type the App Name exactly as declared in the "android:label" attribute of your Android App Manifest, and type an 8-digit random code in the Activation Code field. Then, add the record.
 
 
 
