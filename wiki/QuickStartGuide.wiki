@@ -45,7 +45,7 @@ Now the backend is ready to respond to the activation requests of your Android a
 == Call the activation process from within your code ==
 
 
-Open your starting activity onCreate() method and implement the following code:
+Open your main activity onCreate() method and implement the following code:
 
 {{{
 public void onCreate(Bundle savedInstanceState) {
