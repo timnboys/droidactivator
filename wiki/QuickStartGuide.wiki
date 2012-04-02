@@ -5,7 +5,7 @@ To get started with !DroidActivator, you need to perform the following steps:
  * Install and configure the backend php application
  * Add activation records to the database
  * Link !DroidActivator's Library to your app 
- * Call the activation process from within your Android Activity
+ * Call the activation process from within your Android code
 
 == Installing an Apache / Php / !MySql environment ==
 The backend is based on the classic combination of Apache - Php - Mysql. If you don't already have it installed on your server, you will find lots of tutorials on the web. One of the most popular solutions on Windows is [http://www.wampserver.com/ WAMP]. Using Apache is not mandatory, you can use any php-enabled web server.
