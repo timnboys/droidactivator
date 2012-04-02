@@ -109,8 +109,9 @@ function update($headers){
 
 	// Save last successful update timestamp
 	if ($success) {
-		$current_time=time();
-		mysql_query("UPDATE activation SET last_update = '$current_time' WHERE id = '$id'");
+		$phpdate=time();
+		$mysqldate = date( 'Y-m-d H:i:s', $phpdate );
+		mysql_query("UPDATE activation SET last_update = '$mysqldate' WHERE id = '$id'");
 	}
 	
 	// set success header
@@ -221,8 +222,9 @@ function activate($headers){
 
 	// Save last successful activation and update timestamp
 	if ($success) {
-		$current_time=time();
-		mysql_query("UPDATE activation SET last_activation='$current_time', last_update = '$current_time' WHERE id = '$id'");
+		$phpdate=time();
+		$mysqldate = date( 'Y-m-d H:i:s', $phpdate );
+		mysql_query("UPDATE activation SET last_activation='$mysqldate', last_update = '$mysqldate' WHERE id = '$id'");
 	}
 	
 	// set success header
@@ -321,7 +323,9 @@ function putBundleInResponse($db,$id){
 			header('level: ' . $row['level']);
 
 			// expiration
-			header('expiration: ' . $row['expiration']);
+			$mysqldate=$row['expiration'];
+			$php_date=strtotime($mysqldate);
+			header('expiration: ' . $php_date);
 
 		}
 	}
