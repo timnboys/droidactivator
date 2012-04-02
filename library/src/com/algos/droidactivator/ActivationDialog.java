@@ -406,14 +406,14 @@ class ActivationDialog extends Dialog {
 
 		if (temporaryActivationAvailable) {
 			
-			long firstMillis = DroidActivator.getFirstTempActivationTS();
+			long firstSeconds = DroidActivator.getFirstTempActivationTS();
 			int maxDays = DroidActivator.getMaximumActivationDelay();
 			
-			if (firstMillis>0) {
-				long todayMillis = Calendar.getInstance().getTimeInMillis();
-				long diff = todayMillis - firstMillis; // result in millis
+			if (firstSeconds>0) {
+				long todaySeconds = Calendar.getInstance().getTimeInMillis()/1000;
+				long diff = todaySeconds - firstSeconds; // result in seconds
 
-				int elapsedDays = (int) diff / (24 * 60 * 60 * 1000);
+				int elapsedDays = (int) diff / (24 * 60 * 60);
 
 				daysLeft = maxDays - elapsedDays;
 
