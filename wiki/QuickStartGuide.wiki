@@ -8,9 +8,11 @@ To get started with !DroidActivator, you need to perform the following steps:
 
 == Installing an Apache/Php/MySql environment ==
 The backend is based on the classic combination of Apache - Php - Mysql. If you don't already have it installed on your server, you will find lots of tutorials on the web. One of the most popular solutions on windows is [http://www.wampserver.com/ WAMP].
+Using Apache is not mandatory, you can use any php-enabled web server.
 
 == Installing the backend ==
-The backend is based on the classic combination of Apache - Php - Mysql. If you don't already have it installed on your server, you will find lots of tutorials on the web. One of the most popular solutions on windows is [http://www.wampserver.com/ WAMP].
+The backend is written in php and is contained in a folder to be installed on your web server's web folder. Download the backend from here and Just copy the uncompressed folder to your Web Server
+The backend is based on the classic combination of Apache - Php - !Mysql. If you don't already have it installed on your server, you will find lots of tutorials on the web. One of the most popular solutions on windows is [http://www.wampserver.com/ WAMP].
 
 written in php and is contained in a folder to be installed on your web server's web folder. You can use any php-enabled web server. Make sure php support is enabled for the web server.
 
