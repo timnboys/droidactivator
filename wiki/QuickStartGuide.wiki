@@ -27,7 +27,7 @@ an empty database is created and a a page is shown where you can manage activati
 == Adding activation records ==
 Fill the fields with activation data. User Id, App Name and Activation code are mandatory. You can leave the other fields blank.
  * Type an e-mail address as  the !UserId
- * Type the App Name exactly as declared in the "android:label" attribute of your Android App Manifest
+ * Type the App Name exactly as declared in the "android:label" attribute of your Android App's Manifest
  * Type an 8-digit random code in the Activation Code field. 
 
 Then, add the record.
