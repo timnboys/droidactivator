@@ -114,7 +114,7 @@ public class DroidActivator {
 	static String KEY_EXPIRATION = "expiration";
 	static String KEY_INSTALLATION_UUID = "installation_UUID";
 	static String KEY_UNIQUEID = "uniqueid";
-	static String KEY_TS_FIRST_TEMP_ACTIVATION = "first_temp_activation"; // the timestamp of the first Temporary Activation
+	static String KEY_TS_FIRST_TEMP_ACTIVATION = "first_temp_activation"; // the unix timestamp of the first Temporary Activation
 	static String KEY_USERID = "userid";// the user id entered in the last full activation
 	static String KEY_EVENT_CODE = "eventcode";// the custom event code
 	static String KEY_EVENT_DETAILS = "eventdetails";// the custom event details
@@ -525,11 +525,11 @@ public class DroidActivator {
 		setTemporarilyActivated(true);
 
 		// save the time of the first temporary activation
-		long ts = getFirstTempActivationTS();
-		if (ts == 0) {
+		long seconds = getFirstTempActivationTS();
+		if (seconds == 0) {
 			Calendar c = Calendar.getInstance();
-			ts = c.getTimeInMillis();
-			setFirstTempActivationTS(ts);
+			seconds = c.getTimeInMillis()/1000;
+			setFirstTempActivationTS(seconds);
 		}
 
 	}
@@ -941,8 +941,13 @@ public class DroidActivator {
 			if (address.length() >= 16) { // cant be less than http://x.xx:0000
 				if (address.contains(".")) {// at least one dot is mandatory
 					if (address.contains(":")) {// at least one : is mandatory
-						//String urlString = address + "/activator/activation/check";
-						String urlString = address;
+						
+						// strip ending slashes
+						while ((address.charAt(address.length()-1))=='/') {
+							address = address.substring(0,address.length()-1);
+						}
+						
+						String urlString = address + "/da_backend/check.php";
 						try {
 							url = new URL(urlString);
 						}
@@ -1076,9 +1081,9 @@ public class DroidActivator {
 	 */
 	public static Date getExpirationDate() {
 		Date date=null;
-		long millis = getPrefs().getLong(KEY_EXPIRATION, 0);
-		if (millis>0) {
-			date = new Date(millis);
+		long secs = getPrefs().getLong(KEY_EXPIRATION, 0);
+		if (secs>0) {
+			date = new Date(secs*1000);
 		}
 		return date;
 	}
@@ -1087,7 +1092,7 @@ public class DroidActivator {
 	/**
 	 * Saves the timestamp of the first Temporary Activation in shared preferences.
 	 * 
-	 * @param timestamp of the first Temporary Activation
+	 * @param unix timestamp of the first Temporary Activation
 	 */
 	private static void setFirstTempActivationTS(long timestamp) {
 		getPrefs().edit().putLong(KEY_TS_FIRST_TEMP_ACTIVATION, timestamp).commit();
@@ -1097,7 +1102,7 @@ public class DroidActivator {
 	/**
 	 * Returns the timestamp of the first Temporary Activation from shared preferences.
 	 * 
-	 * @return the timestamp of the first Temporary Activation
+	 * @return the unix timestamp of the first Temporary Activation
 	 */
 	static long getFirstTempActivationTS() {
 		return getPrefs().getLong(KEY_TS_FIRST_TEMP_ACTIVATION, 0);
@@ -1454,7 +1459,7 @@ public class DroidActivator {
 	 * <p>Valid backend addresses are in the form "http://123.123.123.123" or "http://mydomain.com:12100".
 	 */
 	public static void newInstance(Context ctx, String address, Runnable runnable) {
-		newInstance(ctx, "droidactivator.algos.it:8080", 0, runnable);
+		newInstance(ctx, "droidactivator.algos.it", 0, runnable);
 	}// end of method
 
 	
@@ -1466,7 +1471,7 @@ public class DroidActivator {
 	 * @param runnable the runnable to run to start your app when an Activation Cycle is completed.
 	 */
 	public static void newInstance(Context ctx, int producerId, Runnable runnable) {
-		newInstance(ctx, "droidactivator.algos.it:8080", producerId, runnable);
+		newInstance(ctx, "droidactivator.algos.it", producerId, runnable);
 	}// end of method
 
 
