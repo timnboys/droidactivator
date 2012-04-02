@@ -1,27 +1,18 @@
 #summary DroidActivator Quick Start Guide
 
 To get started with !DroidActivator, you need to perform the following steps:
- * Install and configure an Apache/Php/MySql environment.
+ * Install and configure an Apache/Php/!MySql environment.
  * Install and configure the backend php application.
  * Load activation records into the backend
  * Link the Android Library to your app and call the activation process within your code
 
 == Installing an Apache/Php/MySql environment ==
-The backend is based on the classic combination of Apache - Php - Mysql. If you don't already have it installed on your server, you will find lots of tutorials on the web. One of the most popular solutions on windows is [http://www.wampserver.com/ WAMP].
+The backend is based on the classic combination of Apache - Php - Mysql. If you don't already have it installed on your server, you will find lots of tutorials on the web. One of the most popular solutions on Windows is [http://www.wampserver.com/ WAMP].
 Using Apache is not mandatory, you can use any php-enabled web server.
 
 == Installing the backend ==
-The backend is written in php and is contained in a folder to be installed on your web server's web folder. Download the backend from here and Just copy the uncompressed folder to your Web Server
-The backend is based on the classic combination of Apache - Php - !Mysql. If you don't already have it installed on your server, you will find lots of tutorials on the web. One of the most popular solutions on windows is [http://www.wampserver.com/ WAMP].
+The backend is written in php and is contained in a folder to be installed on your web server's web folder. Download the backend from [http://droidactivator.googlecode.com/files/da_backend.zip here] and Just copy the uncompressed folder to your Web Server folder.
 
-written in php and is contained in a folder to be installed on your web server's web folder. You can use any php-enabled web server. Make sure php support is enabled for the web server.
-
-Locate the Web Folder in your web server
-The backend is supplied in a .war file suitable to be run on a standard !WebApp container like Apache Tomcat. Here we assume you will use Tomcat. If you are using another container, refer to the container's guide.
-
- * [http://tomcat.apache.org/ Download and install Apache Tomcat]
- * Download the backend .war file and add it to the Tomcat folder
- * Restart Tomcat and check if the application droidactivator is running
  * Open your browser and type http://yourserveraddress:8080/activator/, the !DroidActivator's backend home page should appear
 
 == Adding activation records ==
