@@ -1,8 +1,8 @@
 #summary DroidActivator Quick Start Guide
 
 To get started with !DroidActivator, you need to perform the following steps:
- * Install and configure an Apache / Php/ !MySql environment.
- * Install and configure the backend php application.
+ * Install and configure an Apache / Php/ !MySql environment
+ * Install and configure the backend php application
  * Add activation records to the database
  * Link !DroidActivator's Library to your app 
  * Call the activation process from within your code
