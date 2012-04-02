@@ -3,8 +3,9 @@
 To get started with !DroidActivator, you need to perform the following steps:
  * Install and configure an Apache / Php/ !MySql environment.
  * Install and configure the backend php application.
- * Load activation records into the backend
- * Link the Android Library to your app and call the activation process within your code
+ * Add activation records to the database
+ * Link !DroidActivator's Library to your app 
+ * Call the activation process from within your code
 
 == Installing an Apache / Php / !MySql environment ==
 The backend is based on the classic combination of Apache - Php - Mysql. If you don't already have it installed on your server, you will find lots of tutorials on the web. One of the most popular solutions on Windows is [http://www.wampserver.com/ WAMP]. Using Apache is not mandatory, you can use any php-enabled web server.
@@ -27,13 +28,13 @@ an empty database is created and a a page is shown where you can manage activati
 Fill the fields with activation data. User Id, App Name and Activation code are mandatory. You can leave the other fields blank.
 Type an e-mail address as  the !UserId, type the App Name exactly as declared in the "android:label" attribute of your Android App Manifest, and type an 8-digit random code in the Activation Code field. Then, add the record.
 
-
-
-, the !DroidActivator's backend home page should appear
+Now the backend is ready to respond to the activation requests of your Android app.
 
 
 == Linking !DroidActivator's library to your app ==
-Download the !DroidAcrivator's library .jar file, open your project's Properties -> Java Build Path-> Libraries, and add the Jar. !DroidActivator's classes hould now be available to your app.
+Download the !DroidAcrivator's library .jar file from the Downloads section, open your project's Properties -> Java Build Path-> Libraries, and add the Jar. !DroidActivator's classes hould now be available to your app.
+
+== Call the activation process from within your code ==
 
 Open your app's Manifest file and check you have declared the following permissions:
 
@@ -82,5 +83,7 @@ private void startMyApp() {
 	}
 }
 }}}
+
+
 
 When your app starts up, !DroidActivator's Activation dialog should appear. Have fun!
