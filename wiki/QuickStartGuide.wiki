@@ -19,7 +19,7 @@ Open your browser and type http://[yourserveraddress]/da_backend/admin.php
 
 if everything is ok, you should be asked for the Admin password.
 
-Type <b>da</b> and submit (you can change your password in the dbconfig.php file)
+Type <b>da</b> and submit (you can change the default password in the dbconfig.php file)
 
 an empty database is created and a a page is shown where you can manage activation records. 
 
