@@ -19,16 +19,17 @@ Open your browser and type http://[yourserveraddress]/da_backend/admin.php
 
 if everything is ok, you should be asked for the Admin password.
 
-Type da and submit (you can change your password in the dbconfig.php file)
+Type <b>da</b> and submit (you can change your password in the dbconfig.php file)
 
+an empty database is created and a a page is shown where you can manage activation records. 
 
-the database is created
+== Adding activation records ==
+In the backend, go to the Activation's List and add a new record. Type the App Name exactly as declared in the "android:label" attribute of your Android App Manifest, type an e-mail address as  the !UserId, and type an 8-digit random code in the Activation Code field. Then, save the record.
+
 
 
 , the !DroidActivator's backend home page should appear
 
-== Adding activation records ==
-In the backend, go to the Activation's List and add a new record. Type the App Name exactly as declared in the "android:label" attribute of your Android App Manifest, type an e-mail address as  the !UserId, and type an 8-digit random code in the Activation Code field. Then, save the record.
 
 == Linking !DroidActivator's library to your app ==
 Download the !DroidAcrivator's library .jar file, open your project's Properties -> Java Build Path-> Libraries, and add the Jar. !DroidActivator's classes hould now be available to your app.
