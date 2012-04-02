@@ -10,9 +10,22 @@ To get started with !DroidActivator, you need to perform the following steps:
 The backend is based on the classic combination of Apache - Php - Mysql. If you don't already have it installed on your server, you will find lots of tutorials on the web. One of the most popular solutions on Windows is [http://www.wampserver.com/ WAMP]. Using Apache is not mandatory, you can use any php-enabled web server.
 
 == Installing the backend ==
-The backend is written in php and is contained in a folder to be installed on your web server's web folder. Download the backend from [http://droidactivator.googlecode.com/files/da_backend.zip here] and Just copy the uncompressed folder to your web server's web folder.
+The backend is written in php and is contained in a folder to be installed on your web server's web folder. Download the backend from [http://droidactivator.googlecode.com/files/da_backend.zip here] decompress and copy the resulting "da_backend" folder to your web server's web folder.
 
- * Open your browser and type http://yourserveraddress:8080/activator/, the !DroidActivator's backend home page should appear
+== Configuring the backend ==
+Open the dbconfig.php file (located in the Lib folder inside the da_backend folder) with a text editor and replace the standard configuration with your HOST, USERNAME, PASSWORD, DATABASE values.
+
+Open your browser and type http://[yourserveraddress]/da_backend/admin.php
+
+if everything is ok, you should be asked for the Admin password.
+
+Type da and submit (you can change your password in the dbconfig.php file)
+
+
+the database is created
+
+
+, the !DroidActivator's backend home page should appear
 
 == Adding activation records ==
 In the backend, go to the Activation's List and add a new record. Type the App Name exactly as declared in the "android:label" attribute of your Android App Manifest, type an e-mail address as  the !UserId, and type an 8-digit random code in the Activation Code field. Then, save the record.
