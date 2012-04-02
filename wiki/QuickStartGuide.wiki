@@ -11,7 +11,7 @@ To get started with !DroidActivator, you need to perform the following steps:
 The backend is based on the classic combination of Apache - Php - Mysql. If you don't already have it installed on your server, you will find lots of tutorials on the web. One of the most popular solutions on Windows is [http://www.wampserver.com/ WAMP]. Using Apache is not mandatory, you can use any php-enabled web server.
 
 == Installing the backend ==
-The backend is written in php and is contained in a folder that you must copy to on your web server's web folder. Download [http://droidactivator.googlecode.com/files/da_backend.zip da_backend.zip] from the Downloads section, decompress and copy the resulting "da_backend" folder to your web server's web folder.
+The backend is written in php and is contained in a folder that you must copy to your web server's web folder. Download [http://droidactivator.googlecode.com/files/da_backend.zip da_backend.zip] from the Downloads section, decompress and copy the resulting "da_backend" folder to your web server's web folder.
 
 == Configuring the backend ==
 Open the dbconfig.php file (located in the Lib folder inside the da_backend folder) with a text editor and replace the default configuration with your HOST, USERNAME, PASSWORD, DATABASE values.
