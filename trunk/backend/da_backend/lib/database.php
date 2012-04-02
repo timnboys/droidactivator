@@ -41,16 +41,16 @@ class Database {
 						 uniqueid VARCHAR(255),
 						 level INT,
 						 userid VARCHAR(255),
-						 expiration BIGINT,
+						 expiration DATETIME,
 						 activation_code VARCHAR(8),
-						 last_activation BIGINT,
-						 last_update BIGINT)";
+						 last_activation DATETIME,
+						 last_update DATETIME)";
 
 	// event table description
 	const CREATE_EVENT_TABLE = "CREATE TABLE IF NOT EXISTS event
 						 (id SERIAL PRIMARY KEY, 
 						 activation_id BIGINT UNSIGNED NOT NULL,
- 						 timestamp BIGINT,
+ 						 timestamp DATETIME,
 						 code INT,
 						 details VARCHAR(255))";
 
@@ -198,17 +198,23 @@ class Database {
 			
 			$expiration="none";
 			if ($row['expiration']>0){
-				$expiration = date("d-m-Y", $row['expiration']);
+				$expiration_dt=$row['expiration'];
+				$expiration_php= strtotime( $expiration_dt );
+				$expiration = date("d-m-Y", $expiration_php);
 			}
 				
 			$last_activation="none";
 			if ($row['last_activation']>0){
-				$last_activation = date("d-m-Y", $row['last_activation']);
+				$last_activation=$row['last_activation'];
+				$last_activation_php= strtotime($last_activation);
+				$last_activation = date("d-m-Y", $last_activation_php);
 			}
 			
 			$last_update="none";
 			if ($row['last_update']>0){
-				$last_update = date("d-m-Y", $row['last_update']);
+				$last_update=$row['last_update'];
+				$last_update_php= strtotime($last_update);
+				$last_update = date("d-m-Y", $last_update_php);
 			}
 			
 			
@@ -246,6 +252,12 @@ class Database {
 		if (!isset($producerid)) {$producerid=0;}
 		if (!isset($level)) {$level=0;}
 		if (!isset($expiration)) {$expiration=0;}
+		
+		// mysql datetime from unix timestamp
+		$expiration_dt="";
+		if ($expiration>0) {
+			$expiration_dt = date( 'Y-m-d H:i:s', $expiration);
+		}
 
 		// check if already existing
 		$exists=false;
@@ -260,7 +272,7 @@ class Database {
 
 		// add the record
 		if (!$exists) {
-			$query = "INSERT INTO activation (userid, app_name, producer_id, activation_code, level, expiration, active, tracking_only) VALUES ('$userid','$appname','$producerid','$activationcode','$level','$expiration',0,0)";
+			$query = "INSERT INTO activation (userid, app_name, producer_id, activation_code, level, expiration, active, tracking_only) VALUES ('$userid','$appname','$producerid','$activationcode','$level','$expiration_dt',0,0)";
 			$result = mysql_query($query, $this->connection);
 			if ($result) {
 				$retcode=0;	// OK
