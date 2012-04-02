@@ -1433,7 +1433,8 @@ public class DroidActivator {
 	 * @param runnable the runnable to run to start your app when an Activation Cycle is completed.
 	 * The producer id identifies the application producer. Can be left to 0 if DroidAcrivator
 	 * is used anly for applications of the same producer.
-	 * <p>Valid backend addresses are in the form "http://123.123.123.123" or "http://mydomain.com:12100".
+	 * <p>Valid backend addresses identify the Host and are in the form "http://123.123.123.123" 
+	 * or "http://mydomain.com:12100". Don't add the path after the host, it's automatic.
 	 */
 	public static void newInstance(Context ctx, String address, int producerId, Runnable runnable) {
 		if (ACTIVATOR == null) {
