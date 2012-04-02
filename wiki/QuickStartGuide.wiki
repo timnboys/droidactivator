@@ -13,7 +13,7 @@ The backend is based on the classic combination of Apache - Php - Mysql. If you 
 The backend is written in php and is contained in a folder to be installed on your web server's web folder. Download the backend from [http://droidactivator.googlecode.com/files/da_backend.zip here] decompress and copy the resulting "da_backend" folder to your web server's web folder.
 
 == Configuring the backend ==
-Open the dbconfig.php file (located in the Lib folder inside the da_backend folder) with a text editor and replace the standard configuration with your HOST, USERNAME, PASSWORD, DATABASE values.
+Open the dbconfig.php file (located in the Lib folder inside the da_backend folder) with a text editor and replace the default configuration with your HOST, USERNAME, PASSWORD, DATABASE values.
 
 Open your browser and type http://[yourserveraddress]/da_backend/admin.php
 
