@@ -1,3 +1,21 @@
+/*
+ * This file is part of DroidActivator.
+ * Copyright (C) 2012 algos.it
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package com.algos.droidactivator;
 
 import java.net.MalformedURLException;
@@ -691,12 +709,6 @@ public class DroidActivator {
 		protected Void doInBackground(Void... params) {
 
 			try {
-				
-//				BackendRequest request = new BackendRequest("event");
-//				request.setRequestProperty(KEY_UNIQUEID, this.uniqueId);
-//				request.setRequestProperty(KEY_EVENT_CODE, ""+this.code);
-//				request.setRequestProperty(KEY_EVENT_DETAILS, this.details);
-//				BackendResponse response = new BackendResponse(request);
 
 				BackendRequest request = new BackendRequest("event");
 				request.setRequestProperty(KEY_UNIQUEID, this.uniqueId);
@@ -858,11 +870,6 @@ public class DroidActivator {
 		protected Void doInBackground(Void... params) {
 
 			try {
-				
-				
-//				BackendRequest request = new BackendRequest("checkidpresent");
-//				request.setRequestProperty(KEY_UNIQUEID, getUniqueId());
-//				BackendResponse response = new BackendResponse(request);
 				
 				BackendRequest request = new BackendRequest("checkuidpresent");
 				request.setRequestProperty(KEY_UNIQUEID, getUniqueId());
@@ -1435,6 +1442,21 @@ public class DroidActivator {
 
 	}// end of method
 	
+	
+	/**
+	 * Create the Singleton instance of this class.
+	 * <p>Uses a default value of 0 for the ProducerId
+	 * @param ctx the context
+	 * @param address the backend address
+	 * @param runnable the runnable to run to start your app when an Activation Cycle is completed.
+	 * The producer id identifies the application producer. Can be left to 0 if DroidAcrivator
+	 * is used anly for applications of the same producer.
+	 * <p>Valid backend addresses are in the form "http://123.123.123.123" or "http://mydomain.com:12100".
+	 */
+	public static void newInstance(Context ctx, String address, Runnable runnable) {
+		newInstance(ctx, "droidactivator.algos.it:8080", 0, runnable);
+	}// end of method
+
 	
 	/**
 	 * Create the Singleton instance of this class.
