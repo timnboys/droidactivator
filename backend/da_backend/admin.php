@@ -53,7 +53,7 @@ $db->prepare();
 	
 	<form name="Login" action="<?php echo $_SERVER['PHP_SELF']; ?>"
 		method="POST">
-		Admin password: <input type="password" name="pwd" /> <input
+		Enter Admin password: <input type="password" name="pwd" /> <input
 			type="submit" value="Login" />
 	</form>
 
