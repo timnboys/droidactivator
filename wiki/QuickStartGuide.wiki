@@ -57,7 +57,7 @@ public void onCreate(Bundle savedInstanceState) {
 			
 	// instantiate DroidActivator supplying your server's IP address 
 	// and a Runnable to be run after the activation cycle
-	DroidActivator.newInstance(this, "http://yourserveraddress:8080",new Runnable() {	
+	DroidActivator.newInstance(this, "http://yourserveraddress",new Runnable() {	
 		public void run() {startMyApp();}
 	});
 
