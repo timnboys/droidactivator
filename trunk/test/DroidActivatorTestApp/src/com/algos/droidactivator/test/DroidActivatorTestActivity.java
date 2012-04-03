@@ -217,7 +217,7 @@ public class DroidActivatorTestActivity extends Activity {
 			backendText = new EditText(getContext());
 			backendText.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT,
 					LayoutParams.WRAP_CONTENT));
-			backendText.setHint("e.g. 192.168.99.1:8080");
+			backendText.setHint("e.g. 192.168.99.1");
 			backendText.setText(loadBackendAddress());
 			layout.addView(label);
 			layout.addView(backendText);
