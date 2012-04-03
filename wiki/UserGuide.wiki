@@ -3,21 +3,24 @@
 = Introduction =
 
 !DroidActivator is designed to:
- * perform application activation on your remote server and block stolen apps
+ * block piracy by performing app activation on your remote server
  * manage application levels (sell app in different levels or configurations)
  * manage activation expiration (i.e. renewal, yearly fees)
- * manage reinstallation on same or different device
  * track application usage (tracking of custom events)
 
-It is composed by a backend where valid purchases along with activation data are stored, and an Android library acting as a bridge between the backend and the application.
+This guide is intended to provide some in-depth knowledge of the key concepts behind !DroidActivator.
 
-!DroidActivator's philosophy is to perform the activation in an unobtrusive and non-blocking way. User is asked to perform activation only when really needed, he is allowed to change the device, to reinstall a fresh app and re-obtain his rights easily, and both the user and the activation manager have the time to manage the activation smoothly and with no hassle.
+!DroidActivator's system is composed by a MySql/Php backend where valid purchases along with activation data are stored, and an Android library acting as a bridge between the backend and the application.
+
+!DroidActivator's philosophy is to perform the activation in an unobtrusive and non-blocking way. User is asked to perform activation only when really needed, he is allowed to change the device and re-activate, to reinstall a fresh app and re-obtain his rights easily, and both the user and you have the time to manage the activation smoothly and with no hassle.
 
 Only when all the time margins are gone, activation becomes mandatory, and even in that case, its up to you to decide what to do in case of activation failure (e.g. run in demo mode).
 
+After the first activation, !DroidActivator tries to sync activation data on the device at every start-up, allowing you to change activation data and manage license expiration and application levels.
+
 = Activation data =
 
-Activation tracking on the device is controlled by some pieces of information kept in the backend and cached in the Shared Preferences:
+Activation tracking on the device is controlled by some pieces of information kept in the backend and cached in the Shared Preferences of the device:
 
  * Activation Flag (boolean, initially false, becomes true the first time app is activated)
  * Expiration Date (long, represents the expiration date of the issued activation (0 if no expiration control is needed)
@@ -25,7 +28,7 @@ Activation tracking on the device is controlled by some pieces of information ke
  * Unique id (calculated unique ID, identifying an installation/device combination) 
  * User id (the User Id provided at the time of the last successful activation) 
 
-Master activation values are kept in the backend an can be changed by you at any time. Changes will be reflected in the application as soon as possible.
+Master activation values are kept in the backend an can be changed by you at any time. Changes will be reflected in the application at next launch.
 
 = Application Levels =
 
@@ -33,7 +36,7 @@ The features of an Application are represented by Levels. A level represents a s
 
 The Level represents what the user paid for and should get. For example, Level 0 can be Demo, Level 1 Base, Level 2 Pro and so forth. Or, you can combine different group of features in a Level, for example: Level 0 = Basic, Level 1 = Basic + feature A, Level 2 = Basic + feature B + feature C, Level 3 = Basic + feature A + feature C etc.
 
-It is your responsibility to read the Appl Level and enable the corresponding features.
+It is your responsibility to read the Appl Level and enable the corresponding features in your App.
 
 The App Level is maintained in Shared Preferences and can be changed only by you on the backend.
 
@@ -55,7 +58,7 @@ So if i reset my device to factory defaults and sell it to someone, when he inst
 
 We suppose this is annoying enough to prevent most unauthorized usage. Maybe we implement in the backend some kind of limit to activation swap in the future.
 
-= Overview of the Activation process =
+= The Activation Cycle =
 
 At startup (or when you decide to), your app calls an Activation Cycle.
 
