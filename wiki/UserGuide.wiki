@@ -10,7 +10,7 @@
 
 This guide is intended to provide some in-depth knowledge of the key concepts behind !DroidActivator.
 
-!DroidActivator's system is composed by a MySql/Php backend where valid purchases along with activation data are stored, and an Android library acting as a bridge between the backend and the application.
+!DroidActivator's system is composed by a !MySql / !Php backend where valid purchases along with activation data are stored, and an Android library acting as a bridge between the backend and the application.
 
 !DroidActivator's philosophy is to perform the activation in an unobtrusive and non-blocking way. User is asked to perform activation only when really needed, he is allowed to change the device and re-activate, to reinstall a fresh app and re-obtain his rights easily, and both the user and you have the time to manage the activation smoothly and with no hassle.
 
