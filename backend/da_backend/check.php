@@ -227,6 +227,14 @@ function activate($headers){
 		mysql_query("UPDATE activation SET last_activation='$mysqldate', last_update = '$mysqldate' WHERE id = '$id'");
 	}
 	
+	// Check if a Tracking Record is already present for this installation.
+	// In this case, move all the events from the Tracking Record to the
+	// Activation Record and delete the Tracking record.
+	if ($success) {
+		$uniqueid = $headers['Uniqueid'];
+		moveEvents($uniqueid, $id, $db);
+	}
+	
 	// set success header
 	if ($success) {
 		header('success: true');
@@ -238,6 +246,36 @@ function activate($headers){
 	unset($db);
 
 }
+
+
+// Check if a Tracking Record is already present for an installation.
+// In this case, move all the events under the Activation record and delete the Tracking record.
+// @param $uniqueid the unique id
+// @param $activationid the activation id
+// @param $db the database
+function moveEvents($uniqueid, $activationid, $db){
+
+	// retrieve the tracking record id
+	$trackingid=0;
+	$query = "SELECT id FROM activation
+	WHERE uniqueid = '$uniqueid' 
+	AND tracking_only = 1";
+	$resource = mysql_query($query, $db->getConnection());
+	if (mysql_num_rows($resource) > 0) {
+		$row = mysql_fetch_array($resource);
+		$trackingid=$row['id'];
+	}
+	
+	// move events to the new Activation record and delete the Tracking record
+	if ($trackingid>0) {
+		$query = "UPDATE event SET activation_id = '$activationid' WHERE activation_id = '$trackingid'";
+		mysql_query($query, $db->getConnection());
+		$query = "DELETE FROM activation WHERE id = '$trackingid'";
+		mysql_query($query, $db->getConnection());
+	}
+	
+}
+
 
 // request for the creation of a Custom Event
 function event($headers){
@@ -276,10 +314,12 @@ function event($headers){
 
 	// create the Event Record as a child
 	if ($id>0) {
-		$timestamp = time();
+		$phpdate = time();
+		$mysqldate = date( 'Y-m-d H:i:s', $phpdate );
+		
 		$event_code =  $headers['Eventcode'];
 		$event_details = $headers['Eventdetails'];
-		$query = "INSERT INTO event (activation_id, timestamp, code, details) VALUES ('$id','$timestamp','$event_code','$event_details')";
+		$query = "INSERT INTO event (activation_id, timestamp, code, details) VALUES ('$id','$mysqldate','$event_code','$event_details')";
 		$resource = mysql_query($query, $db->getConnection());
 		if ($resource) {
 			$success=true;
