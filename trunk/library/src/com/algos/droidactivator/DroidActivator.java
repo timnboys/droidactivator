@@ -44,7 +44,7 @@ import com.algos.droidactivator.resources.Strings;
  * have to keep track of an instance and you make only static calls.
  * <p>Usage example:
  * <code>
- * <br>DroidActivator.newInstance(this, "http://151.10.128.32:8080",new Runnable() {   
+ * <br>DroidActivator.newInstance(this, "http://151.10.128.32",new Runnable() {   
  * <br>	public void run() {startMyApp();}
  * <br>});
  * </code>
