@@ -93,6 +93,7 @@ $db->prepare();
 			$retcode = $db->addActivationRecord($userid, $appname, $producerid, $activationcode, $level, $expiration);
 			switch ($retcode) {
 			case -1:	// generic error
+				break;
 				echo("<strong>Unable to add activation record.</strong>");
 			case 0:	// added OK
 				echo("<strong>Activation record added.</strong>");
@@ -109,6 +110,7 @@ $db->prepare();
 		switch ($retcode) {
 		case -1:	// generic error
 			echo("<strong>Unable to delete activation record ". $delete . "</strong>");
+			break;
 		case 0:	// deleted OK
 			echo("<strong>Activation record " .  $delete . " deleted.</strong>");
 			break;
