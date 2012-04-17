@@ -1,4 +1,4 @@
-<?php 
+<?php
 //    DroidAcrivator's Php Backend
 //    Copyright (C) 2012 algos.it
 //
@@ -181,8 +181,8 @@ class Database {
 
 	// create the html code for the activation list
 	public function createActivationList() {
-		
-		
+
+
 		$resource = mysql_query("SELECT * FROM activation ORDER BY id", $this->connection);
 		while ($row = mysql_fetch_array($resource)) {
 
@@ -190,35 +190,35 @@ class Database {
 			if ($row['active']==1) {
 				$activated="checked";
 			}
-				
+
 			$tracking_only="";
 			if ($row['tracking_only']==1) {
 				$tracking_only="checked";
 			}
-			
+				
 			$expiration="none";
 			if ($row['expiration']>0){
 				$expiration_dt=$row['expiration'];
 				$expiration_php= strtotime( $expiration_dt );
 				$expiration = date("d-m-Y", $expiration_php);
 			}
-				
+
 			$last_activation="none";
 			if ($row['last_activation']>0){
 				$last_activation=$row['last_activation'];
 				$last_activation_php= strtotime($last_activation);
 				$last_activation = date("d-m-Y", $last_activation_php);
 			}
-			
+				
 			$last_update="none";
 			if ($row['last_update']>0){
 				$last_update=$row['last_update'];
 				$last_update_php= strtotime($last_update);
 				$last_update = date("d-m-Y", $last_update_php);
 			}
-			
-			
-			
+				
+				
+				
 			echo '<tr>
 					<td><small>'.$row['id'].'</small></td>
 					<td><small>'.$row['userid'].'</small></td>
@@ -247,12 +247,12 @@ class Database {
 		// unix timestamp from string
 		$a = strptime($expiration, '%d-%m-%Y');
 		$expiration = mktime(0, 0, 0, $a['tm_mon']+1, $a['tm_mday'], $a['tm_year']+1900);
-		
+
 		// set some defaults
 		if (!isset($producerid)) {$producerid=0;}
 		if (!isset($level)) {$level=0;}
 		if (!isset($expiration)) {$expiration=0;}
-		
+
 		// mysql datetime from unix timestamp
 		$expiration_dt="";
 		if ($expiration>0) {
@@ -276,6 +276,8 @@ class Database {
 			$result = mysql_query($query, $this->connection);
 			if ($result) {
 				$retcode=0;	// OK
+			}else{
+				echo(mysql_error($this->connection) . '<br>');
 			}
 		}
 
@@ -286,10 +288,18 @@ class Database {
 	// @return code: 0 if deleted successfully, -1 generic error
 	public function deleteActivationRecord($id) {
 		$retcode=-1;
+		
+		// delete events
+		$query = "DELETE FROM event WHERE activation_id = '$id'";
+		$result = mysql_query($query, $this->connection);
+		
+		// delete activation record
 		$query = "DELETE FROM activation WHERE id = '$id'";
 		$result = mysql_query($query, $this->connection);
 		if ($result) {
 			$retcode=0;
+		}else{
+			echo(mysql_error($this->connection) . '<br>');
 		}
 		return $retcode;
 	}
