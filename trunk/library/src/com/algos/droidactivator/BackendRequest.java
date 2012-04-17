@@ -42,7 +42,7 @@ public class BackendRequest {
 
 
 	/**
-	 * @param action to request to the backend
+	 * @param action action requested to the backend
 	 * @param connTimeout the connection timeout in ms
 	 */
 	public BackendRequest(String action, int connTimeout) {
@@ -54,7 +54,7 @@ public class BackendRequest {
 	}
 
 	/**
-	 * @param action to request to the backend
+	 * @param action action requested to the backend
 	 */
 	public BackendRequest(String action) {
 		this(action, DroidActivator.getDefaultConnectionTimeout());

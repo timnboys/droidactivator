@@ -159,7 +159,7 @@ public class DroidActivator {
 		this.appName = appname;
 
 		// create and save the installation UUID in Shared Preferences if not present (first time only)
-		// this is the In stallation part of the UniqueId
+		// this is the Installation part of the UniqueId
 		String uuidStr = getInstallationUuid();
 		if (uuidStr.equals("")) {
 			UUID uuid = UUID.randomUUID();
@@ -1229,6 +1229,21 @@ public class DroidActivator {
 
 		return longString;
 	}
+	
+	
+	/**
+	 * Resets activation data.
+	 * Deletes all activation data from Shared Preferences.
+	 */
+	public static void resetActivationData(){
+		setActivated(false);
+		setTemporarilyActivated(false);
+		setActivationUserid("");
+		setLevel(0);
+		setExpiration(0);
+		setUniqueId("");
+	}
+
 
 
 	private static Context getContext() {
