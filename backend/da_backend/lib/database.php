@@ -21,9 +21,10 @@ include_once "lib/dbconfig.php";
 
 date_default_timezone_set('UTC');
 
-// Database description
+// Database object
 // Holds the description of the database structure
-// Database and tables are created by calling the Tables are created the first time this object is instantiated
+// Performs operations on the database
+// Database and tables are created the first time this object is instantiated
 class Database {
 
 	// a connection is opened each time the Database is instantiated
@@ -195,7 +196,7 @@ class Database {
 			if ($row['tracking_only']==1) {
 				$tracking_only="checked";
 			}
-				
+
 			$expiration="none";
 			if ($row['expiration']>0){
 				$expiration_dt=$row['expiration'];
@@ -209,16 +210,16 @@ class Database {
 				$last_activation_php= strtotime($last_activation);
 				$last_activation = date("d-m-Y", $last_activation_php);
 			}
-				
+
 			$last_update="none";
 			if ($row['last_update']>0){
 				$last_update=$row['last_update'];
 				$last_update_php= strtotime($last_update);
 				$last_update = date("d-m-Y", $last_update_php);
 			}
-				
-				
-				
+
+
+
 			echo '<tr>
 					<td><small>'.$row['id'].'</small></td>
 					<td><small>'.$row['userid'].'</small></td>
@@ -233,6 +234,7 @@ class Database {
 					<td><small>'.$last_activation.'</small></td>
 					<td><small>'.$last_update.'</small></td>
 					<td><small><a href="'.$_SERVER['PHP_SELF'].'?delete='.$row['id'].'">Delete</a></small></td>
+					<td><small><a href="events.php?activation='.$row['id'].'" TARGET="_blank">Events</a></small></td>
 				</tr>
 				';
 		}
@@ -285,14 +287,14 @@ class Database {
 	}
 
 	// deletes a record from the Activation table
-	// @return code: 0 if deleted successfully, -1 generic error
+	// @return code: 0 if deleted successfully, -1 error
 	public function deleteActivationRecord($id) {
 		$retcode=-1;
-		
+
 		// delete events
 		$query = "DELETE FROM event WHERE activation_id = '$id'";
 		$result = mysql_query($query, $this->connection);
-		
+
 		// delete activation record
 		$query = "DELETE FROM activation WHERE id = '$id'";
 		$result = mysql_query($query, $this->connection);
@@ -304,6 +306,46 @@ class Database {
 		return $retcode;
 	}
 
+
+	// create the html code for the event list
+	public function createEventList($activationId) {
+
+		$resource = mysql_query("SELECT * FROM event WHERE activation_id='$activationId'  ORDER BY id", $this->connection);
+		while ($row = mysql_fetch_array($resource)) {
+
+			$eventId=$row['id'];
+			$timestamp=$row['timestamp'];
+			$code=$row['code'];
+			$details=$row['details'];
+
+			echo '<tr>
+					<td><small>'.$eventId.'</small></td>
+					<td><small>'.$timestamp.'</small></td>
+					<td><small>'.$code.'</small></td>
+					<td><small>'.$details.'</small></td>
+					<td><small><a href="'.$_SERVER['PHP_SELF'].'?activation='.$activationId.'&delete='.$row['id'].'">Delete</a></small></td>
+				</tr>
+				';
+		}
+	}
+	
+	
+	// deletes a record from the Event table
+	// @return code: 0 if deleted successfully, -1 error
+	public function deleteEventRecord($id) {
+		$retcode=-1;
+
+		// delete event record
+		$query = "DELETE FROM event WHERE id = '$id'";
+		$result = mysql_query($query, $this->connection);
+		if ($result) {
+			$retcode=0;
+		}else{
+			echo(mysql_error($this->connection) . '<br>');
+		}
+		return $retcode;
+	}
+	
 
 
 }
