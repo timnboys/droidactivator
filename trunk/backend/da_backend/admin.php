@@ -1,4 +1,4 @@
-<?php 
+<?php
 //    DroidAcrivator's Php Backend
 //    Copyright (C) 2012 algos.it
 //
@@ -32,6 +32,7 @@ $expiration = $_POST['expiration'];
 $addflag = $_POST['add_flag'];
 
 $delete = $_GET['delete'];
+$listevents = $_GET['listevents'];
 
 if (isset($pwd)) {
 	if ($pwd == Config::ADMIN_PASSWORD) {
@@ -83,24 +84,24 @@ $db->prepare();
 
 	if (isset($addflag)) {
 		$cont=true;
-		
+
 		// check for mandatory fields
 		if (!isset($userid) || $userid=="") {echo("<br><strong>User Id is mandatory</strong>");$cont=false;}
 		if (!isset($appname) || $appname=="") {echo("<br><strong>App name is mandatory</strong>");$cont=false;}
 		if (!isset($activationcode) || $activationcode=="") {echo("<br><strong>Activation code is mandatory</strong>");$cont=false;}
-		
+
 		if ($cont) {
 			$retcode = $db->addActivationRecord($userid, $appname, $producerid, $activationcode, $level, $expiration);
 			switch ($retcode) {
-			case -1:	// generic error
-				break;
-				echo("<strong>Unable to add activation record.</strong>");
-			case 0:	// added OK
-				echo("<strong>Activation record added.</strong>");
-				break;
-			case 1:	// record already existing
-				echo("<strong>Activation record already existing - not added.</strong>");
-				break;
+				case -1:	// generic error
+					break;
+					echo("<strong>Unable to add activation record.</strong>");
+				case 0:	// added OK
+					echo("<strong>Activation record added.</strong>");
+					break;
+				case 1:	// record already existing
+					echo("<strong>Activation record already existing - not added.</strong>");
+					break;
 			}
 		}
 	}
@@ -108,12 +109,12 @@ $db->prepare();
 	if (isset($delete)) {
 		$retcode = $db->deleteActivationRecord($delete);
 		switch ($retcode) {
-		case -1:	// generic error
-			echo("<strong>Unable to delete activation record ". $delete . "</strong>");
-			break;
-		case 0:	// deleted OK
-			echo("<strong>Activation record " .  $delete . " deleted.</strong>");
-			break;
+			case -1:	// generic error
+				echo("<strong>Unable to delete activation record ". $delete . "</strong>");
+				break;
+			case 0:	// deleted OK
+				echo("<strong>Activation record " .  $delete . " deleted.</strong>");
+				break;
 		}
 	}
 
@@ -121,20 +122,22 @@ $db->prepare();
 
 	<form name="addactivation" action="<?php echo $_SERVER['PHP_SELF']; ?>"
 		method="POST">
-		User Id  (e-mail):* <input type="text" size="35" name="userid" /> 
-		App Name:* <input type="text"  size="25" name="appname" /> 
-		Activation code (8-digits):* <input type="text"  size="8" maxlength="8" name="activationcode" /> 
-		<br>
-		Producer Id: <input type="text" size="8" name="producerid" /> 
-		Level: <input type="text" size="2" name="level" />
-		Expiration (dd-mm-yyyy): <input type="text" size="10" maxlength="10" name="expiration" /> 
-		<input type="hidden" name="add_flag" value="true" /> 
-		<input type="submit" value="Add Record" />
+		User Id (e-mail):* <input type="text" size="35" name="userid" /> App
+		Name:* <input type="text" size="25" name="appname" /> Activation code
+		(8-digits):* <input type="text" size="8" maxlength="8"
+			name="activationcode" /> <br> Producer Id: <input type="text"
+			size="8" name="producerid" /> Level: <input type="text" size="2"
+			name="level" /> Expiration (dd-mm-yyyy): <input type="text" size="10"
+			maxlength="10" name="expiration" /> <input type="hidden"
+			name="add_flag" value="true" /> <input type="submit"
+			value="Add Record" />
 	</form>
 
 	<p>
-	<table border="1" >
 	
+	
+	<table border="1">
+
 		<tr>
 			<th><small>Id</small></th>
 			<th><small>User Id</small></th>
@@ -153,6 +156,25 @@ $db->prepare();
 		<?php $db->createActivationList(); ?>
 
 	</table>
+
+
+	<?php if (isset($listevents)) { ?>
+		<br>Events for Activation #<?php echo($listevents); ?>
+		<table border="1">
+			<tr>
+				<th><small>Evt Id</small></th>
+				<th><small>Timestamp</small></th>
+				<th><small>Code</small></th>
+				<th><small>Details</small></th>
+			</tr>
+	
+			<?php $db->createEventList($listevents); ?>
+	
+		</table>
+
+	<?php } ?>
+
+
 
 	<?php
 	endif;
