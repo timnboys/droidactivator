@@ -167,7 +167,7 @@ class Database {
 	}
 
 	// check if the database exists
-	// return true if it exists
+	// @return true if it exists
 	function existsDatabase(){
 		$exists= false;
 		$query = "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '" . Config::DATABASE . "'";
@@ -233,6 +233,7 @@ class Database {
 					<td><small>'.$expiration.'</small></td>
 					<td><small>'.$last_activation.'</small></td>
 					<td><small>'.$last_update.'</small></td>
+					<td><small><a href="edit.php?activation='.$row['id'].'" TARGET="_blank">Edit</a></small></td>
 					<td><small><a href="'.$_SERVER['PHP_SELF'].'?delete='.$row['id'].'">Delete</a></small></td>
 					<td><small><a href="events.php?activation='.$row['id'].'" TARGET="_blank">Events</a></small></td>
 				</tr>
@@ -347,7 +348,58 @@ class Database {
 	}
 	
 
+	// returns an array (map) containing data for a given activation record
+	// @param $id the activation record id
+	// @return an array containing data for all the fields
+	public function getActivationMap($id) {
 
+		$query = "SELECT * FROM activation WHERE id = '$id'";
+		$resource = mysql_query($query, $this->connection);
+		$row = mysql_fetch_array($resource);
+		return $row;
+		
+	}
+	
+	// writes the given values in an Activation record and saves the record
+	// @param $id the activation record id
+	// @param $map map containing values for the fields
+	// @return true if record was saved successfully
+	public function saveActivationRecord($id, $map) {
+
+		$query="UPDATE activation SET ";
+		$i=0;
+		foreach ($map as $key => $value) {
+			$i++;
+			$query = $query . $key;
+			$query = $query . "=";
+			
+			$value= "'" . $value . "'";
+			
+			// bit values patch
+			if ($key=='active' | $key=='tracking_only') {
+				$value = "b" . $value;
+			}
+			
+			$query = $query . $value;
+			
+			if ($i < sizeof($map)) {
+				$query = $query . ", ";
+			}
+		}
+		$query=$query . " WHERE id = '$id'";
+		$result = mysql_query($query, $this->connection);
+		
+		if (!$result) {
+			echo(mysql_error($this->connection) . '<br>');
+		}
+		
+		return $result;
+		
+	}
+	
+	
+	
+	
 }
 
 ?>
