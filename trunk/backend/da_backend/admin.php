@@ -29,7 +29,7 @@ $producerid = $_POST['producerid'];
 $activationcode = $_POST['activationcode'];
 $level = $_POST['level'];
 $expiration = $_POST['expiration'];
-$addflag = $_POST['add_flag'];
+$addrecord = $_POST['addrecord'];
 
 $delete = $_GET['delete'];
 $listevents = $_GET['listevents'];
@@ -82,29 +82,14 @@ $db->prepare();
 	<?php
 
 
-	if (isset($addflag)) {
-		$cont=true;
-
-		// check for mandatory fields
-		if (!isset($userid) || $userid=="") {echo("<br><strong>User Id is mandatory</strong>");$cont=false;}
-		if (!isset($appname) || $appname=="") {echo("<br><strong>App name is mandatory</strong>");$cont=false;}
-		if (!isset($activationcode) || $activationcode=="") {echo("<br><strong>Activation code is mandatory</strong>");$cont=false;}
-
-		if ($cont) {
-			$retcode = $db->addActivationRecord($userid, $appname, $producerid, $activationcode, $level, $expiration);
-			switch ($retcode) {
-				case -1:	// generic error
-					break;
-					echo("<strong>Unable to add activation record.</strong>");
-				case 0:	// added OK
-					echo("<strong>Activation record added.</strong>");
-					break;
-				case 1:	// record already existing
-					echo("<strong>Activation record already existing - not added.</strong>");
-					break;
-			}
-		}
+	if (isset($addrecord)) {
+		?>
+		<script type="text/javascript">
+		window.open('./edit.php','','scrollbars=no,menubar=no,resizable=yes,width=800,height=600,toolbar=no,location=no,status=no');
+		</script>
+		<?php
 	}
+	
 
 	if (isset($delete)) {
 		$retcode = $db->deleteActivationRecord($delete);
@@ -120,21 +105,11 @@ $db->prepare();
 
 	?>
 
-	<form name="addactivation" action="<?php echo $_SERVER['PHP_SELF']; ?>"
-		method="POST">
-		User Id (e-mail):* <input type="text" size="35" name="userid" /> App
-		Name:* <input type="text" size="25" name="appname" /> Activation code
-		(8-digits):* <input type="text" size="8" maxlength="8"
-			name="activationcode" /> <br> Producer Id: <input type="text"
-			size="8" name="producerid" /> Level: <input type="text" size="2"
-			name="level" /> Expiration (dd-mm-yyyy): <input type="text" size="10"
-			maxlength="10" name="expiration" /> <input type="hidden"
-			name="add_flag" value="true" /> <input type="submit"
-			value="Add Record" />
-	</form>
-
-	<p>
 	
+	<form name="Refresh" action="<?php echo $_SERVER['PHP_SELF']; ?>" method="POST">
+		<input type="submit" name="addrecord" value="Add record" />
+		<input type="submit" name="refresh" value="Refresh list" />
+	</form>
 	
 	<table border="1">
 
