@@ -329,8 +329,8 @@ class Database {
 				';
 		}
 	}
-	
-	
+
+
 	// deletes a record from the Event table
 	// @return code: 0 if deleted successfully, -1 error
 	public function deleteEventRecord($id) {
@@ -346,7 +346,7 @@ class Database {
 		}
 		return $retcode;
 	}
-	
+
 
 	// returns an array (map) containing data for a given activation record
 	// @param $id the activation record id
@@ -357,9 +357,29 @@ class Database {
 		$resource = mysql_query($query, $this->connection);
 		$row = mysql_fetch_array($resource);
 		return $row;
-		
+
 	}
-	
+
+	// creates or saves an Activation record
+	// if the id is specified, the record is modified and saved
+	// if the id is not specified, the record is created
+	// @param $id the activation record id
+	// @param $map map containing values for the fields
+	// @return the id of the created/saved record, or 0 if failed
+	public function createOrSaveActivationRecord($id, $map) {
+		$returnId=0;
+		if($id>0){
+			$result=Database::saveActivationRecord($id, $map);
+			if ($result==true){
+				$returnId=$id;
+			}
+		}else{
+			$returnId = Database::createActivationRecord($map);
+		}
+		return $returnId;
+	}
+
+
 	// writes the given values in an Activation record and saves the record
 	// @param $id the activation record id
 	// @param $map map containing values for the fields
@@ -372,7 +392,57 @@ class Database {
 			$i++;
 			$query = $query . $key;
 			$query = $query . "=";
-			
+				
+			$value= "'" . $value . "'";
+				
+			// bit values patch
+			if ($key=='active' | $key=='tracking_only') {
+				$value = "b" . $value;
+			}
+				
+			$query = $query . $value;
+				
+			if ($i < sizeof($map)) {
+				$query = $query . ", ";
+			}
+		}
+		$query=$query . " WHERE id = '$id'";
+		$result = mysql_query($query, $this->connection);
+
+		if (!$result) {
+			echo(mysql_error($this->connection) . '<br>');
+		}
+
+		return $result;
+
+	}
+
+
+	// creates a new Activation record with the given data
+	// @param $map map containing values for the fields
+	// @return the id of the created record, or 0 if failed
+	public function createActivationRecord($map) {
+
+		$insertId=0;
+		
+		$query="INSERT INTO activation ";
+		$query = $query . "(";
+		$i=0;
+		foreach ($map as $key => $value) {
+			$i++;
+			$query = $query . $key;
+			if ($i < sizeof($map)) {
+				$query = $query . ", ";
+			}
+		}
+		$query = $query . ")";
+		
+		$query = $query . " VALUES ";
+		
+		$query = $query . "(";
+		$i=0;
+		foreach ($map as $key => $value) {
+			$i++;
 			$value= "'" . $value . "'";
 			
 			// bit values patch
@@ -381,25 +451,29 @@ class Database {
 			}
 			
 			$query = $query . $value;
-			
+
 			if ($i < sizeof($map)) {
 				$query = $query . ", ";
 			}
 		}
-		$query=$query . " WHERE id = '$id'";
-		$result = mysql_query($query, $this->connection);
+		$query = $query . ")";
 		
-		if (!$result) {
+		$result = mysql_query($query, $this->connection);
+
+		if ($result) {
+			$insertId = mysql_insert_id();
+		}else{
 			echo(mysql_error($this->connection) . '<br>');
 		}
-		
-		return $result;
-		
+
+		return $insertId;
+
 	}
-	
-	
-	
-	
+
+
+
+
+
 }
 
 ?>

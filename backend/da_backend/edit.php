@@ -41,6 +41,7 @@ $db->prepare();
 
 if ($save_flag) {
 	$id = $_POST['id'];
+
 	$map=array();
 	$map['userid'] = $_POST['userid'];
 	$map['app_name'] = $_POST['app_name'];
@@ -80,11 +81,22 @@ if ($save_flag) {
 	}
 	$map['last_update'] = $time;
 
-	$db -> saveActivationRecord($id, $map);
+	$cont=true;
+
+	// check for mandatory fields
+	if (!isset($map['userid']) || $map['userid']=="") {echo("<strong>User Id is mandatory</strong><br>");$cont=false;}
+	if (!isset($map['app_name']) || $map['app_name']=="") {echo("<strong>App name is mandatory</strong><br>");$cont=false;}
+	if (!isset($map['activation_code']) || $map['activation_code']=="") {echo("<strong>Activation code is mandatory</strong><br>");$cont=false;}
 	
-	?>
-	<script type="text/javascript">window.close();</script>
-	<?php
+	// save the record and close the window
+	if ($cont) {
+		$db -> createOrSaveActivationRecord($id, $map);
+		?>
+		<script type="text/javascript">window.close();</script>
+		<?php
+	}
+	
+	
 	
 }
 ?>
@@ -121,16 +133,24 @@ if ($save_flag) {
 
 	<?php $data = $db -> getActivationMap($activation) ?>
 
+		<?php if ($newrecord!=1) {
+			?>
+			<?php
+		}?>
 
 	<form name="addactivation" action="<?php echo $_SERVER['PHP_SELF']; ?>" method="POST">
 		
 		<table border="0">
-
-		<tr>
-			<td>Id:</td>
-			<td><input type="text" size="10" name="id" readonly value=<?php echo $data['id']?> ></td>
-		</tr>
-
+		
+		<?php if ($activation!=0) {
+			?>
+			<tr>
+				<td>Id:</td>
+				<td><input type="text" size="10" name="id" readonly value=<?php echo $data['id']?> ></td>
+			</tr>
+			<?php
+		}?>
+		
 		<tr>
 			<td>User Id (e-mail):*</td>
 			<td><input type="text" size="35" name="userid" value=<?php echo $data['userid']?> ></td>
@@ -152,21 +172,33 @@ if ($save_flag) {
 			<td><input type="text" size="8" name="producer_id" value=<?php echo $data['producer_id']?> ></td>
 		</tr>
 		
-		<tr>
-			<td>Activated:</td>
-			<td><input type="checkbox" name="active" <?php if ($data['active']==1) {echo 'checked';}?> ></td>
-		</tr>
+		<?php if ($activation!=0) {
+			?>
+			<tr>
+				<td>Activated:</td>
+				<td><input type="checkbox" name="active" <?php if ($data['active']==1) {echo 'checked';}?> ></td>
+			</tr>
+			<?php
+		}?>
 		
-		<tr>
-			<td>Unique Id:</td>
-			<td><input type="text" size="90" name="uniqueid" value=<?php echo $data['uniqueid'] ?> ></td>
-		</tr>
+		<?php if ($activation!=0) {
+			?>
+			<tr>
+				<td>Unique Id:</td>
+				<td><input type="text" size="90" name="uniqueid" value=<?php echo $data['uniqueid'] ?> ></td>
+			</tr>
+			<?php
+		}?>
 		
-		<tr>
-			<td>Tracking only:</td>
-			<td><input type="checkbox" name="tracking_only" <?php if ($data['tracking_only']==1) {echo 'checked';}?> ></td>
-		</tr>
-		
+		<?php if ($activation!=0) {
+			?>
+			<tr>
+				<td>Tracking only:</td>
+				<td><input type="checkbox" name="tracking_only" <?php if ($data['tracking_only']==1) {echo 'checked';}?> ></td>
+			</tr>
+			<?php
+		}?>
+
 		<tr>
 			<td>Level:</td>
 			<td><input type="text" size="2" name="level" value=<?php echo $data['level']?> ></td>
@@ -177,15 +209,25 @@ if ($save_flag) {
 			<td><input type="text" size="10" maxlength="10" name="expiration" value=<?php echo $data['expiration']?> ></td>
 		</tr>
 		
-		<tr>
-			<td>Last Activation (yyyy-mm-dd):</td>
-			<td><input type="text" size="10" maxlength="10" name="last_activation" value=<?php echo $data['last_activation']?> ></td>
-		</tr>
+		<?php if ($activation!=0) {
+			?>
+			<tr>
+				<td>Last Activation (yyyy-mm-dd):</td>
+				<td><input type="text" size="10" maxlength="10" name="last_activation" value=<?php echo $data['last_activation']?> ></td>
+			</tr>
+			<?php
+		}?>
 		
-		<tr>
-			<td>Last Update (yyyy-mm-dd):</td>
-			<td><input type="text" size="10" maxlength="10" name="last_update" value=<?php echo $data['last_update']?> ></td>
-		</tr>
+		<?php if ($activation!=0) {
+			?>
+			<tr>
+				<td>Last Update (yyyy-mm-dd):</td>
+				<td><input type="text" size="10" maxlength="10" name="last_update" value=<?php echo $data['last_update']?> ></td>
+			</tr>
+			<?php
+		}?>
+		
+		
 
 		</table>
 		
