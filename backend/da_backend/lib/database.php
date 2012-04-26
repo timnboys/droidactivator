@@ -242,50 +242,6 @@ class Database {
 	}
 
 
-	// adds a record to the Activation table
-	// @return code: 0 if added successfully, 1 if already existing, -1 generic error
-	public function addActivationRecord($userid, $appname, $producerid, $activationcode, $level, $expiration) {
-		$retcode=-1;
-
-		// unix timestamp from string
-		$a = strptime($expiration, '%d-%m-%Y');
-		$expiration = mktime(0, 0, 0, $a['tm_mon']+1, $a['tm_mday'], $a['tm_year']+1900);
-
-		// set some defaults
-		if (!isset($producerid)) {$producerid=0;}
-		if (!isset($level)) {$level=0;}
-		if (!isset($expiration)) {$expiration=0;}
-
-		// mysql datetime from unix timestamp
-		$expiration_dt="";
-		if ($expiration>0) {
-			$expiration_dt = date( 'Y-m-d H:i:s', $expiration);
-		}
-
-		// check if already existing
-		$exists=false;
-		$query = "SELECT id FROM activation where userid='$userid' AND app_name = '$appname' AND producer_id = '$producerid'";
-		$result = mysql_query($query, $this->connection);
-		if ($result) {
-			if (mysql_num_rows($result) >0) {
-				$exists= true;
-				$retcode=1;	// record already existing
-			}
-		}
-
-		// add the record
-		if (!$exists) {
-			$query = "INSERT INTO activation (userid, app_name, producer_id, activation_code, level, expiration, active, tracking_only) VALUES ('$userid','$appname','$producerid','$activationcode','$level','$expiration_dt',0,0)";
-			$result = mysql_query($query, $this->connection);
-			if ($result) {
-				$retcode=0;	// OK
-			}else{
-				echo(mysql_error($this->connection) . '<br>');
-			}
-		}
-
-		return $retcode;
-	}
 
 	// deletes a record from the Activation table
 	// @return code: 0 if deleted successfully, -1 error
@@ -392,8 +348,10 @@ class Database {
 			$i++;
 			$query = $query . $key;
 			$query = $query . "=";
-				
-			$value= "'" . $value . "'";
+
+			if ($value!='null') {
+				$value= "'" . $value . "'";
+			}
 				
 			// bit values patch
 			if ($key=='active' | $key=='tracking_only') {
@@ -443,7 +401,10 @@ class Database {
 		$i=0;
 		foreach ($map as $key => $value) {
 			$i++;
-			$value= "'" . $value . "'";
+			
+			if ($value!='null') {
+				$value= "'" . $value . "'";
+			}
 			
 			// bit values patch
 			if ($key=='active' | $key=='tracking_only') {

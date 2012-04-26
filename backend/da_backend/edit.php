@@ -67,17 +67,22 @@ if ($save_flag) {
 	$map['tracking_only'] = $value;
 	
 	$map['level'] = $_POST['level'];
-	$map['expiration'] = $_POST['expiration'];
+	
+	$time=$_POST['expiration'];
+	if ((!isset($time)) or ($time=="")) {
+		$time="null";
+	}
+	$map['expiration'] = $time;
 	
 	$time=$_POST['last_activation'];
-	if (!isset($time)) {
-		$time="0000-00-00 00:00:00";
+	if ((!isset($time)) or ($time=="")) {
+		$time="null";
 	}
 	$map['last_activation'] = $time;
 	
 	$time=$_POST['last_update'];
-	if (!isset($time)) {
-		$time="0000-00-00 00:00:00";
+	if ((!isset($time)) or ($time=="")) {
+		$time="null";
 	}
 	$map['last_update'] = $time;
 
