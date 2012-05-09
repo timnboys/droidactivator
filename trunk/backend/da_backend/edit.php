@@ -239,6 +239,9 @@ if ($save_flag) {
 		<br><input type="submit" value="Save Record" >
 		<br><input type="hidden" name="save_flag" value="true" > 
 	</form>
+	
+	<br>after saving, hit the Refresh button to see changes in the list
+	
 
 
 	<?php
