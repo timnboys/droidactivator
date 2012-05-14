@@ -1475,7 +1475,7 @@ public class DroidActivator {
 	 * <p>Valid backend addresses are in the form "http://123.123.123.123" or "http://mydomain.com:12100".
 	 */
 	public static void newInstance(Context ctx, String address, Runnable runnable) {
-		newInstance(ctx, "droidactivator.algos.it", 0, runnable);
+		newInstance(ctx, address, 0, runnable);
 	}// end of method
 
 	
