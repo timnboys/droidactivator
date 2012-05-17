@@ -31,7 +31,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.view.View;
 import android.widget.TextView;
 
@@ -122,13 +121,6 @@ public class DroidActivator {
 	// the app name passed to the backend, defaults to the current App Name
 	private String appName = "";
 
-
-	// /**
-	// * Constructor
-	// */
-	// private DroidActivator() {
-	// super();
-	// }
 
 	/**
 	 * init() is called by newInstance() after the ACTIVATOR variable is set!
@@ -314,17 +306,18 @@ public class DroidActivator {
 	 * @return true if the uniqueid is present in the backend or the backend is not responding
 	 */
 	private static boolean isUniqueidPresentInBackend() {
+		
 		boolean present = true;
 		if (isBackendResponding()) {
 
 			// create the task
-			CheckUniqueidPresentTask task = getInstance().new CheckUniqueidPresentTask();
+			CheckUniqueidPresentThread thread = getInstance().new CheckUniqueidPresentThread();
 
 			// start the background task
-			task.execute();
+			thread.start();
 
 			// wait until finished
-			while (!task.isFinished()) {
+			while (!thread.isFinished()) {
 				try {
 					Thread.sleep(50);
 				}
@@ -333,10 +326,12 @@ public class DroidActivator {
 			}
 
 			// retrieve the result
-			present = task.isPresent();
+			present = thread.isSuccessful();
 
 		}
 		return present;
+
+		
 	}
 
 
@@ -398,13 +393,13 @@ public class DroidActivator {
 		}
 
 		// create the task
-		RequestActivationTask task = getInstance().new RequestActivationTask(uniqueId, userId, activationCode);
+		RequestActivationThread thread = getInstance().new RequestActivationThread(uniqueId, userId, activationCode);
 
 		// start the background task
-		task.execute();
+		thread.start();
 
 		// wait until finished
-		while (!task.isFinished()) {
+		while (!thread.isFinished()) {
 			try {
 				Thread.sleep(50);
 			}
@@ -412,28 +407,26 @@ public class DroidActivator {
 			}
 		}
 
-		return new ActivationResult(task.isSuccessful(), task.getFailureCode());
+		return new ActivationResult(thread.isSuccessful(), thread.getFailureCode());
 
 	}
 
-
+	
 
 	/**
-	 * An AsyncTask to request the activation in a background process. 
+	 * A RequestThread to request the activation in a background process. 
 	 * This is needed to comply with Honeycomb Strict Mode wich doesn't allow 
 	 * networking operations in the UI thread.
 	 */
-	private class RequestActivationTask extends AsyncTask<Void, Void, Void> {
+	private class RequestActivationThread extends RequestThread {
 
-		private boolean finished = false;
 		private String uniqueId;
 		private String userId;
 		private String activationCode;
-		private boolean successful;
 		private int failureCode;
 
 
-		public RequestActivationTask(String uniqueId, String userId, String activationCode) {
+		public RequestActivationThread(String uniqueId, String userId, String activationCode) {
 			super();
 			this.uniqueId = uniqueId;
 			this.userId = userId;
@@ -441,17 +434,10 @@ public class DroidActivator {
 		}
 
 
+		
 		@Override
-		protected Void doInBackground(Void... params) {
-
+		public void run() {
 			try {
-				
-//				BackendRequest request = new BackendRequest("activate");
-//				request.setRequestProperty(KEY_UNIQUEID, this.uniqueId);
-//				request.setRequestProperty("userid", this.userId);
-//				request.setRequestProperty("activationcode", this.activationCode);
-//				BackendResponse response = new BackendResponse(request);
-
 				
 				BackendRequest request = new BackendRequest("activate");
 				request.setRequestProperty(KEY_UNIQUEID, this.uniqueId);
@@ -468,7 +454,9 @@ public class DroidActivator {
 					if (!this.userId.equals("")) {
 						setActivationUserid(this.userId);// cache the user Id used for activation if present
 					}
-					this.successful = true;
+					
+					setSuccessful(true);
+
 				}
 				else {
 					String failureString = response.getString("failurecode");
@@ -479,33 +467,18 @@ public class DroidActivator {
 					catch (Exception e) {
 					}
 					this.failureCode = code;
-					this.successful = false;
+					setSuccessful(false);
 				}
 
 			}
 			catch (Exception e) {
+				int a = 87;
+				int b = a;
 			}
-			this.finished = true;
+			
+			setFinished(true);
 
-			return null;
 		}
-
-
-		@Override
-		protected void onPostExecute(Void result) {
-			cancel(true);
-		}
-
-
-		private boolean isFinished() {
-			return this.finished;
-		}
-
-
-		private boolean isSuccessful() {
-			return this.successful;
-		}
-
 
 		private int getFailureCode() {
 			return this.failureCode;
@@ -513,7 +486,6 @@ public class DroidActivator {
 
 	}
 	
-
 
 	/**
 	 * Performs a Temporary Activation.
@@ -541,7 +513,7 @@ public class DroidActivator {
 	 */
 	private static boolean requestUpdate() {
 
-		RequestUpdateTask task = null;
+		RequestUpdateThread thread = null;
 		boolean successful = false;
 
 		// retrieve the cached Unique Id
@@ -550,13 +522,13 @@ public class DroidActivator {
 		if (!uniqueId.equals("")) {
 
 			// create the task
-			task = getInstance().new RequestUpdateTask(uniqueId);
+			thread = getInstance().new RequestUpdateThread(uniqueId);
 
 			// start the background task
-			task.execute();
+			thread.start();
 
 			// wait until finished
-			while (!task.isFinished()) {
+			while (!thread.isFinished()) {
 				try {
 					Thread.sleep(50);
 				}
@@ -565,43 +537,39 @@ public class DroidActivator {
 			}
 
 			// retrieve result
-			successful = task.isSuccessful();
+			successful = thread.isSuccessful();
 
 		}
 
 		return successful;
 
+
 	}
 
+	
+	
+	
 	/**
-	 * An AsyncTask to request an Activation Update in a background process. 
+	 * A RequestThread to request an Activation Update in a background process. 
 	 * This is needed to comply with Honeycomb Strict Mode wich doesn't allow 
 	 * networking operations in the UI thread.
 	 * <p>When finished, call isSuccessul() for the result.
 	 */
-	private class RequestUpdateTask extends AsyncTask<Void, Void, Void> {
+	private class RequestUpdateThread extends RequestThread {
 
-		private boolean finished = false;
 		private String uniqueId;
-		private boolean successful;
 
 
-		public RequestUpdateTask(String uniqueId) {
+		public RequestUpdateThread(String uniqueId) {
 			super();
 			this.uniqueId = uniqueId;
 		}
 
 
 		@Override
-		protected Void doInBackground(Void... params) {
-
+		public void run() {
 			try {
 				
-//				BackendRequest request = new BackendRequest("update");
-//				request.setRequestProperty(KEY_UNIQUEID, this.uniqueId);
-//				request.setRequestProperty(KEY_USERID, getActivationUserId());
-//				BackendResponse response = new BackendResponse(request);
-
 				BackendRequest request = new BackendRequest("update");
 				request.setRequestProperty(KEY_UNIQUEID, this.uniqueId);
 				request.setRequestProperty(KEY_USERID, getActivationUserId());
@@ -612,38 +580,19 @@ public class DroidActivator {
 					setActivated(response.isActivated());
 					setExpiration(response.getExpirationTime());
 					setLevel(response.getLevel());
-					this.successful = true;
+					setSuccessful(true);
 				}
 				else {
-					this.successful = false;
+					setSuccessful(false);
 				}
 
 			}
 			catch (Exception e) {
 			}
-			this.finished = true;
-
-			return null;
-		}
-
-
-		@Override
-		protected void onPostExecute(Void result) {
-			cancel(true);
-		}
-
-
-		private boolean isFinished() {
-			return this.finished;
-		}
-
-
-		private boolean isSuccessful() {
-			return this.successful;
+			setFinished(true);
 		}
 
 	}
-	
 	
 	
 	/**
@@ -653,7 +602,7 @@ public class DroidActivator {
 	 * @return true if the event has been acquired by the backend
 	 */
 	private static boolean sendEvent(int code, String details) {
-		SendEventTask task = null;
+		SendEventThread thread = null;
 
 		// retrieve the cached Unique Id, create it now if not present
 		String uniqueId = getUniqueId();
@@ -662,13 +611,13 @@ public class DroidActivator {
 		}
 
 		// create the task
-		task = getInstance().new SendEventTask(uniqueId, code, details);
+		thread = getInstance().new SendEventThread(uniqueId, code, details);
 
 		// start the background task
-		task.execute();
+		thread.start();
 
 		// wait until finished
-		while (!task.isFinished()) {
+		while (!thread.isFinished()) {
 			try {
 				Thread.sleep(50);
 			}
@@ -676,28 +625,29 @@ public class DroidActivator {
 			}
 		}
 
-		return task.isSuccessful();
+		return thread.isSuccessful();
+
 
 	}
 
 
 
+	
+
 	/**
-	 * An AsyncTask to send a Custom Event in a background process. 
+	 * A RequestThread to send a Custom Event in a background process. 
 	 * This is needed to comply with Honeycomb Strict Mode wich doesn't allow 
 	 * networking operations in the UI thread.
 	 * <p>When finished, call isSuccessul() for the result.
 	 */
-	private class SendEventTask extends AsyncTask<Void, Void, Void> {
+	private class SendEventThread extends RequestThread {
 
-		private boolean finished = false;
 		private String uniqueId;
 		private int code;
 		private String details;
-		private boolean successful;
 
 
-		public SendEventTask(String uniqueId, int code, String details) {
+		public SendEventThread(String uniqueId, int code, String details) {
 			super();
 			this.uniqueId = uniqueId;
 			this.code = code;
@@ -706,7 +656,7 @@ public class DroidActivator {
 
 
 		@Override
-		protected Void doInBackground(Void... params) {
+		public void run() {
 
 			try {
 
@@ -717,35 +667,20 @@ public class DroidActivator {
 				BackendResponse response = new BackendResponse(request);
 
 				if (response.isResponseSuccess()) {
-					this.successful = true;
+					setSuccessful(true);
 				}
 				else {
-					this.successful = false;
+					setSuccessful(false);
 				}
 
 			}
 			catch (Exception e) {
 			}
-			this.finished = true;
+			
+			setFinished(true);
 
-			return null;
 		}
 
-
-		@Override
-		protected void onPostExecute(Void result) {
-			cancel(true);
-		}
-
-
-		private boolean isFinished() {
-			return this.finished;
-		}
-
-
-		private boolean isSuccessful() {
-			return this.successful;
-		}
 
 	}
 	
@@ -778,97 +713,71 @@ public class DroidActivator {
 	 * @return true if backend is responding
 	 */
 	static boolean isBackendResponding() {
-
-		// create the task
-		CheckBackendRespondingTask task = getInstance().new CheckBackendRespondingTask();
-
-		// start the background task
-		task.execute();
 		
-		boolean finished = task.isFinished();
-
+		//create the thread
+		CheckBackendRespondingThread thread = getInstance().new CheckBackendRespondingThread();
+		
+		//start the thread
+		thread.start();
+		
 		// wait until finished
-		while (!task.isFinished()) {
+		while (!thread.isFinished()) {
 			try {
 				Thread.sleep(50);
 			}
 			catch (InterruptedException e) {
 			}
 		}
-		
-		finished = task.isFinished();
 
 		// get the result
-		boolean responding = task.isResponding();
+		boolean responding = thread.isSuccessful();
 		return responding;
+
 
 	}
 
+	
 	/**
-	 * An AsyncTask to test if the backend is responding in a background process. 
+	 * A RequestThread to test if the backend is responding in a background process. 
 	 * This is needed to comply with Honeycomb Strict Mode wich doesn't allow 
 	 * networking operations in the UI thread.
 	 * <p>Call isResponding() at the end for the response
 	 */
-	private class CheckBackendRespondingTask extends AsyncTask<Void, Void, Void> {
-
-		private boolean finished = false;
-		private boolean responding = false;
+	private class CheckBackendRespondingThread extends RequestThread {
 
 
 		@Override
-		protected Void doInBackground(Void... params) {
-
+		public void run() {
 			try {
 				BackendRequest request = new CheckRespondingRequest();
 				BackendResponse response = new BackendResponse(request);
 
 				if (response.isResponseSuccess()) {
-					this.responding = true;
+					setSuccessful(true);
 				}
 
 			}
 			catch (Exception e) {
 				int a = 87;
 			}
-			this.finished = true;
-
-			return null;
-		}
-
-
-		@Override
-		protected void onPostExecute(Void result) {
-			cancel(true);
-		}
-
-
-		private boolean isFinished() {
-			return finished;
-		}
-
-
-		private boolean isResponding() {
-			return responding;
+			setFinished(true);
 		}
 
 	}
 
+
+	
 	/**
-	 * An AsyncTask to check if the cached uniqueid is present in the backend. 
+	 * A RequestThread to check if the cached uniqueid is present in the backend. 
 	 * This is needed to comply with Honeycomb Strict Mode wich doesn't allow 
 	 * networking operations in the UI thread.
-	 * <p>Call isPresent() at the end for the response
+	 * <p>Call isSuccessful() at the end for the response, if true then is present
 	 */
-	private class CheckUniqueidPresentTask extends AsyncTask<Void, Void, Void> {
-
-		private boolean finished = false;
-		private boolean present = false;
-
+	private class CheckUniqueidPresentThread extends RequestThread {
 
 		@Override
-		protected Void doInBackground(Void... params) {
-
+		public void run() {
+			
 			try {
 				
 				BackendRequest request = new BackendRequest("checkuidpresent");
@@ -876,34 +785,18 @@ public class DroidActivator {
 				BackendResponse response = new BackendResponse(request);
 
 				if (response.isResponseSuccess()) {
-					this.present = true;
+					setSuccessful(true);
 				}
 
 			}
 			catch (Exception e) {
 			}
-			this.finished = true;
-
-			return null;
+			setFinished(true);
 		}
 
-
-		@Override
-		protected void onPostExecute(Void result) {
-			cancel(true);
-		}
-
-
-		private boolean isFinished() {
-			return finished;
-		}
-
-
-		private boolean isPresent() {
-			return this.present;
-		}
 
 	}
+
 
 
 	/**
