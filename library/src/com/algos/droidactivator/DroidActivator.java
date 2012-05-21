@@ -24,6 +24,10 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Locale;
+import java.util.Map;
 import java.util.UUID;
 
 import android.content.Context;
@@ -31,10 +35,14 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
+import android.util.Base64;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.TextView;
 
 import com.algos.droidactivator.resources.Strings;
+import com.algos.foundation.application.App;
 
 /**
  * Main DroidActivator's class.
@@ -117,7 +125,10 @@ public class DroidActivator {
 	static String KEY_USERID = "userid";// the user id entered in the last full activation
 	static String KEY_EVENT_CODE = "eventcode";// the custom event code
 	static String KEY_EVENT_DETAILS = "eventdetails";// the custom event details
+	static String KEY_TRACKING_ONLY = "trackingonly";// whether to create the Activation record as Tracking Only
+	static String KEY_DEVICE_INFO = "deviceinfo";// identifies device info field in a request
 
+	
 	// the app name passed to the backend, defaults to the current App Name
 	private String appName = "";
 
@@ -207,8 +218,12 @@ public class DroidActivator {
 			if (isNetworkAvailable()) {
 
 				if (isBackendResponding()) {
-
-					acquired = sendEvent(code, details);
+					
+					if (ensureActivationRecordInBackend(true)) {
+						
+						acquired = sendEvent(code, details);
+						
+					}
 
 				}
 
@@ -443,6 +458,8 @@ public class DroidActivator {
 				request.setRequestProperty(KEY_UNIQUEID, this.uniqueId);
 				request.setRequestProperty(KEY_USERID, this.userId);
 				request.setRequestProperty("activationcode", this.activationCode);
+				request.setRequestProperty(KEY_DEVICE_INFO, getDeviceInfoString());
+
 				BackendResponse response = new BackendResponse(request);
 
 				// write returned data in shared preferences
@@ -596,6 +613,101 @@ public class DroidActivator {
 	
 	
 	/**
+	 * Ensures that an Activation record with the uniqueid of the device is present in the backend data.
+	 * If it is not, it is created now on the backend
+	 * @param trackingOnly only in the case the record needs to be created, 
+	 * this value is used for the TrackingOnly flag
+	 * @return true if the record was existing or has been created, false otherwise
+	 */
+	private static boolean ensureActivationRecordInBackend(boolean trackingOnly) {
+		EnsureActivationRecordThread thread = null;
+
+		// retrieve the cached Unique Id, create it now if not present
+		String uniqueId = getUniqueId();
+		if (uniqueId.equals("")) {
+			uniqueId = calcUniqueId();
+		}
+
+		// create the task
+		thread = getInstance().new EnsureActivationRecordThread(uniqueId, trackingOnly);
+
+		// start the background task
+		thread.start();
+
+		// wait until finished
+		while (!thread.isFinished()) {
+			try {
+				Thread.sleep(50);
+			}
+			catch (InterruptedException e) {
+			}
+		}
+
+		return thread.isSuccessful();
+
+
+	}
+	
+
+	
+	
+	/**
+	 * A RequestThread to ensure that an Activation record with a given uniqueid is present in the backend data. 
+	 * If it is not, it is created now on the backend with the given trackingOnly flag
+	 * This is needed to comply with Honeycomb Strict Mode wich doesn't allow 
+	 * networking operations in the UI thread.
+	 * <p>When finished, call isSuccessul() for the result.
+	 * If true, the record was already existing or has been successfully created
+	 */
+	private class EnsureActivationRecordThread extends RequestThread {
+
+		private String uniqueId;
+		boolean trackingOnly;
+
+
+		public EnsureActivationRecordThread(String uniqueId, boolean trackingOnly) {
+			super();
+			this.uniqueId = uniqueId;
+			this.trackingOnly = trackingOnly;
+		}
+
+
+		@Override
+		public void run() {
+			
+			setSuccessful(false);
+			
+			try {
+				
+				String trackingStr;
+				if (this.trackingOnly) {
+					trackingStr="1";
+				}
+				else {
+					trackingStr="0";
+				}
+
+				BackendRequest request = new BackendRequest("ensureactivationrecord");
+				request.setRequestProperty(KEY_UNIQUEID, this.uniqueId);
+				request.setRequestProperty(KEY_TRACKING_ONLY, trackingStr);
+				request.setRequestProperty(KEY_DEVICE_INFO, getDeviceInfoString());
+				
+				BackendResponse response = new BackendResponse(request);
+
+				if (response.isResponseSuccess()) {
+					setSuccessful(true);
+				}
+
+			}
+			catch (Exception e) {
+			}
+			setFinished(true);
+		}
+
+	}
+
+	
+	/**
 	 * Sends a Custom Event to the backend.
 	 * @param code custom event code
 	 * @param details the event details
@@ -684,6 +796,119 @@ public class DroidActivator {
 
 	}
 	
+	/**
+	 * Create a device info map sent along with every custom event.
+	 * Saved by the backend the first time, when the activation record is created
+	 * Subclass DroidActivator and override this method to generate custom device info
+	 * @return the device info map
+	 */
+	protected HashMap<String, String> createDeviceInfoMap(){
+		HashMap<String, String> map = new HashMap<String, String>();
+		
+		map.put("screen", "big");
+		map.put("lang", "it");
+		map.put("country", "ch");
+		
+		DisplayMetrics metrics = getContext().getResources().getDisplayMetrics();
+
+		map.put("android", Locale.getDefault().getISO3Country());
+
+		map.put("widthPixels", ""+metrics.widthPixels);
+		map.put("heightPixels", ""+metrics.heightPixels);
+		map.put("densityDpi", ""+metrics.densityDpi);
+		
+		// the screen diagonal in inches
+	    double x = Math.pow(metrics.widthPixels/metrics.xdpi,2);
+	    double y = Math.pow(metrics.heightPixels/metrics.ydpi,2);
+	    double screenInches = Math.sqrt(x+y);
+		map.put("screenDiagInches", ""+screenInches);
+		
+		map.put("language", Locale.getDefault().getISO3Language());
+		map.put("country", Locale.getDefault().getISO3Country());
+
+		
+		;
+		
+		Locale.getDefault().getISO3Country();
+
+		putGlobal(SCREEN_DIAGONAL_INCHES, (float)screenInches);
+
+		
+		msg += "\n" + "density: " + metrics.density;
+		msg += "\n" + "densityDpi: " + metrics.densityDpi;
+		msg += "\n" + "scaledDensity: " + metrics.scaledDensity;
+		msg += "\n" + "widthPixels: " + metrics.widthPixels;
+		msg += "\n" + "heightPixels: " + metrics.heightPixels;
+		msg += "\n" + "xdpi: " + metrics.xdpi;
+		msg += "\n" + "ydpi: " + metrics.ydpi;
+
+		
+		// screen size px w
+		// screen size px h
+		// screen density dpi
+		// screen diagonal inches
+		// language
+		// android version
+		
+//		msg += "\n" + "brand: " + Build.BRAND;
+//		msg += "\n" + "board: " + Build.BOARD;
+//		msg += "\n" + "device: " + Build.DEVICE;
+//		msg += "\n" + "manufacturer: " + Build.MANUFACTURER;
+//		msg += "\n" + "model: " + Build.MODEL;
+//		msg += "\n" + "product: " + Build.PRODUCT;
+
+		//		msg += "\n" + "cpu_abi: " + Build.CPU_ABI;
+//		msg += "\n" + "cpu_abi2: " + Build.CPU_ABI2;
+//		msg += "\n" + "display: " + Build.DISPLAY;
+//		msg += "\n" + "fingerprint: " + Build.FINGERPRINT;
+//		msg += "\n" + "hardware: " + Build.HARDWARE;
+//		msg += "\n" + "host: " + Build.HOST;
+//		msg += "\n" + "id: " + Build.ID;
+//		msg += "\n" + "tags: " + Build.TAGS;
+//		msg += "\n" + "time: " + Build.TIME;
+//		msg += "\n" + "type: " + Build.TYPE;
+//		msg += "\n" + "user: " + Build.USER;
+
+		
+		
+//		str+="language: de-de";
+//		
+//		if (!str.equals("")) {
+//			str+=", ";			
+//		}
+//		str+="language: de-de";
+
+		
+		return map;
+	}
+	
+	
+	/**
+	 * Creates a string representing an info map of the device
+	 * Used as data sent in a request
+	 * The string is formattes as "key:value, key:value..."
+	 * @param the Info Map
+	 * @return the string
+	 */
+	private String getDeviceInfoString(){
+		String str="";
+		String key, value;
+		
+		HashMap<String, String> infoMap = createDeviceInfoMap();
+		
+		for (Map.Entry<String, String> entry : infoMap.entrySet()) {
+	        key = entry.getKey();
+	        value = entry.getValue();
+			if (!str.equals("")) {
+				str+=", ";			
+			}
+			str+=key+": "+value;
+		}
+
+		return str;
+	}
+	
+
 	
 	/**
 	 * Check if network is configured and connected.
