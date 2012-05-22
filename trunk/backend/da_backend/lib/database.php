@@ -26,37 +26,21 @@ date_default_timezone_set('UTC');
 // Performs operations on the database
 // Database and tables are created the first time this object is instantiated
 class Database {
-
+	
+   	// Private static variable holding the single instance of this class
+	private static $instance;
+	
 	// a connection is opened each time the Database is instantiated
 	// and is closed when the db is released (unset)
 	private $connection;
+	
+	// turned on after the first structure checking - to avoid checking each time
+	var $prepared;
 
-	// activation table description
-	const CREATE_ACTIVATION_TABLE =
-						"CREATE TABLE IF NOT EXISTS activation
-						 (id SERIAL PRIMARY KEY, 
-						 producer_id INT,
-						 app_name VARCHAR(255),
-						 active BIT(1),
-						 tracking_only BIT(1),
-						 uniqueid VARCHAR(255),
-						 level INT,
-						 userid VARCHAR(255),
-						 expiration DATETIME,
-						 activation_code VARCHAR(8),
-						 last_activation DATETIME,
-						 last_update DATETIME)";
-
-	// event table description
-	const CREATE_EVENT_TABLE = "CREATE TABLE IF NOT EXISTS event
-						 (id SERIAL PRIMARY KEY, 
-						 activation_id BIGINT UNSIGNED NOT NULL,
- 						 timestamp DATETIME,
-						 code INT,
-						 details VARCHAR(255))";
-
-
-
+	const ACTIVATION_TABLE_NAME = "activation";
+	const EVENT_TABLE_NAME = "event";
+	
+	// private constructor
 	public function __construct() {
 
 		// create and register a connection
@@ -76,6 +60,20 @@ class Database {
 			mysql_close($this->connection);
 		}
 	}
+	
+	
+	// static method to return the singleton instance
+   public static function getInstance()
+   {
+      if(self::$instance == null)
+      {   
+         $c = __CLASS__;
+         self::$instance = new $c;
+      }
+      
+      return self::$instance;
+   }
+	
 
 	// prepares the database for usage
 	// return true if the database was already prepared or has been prepared correctly
@@ -101,6 +99,10 @@ class Database {
 				echo($error);
 			}
 		}
+		
+		// create activation columns
+		$this->createActivationColumns();
+		
 
 		// check if event table exists, create if not exists
 		if (!$this->existsTable('event')) {
@@ -110,7 +112,13 @@ class Database {
 				echo($error);
 			}
 		}
+		
+		// create event columns
+		$this->createEventColumns();
+		
 
+		$this->prepared=true;
+		
 		return $success;
 
 	}
@@ -119,18 +127,23 @@ class Database {
 	public function getConnection() {
 		return $this->connection;
 	}
-
-	public function isSetUp() {
-		return mysql_query("SELECT * FROM activation", $this->connection);
+	
+	public function isPrepared() {
+		return $this->prepared;
 	}
+	
 
-	public function setupDb() {
-		$result = mysql_query(Database::CREATE_ACTIVATION_TABLE, $this->connection);
-		if($result){
-			$result = mysql_query(Database::CREATE_EVENT_TABLE, $this->connection);
-		}
-		return $result;
-	}
+//	public function isSetUp() {
+//		return mysql_query("SELECT * FROM activation", $this->connection);
+//	}
+
+//	public function setupDb() {
+//		$result = mysql_query(Database::CREATE_ACTIVATION_TABLE, $this->connection);
+//		if($result){
+//			$result = mysql_query(Database::CREATE_EVENT_TABLE, $this->connection);
+//		}
+//		return $result;
+//	}
 
 
 	// creates the database
@@ -143,14 +156,45 @@ class Database {
 	// creates the Activation table
 	// @return a resource if created successfully, false on error
 	function createActivationTable(){
-		return mysql_query(Database::CREATE_ACTIVATION_TABLE, $this->connection);
+		$query = "CREATE TABLE IF NOT EXISTS " . Database::ACTIVATION_TABLE_NAME . " (id SERIAL PRIMARY KEY)";
+		return mysql_query($query, $this->connection);
 	}
+	
+	// creates the Activation columns
+	function createActivationColumns(){
+		$baseQuery = "ALTER TABLE ".Database::ACTIVATION_TABLE_NAME." ADD COLUMN ";
+		mysql_query($baseQuery."producer_id INT", $this->connection);
+		mysql_query($baseQuery."app_name VARCHAR(255)", $this->connection);
+		mysql_query($baseQuery."active BIT(1)", $this->connection);
+		mysql_query($baseQuery."tracking_only BIT(1)", $this->connection);
+		mysql_query($baseQuery."uniqueid VARCHAR(255)", $this->connection);
+		mysql_query($baseQuery."level INT", $this->connection);
+		mysql_query($baseQuery."userid VARCHAR(255)", $this->connection);
+		mysql_query($baseQuery."expiration DATETIME", $this->connection);
+		mysql_query($baseQuery."activation_code VARCHAR(8)", $this->connection);
+		mysql_query($baseQuery."last_activation DATETIME", $this->connection);
+		mysql_query($baseQuery."last_update DATETIME", $this->connection);
+		mysql_query($baseQuery."device_info VARCHAR(255)", $this->connection);
+
+	}
+	
 
 	// creates the Event table
 	// @return a resource if created successfully, false on error
 	function createEventTable(){
-		return mysql_query(Database::CREATE_EVENT_TABLE, $this->connection);
+		$query = "CREATE TABLE IF NOT EXISTS " . Database::EVENT_TABLE_NAME . " (id SERIAL PRIMARY KEY)";
+		return mysql_query($query, $this->connection);
 	}
+	
+	// creates the Event columns
+	function createEventColumns(){
+		$baseQuery = "ALTER TABLE ".Database::EVENT_TABLE_NAME." ADD COLUMN ";
+		mysql_query($baseQuery."activation_id BIGINT UNSIGNED NOT NULL", $this->connection);
+		mysql_query($baseQuery."timestamp DATETIME", $this->connection);
+		mysql_query($baseQuery."code INT", $this->connection);
+		mysql_query($baseQuery."details VARCHAR(255)", $this->connection);
+	}
+	
 
 	// check if a table exists
 	// @return true if created successfully, false on error
@@ -425,6 +469,13 @@ class Database {
 			$insertId = mysql_insert_id();
 		}else{
 			echo(mysql_error($this->connection) . '<br>');
+		}
+		
+		// if it is a Tracking Only record, set a conventional userid
+		if (($insertId>0) && ($map['tracking_only']=="1")) {
+			$userid = "Z_T" . sprintf("%06d", $insertId);
+			$query = "UPDATE " . Database::ACTIVATION_TABLE_NAME . " SET userid = '" . $userid . "' WHERE id = " .$insertId;
+			mysql_query($query, $this->connection);
 		}
 
 		return $insertId;

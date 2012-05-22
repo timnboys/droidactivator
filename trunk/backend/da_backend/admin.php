@@ -42,8 +42,9 @@ if (isset($pwd)) {
 	}
 }
 
+//$db = Database::getInstance();
 $db = new Database();
-$db->prepare();
+//$db->prepare();
 
 ?>
 

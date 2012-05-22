@@ -42,6 +42,10 @@ switch ($action) {
 	case "event":
 		event($headers);
 		break;
+	case "ensureactivationrecord":
+		ensureactivation($headers);
+		break;
+		
 
 }
 
@@ -179,9 +183,16 @@ function activate($headers){
 
 			if (checkActivationCode($db, $id, $code)) {
 				// activation code ok
-				// set the Activation flag to true and register Unique Id
+				// set the Activation flag to true and register Unique Id and device info
 				$uniqueid = $headers['Uniqueid'];
-				mysql_query("UPDATE activation SET active = 1, uniqueid='$uniqueid' WHERE id = '$id'");
+				$device_info = $headers['Deviceinfo'];
+				$query = "UPDATE activation SET active = 1, uniqueid='$uniqueid'";
+				if (isset($device_info)) {
+					$query = $query . ", device_info='$device_info'";
+				}
+				$query = $query . " WHERE id = '$id'";
+				
+				mysql_query($query);
 
 				// put bundle in response and return success
 				putBundleInResponse($db,$id);
@@ -301,17 +312,6 @@ function event($headers){
 		}
 	}
 
-	// if not found, create a Tracking Record now
-	if ($id==0) {
-		$producer_id = $headers['Producerid'];
-		$app_name = $headers['Appname'];
-		$query = "INSERT INTO activation (uniqueid, producer_id, app_name, tracking_only) VALUES ('$unique_id','$producer_id','$app_name',1)";
-		$resource = mysql_query($query, $db->getConnection());
-		if ($resource) {
-			$id = mysql_insert_id($db->getConnection());
-		}
-	}
-
 	// create the Event Record as a child
 	if ($id>0) {
 		$phpdate = time();
@@ -338,7 +338,72 @@ function event($headers){
 
 }
 
+// request to check the existence and eventually create an Activation Record for a given uniqueid
+function ensureactivation($headers){
+	$success=false;
+	
+	// retrieve informations from header
+	$unique_id = $headers['Uniqueid'];
+	$producer_id = $headers['Producerid'];
+	$app_name = $headers['Appname'];
+	$tracking_only = $headers['Trackingonly'];
+	$device_info = $headers['Deviceinfo'];
+	
+	
+	// instantiate the db
+	$db = new Database();
+	
+	// search the Activation record by $unique_id
+	$query = "SELECT id FROM activation
+	WHERE uniqueid = '$unique_id'";
+	$resource = mysql_query($query, $db->getConnection());
+	if (mysql_num_rows($resource) > 0) {
+		$row = mysql_fetch_array($resource);
+		$id=$row['id'];
+	}
+	
 
+	if($id>0){
+		$success=true;
+	}else{
+		$map=array();
+		
+		if (isset($unique_id)) {
+			$map['uniqueid'] = $unique_id;
+		}
+		if (isset($producer_id)) {
+			$map['producer_id'] = $producer_id;
+		}
+		if (isset($app_name)) {
+			$map['app_name'] = $app_name;
+		}
+		if (isset($tracking_only)) {
+			$map['tracking_only'] = $tracking_only;
+		}
+		if (isset($device_info)) {
+			$map['device_info'] = $device_info;
+		}
+		
+		$id = $db -> createOrSaveActivationRecord(0, $map);
+		if ($id>0){
+			$success=true;
+		}
+		
+	}
+	
+	unset($db);
+	
+	
+	// set success header
+	if ($success) {
+		header('success: true');
+	}else{
+		header('success: false');
+	}
+		
+}
+
+	
 
 
 // put the data bundle in the response for a given activation record
