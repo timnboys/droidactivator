@@ -25,7 +25,7 @@ import java.net.URL;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
@@ -36,13 +36,11 @@ import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
-import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.TextView;
 
 import com.algos.droidactivator.resources.Strings;
-import com.algos.foundation.application.App;
 
 /**
  * Main DroidActivator's class.
@@ -799,19 +797,15 @@ public class DroidActivator {
 	/**
 	 * Create a device info map sent along with every custom event.
 	 * Saved by the backend the first time, when the activation record is created
-	 * Subclass DroidActivator and override this method to generate custom device info
+	 * Subclass DroidActivator and override this method to generate custom device info map
 	 * @return the device info map
 	 */
-	protected HashMap<String, String> createDeviceInfoMap(){
-		HashMap<String, String> map = new HashMap<String, String>();
-		
-		map.put("screen", "big");
-		map.put("lang", "it");
-		map.put("country", "ch");
+	protected LinkedHashMap<String, String> createDeviceInfoMap(){
+		LinkedHashMap<String, String> map = new LinkedHashMap<String, String>();
 		
 		DisplayMetrics metrics = getContext().getResources().getDisplayMetrics();
 
-		map.put("android", Locale.getDefault().getISO3Country());
+		map.put("androidVersion", ""+Build.VERSION.SDK_INT);
 
 		map.put("widthPixels", ""+metrics.widthPixels);
 		map.put("heightPixels", ""+metrics.heightPixels);
@@ -821,63 +815,11 @@ public class DroidActivator {
 	    double x = Math.pow(metrics.widthPixels/metrics.xdpi,2);
 	    double y = Math.pow(metrics.heightPixels/metrics.ydpi,2);
 	    double screenInches = Math.sqrt(x+y);
-		map.put("screenDiagInches", ""+screenInches);
+	    double rounded = (double)Math.round(screenInches*10)/10;
+		map.put("diagInches", ""+rounded);
 		
 		map.put("language", Locale.getDefault().getISO3Language());
 		map.put("country", Locale.getDefault().getISO3Country());
-
-		
-		;
-		
-		Locale.getDefault().getISO3Country();
-
-		putGlobal(SCREEN_DIAGONAL_INCHES, (float)screenInches);
-
-		
-		msg += "\n" + "density: " + metrics.density;
-		msg += "\n" + "densityDpi: " + metrics.densityDpi;
-		msg += "\n" + "scaledDensity: " + metrics.scaledDensity;
-		msg += "\n" + "widthPixels: " + metrics.widthPixels;
-		msg += "\n" + "heightPixels: " + metrics.heightPixels;
-		msg += "\n" + "xdpi: " + metrics.xdpi;
-		msg += "\n" + "ydpi: " + metrics.ydpi;
-
-		
-		// screen size px w
-		// screen size px h
-		// screen density dpi
-		// screen diagonal inches
-		// language
-		// android version
-		
-//		msg += "\n" + "brand: " + Build.BRAND;
-//		msg += "\n" + "board: " + Build.BOARD;
-//		msg += "\n" + "device: " + Build.DEVICE;
-//		msg += "\n" + "manufacturer: " + Build.MANUFACTURER;
-//		msg += "\n" + "model: " + Build.MODEL;
-//		msg += "\n" + "product: " + Build.PRODUCT;
-
-		//		msg += "\n" + "cpu_abi: " + Build.CPU_ABI;
-//		msg += "\n" + "cpu_abi2: " + Build.CPU_ABI2;
-//		msg += "\n" + "display: " + Build.DISPLAY;
-//		msg += "\n" + "fingerprint: " + Build.FINGERPRINT;
-//		msg += "\n" + "hardware: " + Build.HARDWARE;
-//		msg += "\n" + "host: " + Build.HOST;
-//		msg += "\n" + "id: " + Build.ID;
-//		msg += "\n" + "tags: " + Build.TAGS;
-//		msg += "\n" + "time: " + Build.TIME;
-//		msg += "\n" + "type: " + Build.TYPE;
-//		msg += "\n" + "user: " + Build.USER;
-
-		
-		
-//		str+="language: de-de";
-//		
-//		if (!str.equals("")) {
-//			str+=", ";			
-//		}
-//		str+="language: de-de";
-
 		
 		return map;
 	}
@@ -894,7 +836,7 @@ public class DroidActivator {
 		String str="";
 		String key, value;
 		
-		HashMap<String, String> infoMap = createDeviceInfoMap();
+		LinkedHashMap<String, String> infoMap = createDeviceInfoMap();
 		
 		for (Map.Entry<String, String> entry : infoMap.entrySet()) {
 	        key = entry.getKey();
