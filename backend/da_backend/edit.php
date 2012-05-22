@@ -85,6 +85,9 @@ if ($save_flag) {
 		$time="null";
 	}
 	$map['last_update'] = $time;
+	
+	$map['device_info'] = $_POST['device_info'];
+	
 
 	$cont=true;
 
@@ -213,6 +216,7 @@ if ($save_flag) {
 			<td>Expiration (yyyy-mm-dd):</td>
 			<td><input type="text" size="10" maxlength="10" name="expiration" value=<?php echo $data['expiration']?> ></td>
 		</tr>
+				
 		
 		<?php if ($activation!=0) {
 			?>
@@ -231,6 +235,16 @@ if ($save_flag) {
 			</tr>
 			<?php
 		}?>
+		
+		<?php if ($activation!=0) {
+			?>
+			<tr>
+				<td>Device info:</td>
+				<td><input type="text" size="90" name="device_info" value='<?php echo $data['device_info']?>'></td>
+			</tr>
+			<?php
+		}?>
+		
 		
 		
 
