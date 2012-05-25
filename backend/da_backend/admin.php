@@ -32,6 +32,8 @@ $expiration = $_POST['expiration'];
 $addrecord = $_POST['addrecord'];
 
 $delete = $_GET['delete'];
+$execdelete = $_GET['execdelete'];
+
 $listevents = $_GET['listevents'];
 
 if (isset($pwd)) {
@@ -42,8 +44,12 @@ if (isset($pwd)) {
 	}
 }
 
-//$db = Database::getInstance();
+$db = Database::getInstance();
+$db2 = Database::getInstance();
 $db = new Database();
+
+		$_SESSION['database'] = $db;
+
 //$db->prepare();
 
 ?>
@@ -92,22 +98,38 @@ $db = new Database();
 	}
 	
 
+	// executes a Javascript requesting user confirmation
+	// if confirmed calls the same page with an "execdelete" parameter
 	if (isset($delete)) {
-		$retcode = $db->deleteActivationRecord($delete);
+		
+		?>
+		<script type="text/javascript">
+		if (confirm("Delete the record?")){
+            window.location.href = "<?php echo $_SERVER['PHP_SELF']; ?>?execdelete=<?php echo $delete?>"; 
+		}
+		</script>
+		<?php
+		
+	}
+	
+	// deletes an Activation record
+	if (isset($execdelete)) {
+		$retcode = $db->deleteActivationRecord($execdelete);
 		switch ($retcode) {
 			case -1:	// generic error
-				echo("<strong>Unable to delete activation record ". $delete . "</strong>");
+				echo("<strong>Unable to delete activation record ". $execdelete . "</strong>");
 				break;
 			case 0:	// deleted OK
-				echo("<strong>Activation record " .  $delete . " deleted.</strong>");
+				echo("<strong>Activation record " .  $execdelete . " deleted.</strong>");
 				break;
 		}
 	}
+	
 
 	?>
 
 	
-	<form name="Refresh" action="<?php echo $_SERVER['PHP_SELF']; ?>" method="POST">
+	<form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="POST">
 		<input type="submit" name="addrecord" value="Add record" />
 		<input type="submit" name="refresh" value="Refresh list" />
 	</form>
