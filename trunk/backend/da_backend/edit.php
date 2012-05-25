@@ -35,8 +35,8 @@ if (isset($pwd)) {
 	}
 }
 
+$db = Database::getInstance();
 $db = new Database();
-$db->prepare();
 
 
 if ($save_flag) {
