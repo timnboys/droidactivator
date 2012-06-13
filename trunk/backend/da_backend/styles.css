@@ -1,0 +1,15 @@
+@CHARSET "UTF-8";
+.menu ul{
+        color: green;
+        list-style: none;
+}
+.menu ul li{
+        padding:
+        display: inline;
+        float: left;
+        padding: 2px 8px;
+}
+
+hr{
+        clear: both;
+}
