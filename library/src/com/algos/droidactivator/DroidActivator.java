@@ -795,7 +795,7 @@ public class DroidActivator {
 	}
 	
 	/**
-	 * Create a device info map sent along with every custom event.
+	 * Create a device info map sent to the backend along with activation requests.
 	 * Saved by the backend the first time, when the activation record is created
 	 * Subclass DroidActivator and override this method to generate custom device info map
 	 * @return the device info map
