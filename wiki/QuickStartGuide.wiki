@@ -95,7 +95,6 @@ As the server address, provide only "http://" followed by the IP address or DNS 
 
 
 {{{"http://151.13.2.58"}}} is right
-
 {{{"http://mydomain.org"}}} is right
 
 {{{"http://151.13.2.58/da_backend/check.php"}}} is wrong
