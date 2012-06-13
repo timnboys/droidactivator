@@ -1,5 +1,4 @@
 #summary DroidActivator User's Guide
-#labels Featured
 
 = Introduction =
 
@@ -8,6 +7,7 @@
  * manage application levels (sell app in different levels or configurations)
  * manage activation expiration (i.e. renewal, yearly fees)
  * track application usage (tracking of custom events)
+ * acquire standard and custom info from devices
 
 This guide is intended to provide some in-depth knowledge of the key concepts behind !DroidActivator.
 
@@ -37,7 +37,7 @@ The features of an Application are represented by Levels. A level represents a s
 
 The Level represents what the user paid for and should get. For example, Level 0 can be Demo, Level 1 Base, Level 2 Pro and so forth. Or, you can combine different group of features in a Level, for example: Level 0 = Basic, Level 1 = Basic + feature A, Level 2 = Basic + feature B + feature C, Level 3 = Basic + feature A + feature C etc.
 
-It is your responsibility to read the Appl Level and enable the corresponding features in your App.
+It is your responsibility to read the App Level and enable the corresponding features in your App.
 
 The App Level is maintained in Shared Preferences and can be changed only by you on the backend.
 
@@ -97,7 +97,7 @@ If not found by Unique Id but found by User Id, then another installation has be
 
 Applying this pattern, the last activated installation for a User  "steals" the activation to other installations of the same User, and so forth, every last user "steals" back the activation, so all users with the same credentials are requested to re-activate more or less each time they start the app. This can be annoying enough for our current goals. Maybe we'll implement some kind of license-swap limitation in the backend in the future.
 
-If not found by Unique Id nor by User Id, the installation is not coupled to the backend. Maybe we didn't receive the record from the Market yet, or we deleted the Activation Record in the backend or the user is a really good hacker and he tampered with cached data. We can do nothing. Activation data will not be updated.
+If not found by Unique Id nor by User Id, the installation is not coupled to the backend. Maybe we didn't receive the purchase proof yet, or we deleted the Activation Record in the backend or the user is a really good hacker and he tampered with cached data. We can do nothing. Activation data will not be updated.
 
 == The Activation Check ==
 
@@ -354,3 +354,22 @@ DroidActivator.newInstance(context, backendAddress, runnable);
 }}}
 
 If you don't need to activate your app but just want to use the event tracking feature, you can leave the runnable null. Also, in this case avoid to perform the call for the activation cycle!
+
+=Acquiring device info=
+
+At activation time, some standard device info (android version, screen size, resolution, and more) is acquired from the device and sent to the backend. You can customize this information by overriding the DroidActivator.createDeviceInfoMap() method.
+
+{{{
+protected LinkedHashMap<String, String> createDeviceInfoMap(){
+
+    //retrieve the info map already filled from the superclass 
+    //(or create a new one if you are not interested in standard info)
+    LinkedHashMap<String, String> map = super.createDeviceInfoMap(); 
+
+    // add your own informations
+    map.put("myinfo", retrieveMyCustomInfo());
+
+    // return the info map
+    return map;
+}
+}}}
