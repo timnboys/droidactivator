@@ -92,8 +92,14 @@ private void startMyApp() {
 }}}
 
 As the server address, provide only "http://" followed by the IP address or DNS name of your server
+
+
 "http://151.13.2.58" is right
+
+
 "http://mydomain.org" is right
+
+
 "http://151.13.2.58/da_backend/check.php" is wrong
 
 When your app starts up, !DroidActivator's Activation dialog should appear. Have fun!
