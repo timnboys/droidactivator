@@ -359,7 +359,7 @@ If you don't need to activate your app but just want to use the event tracking f
 
 At activation time, some standard device info (android version, screen size, resolution, and more) is acquired from the device and sent to the backend.
 
-You can customize this information by overriding the {{{DroidActivator.createDeviceInfoMap()}}} method of DroidActivator class.
+You can customize this information by overriding the {{{DroidActivator.createDeviceInfoMap()}}} method of {{{DroidActivator}}} class.
 
 {{{
 protected LinkedHashMap<String, String> createDeviceInfoMap(){
