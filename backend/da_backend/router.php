@@ -27,16 +27,15 @@ $action = $_GET['action'];
 switch ($zone) {
 	
 	case 'menu':
-		$controller = MenuController;
 		switch ($action) {
 			case 'activations':
-				$controller::activations();
+				MenuController::activations();
 				break;
 			case 'events':
-				$controller::events();
+				MenuController::events();
 				break;
 			case 'logout':
-				$controller::logout();
+				MenuController::logout();
 				break;
 			default:
 				break;
@@ -45,29 +44,28 @@ switch ($zone) {
 		break;
 		
 	case 'activations':
-		$controller = ActivationsController;
 		switch ($action) {
 			case 'delete':
 				$id=$_GET['id'];
-				$controller::deleteActivation($id);
+				ActivationsController::deleteActivation($id);
 				break;
 				
 			case 'edit':
 				$id=$_GET['id'];
-				$controller::edit($id);
+				ActivationsController::edit($id);
 				break;
 				
 			case 'create':
-				$controller::create();
+				ActivationsController::create();
 				break;
 				
 			case 'refreshlist':
-				$controller::listRows();
+				ActivationsController::listRows();
 				break;
 				
 			// submit an activation form (either new or existing record)
 			case 'submit':
-				$controller::submit();
+				ActivationsController::submit();
 				break;
 				
 				
@@ -79,17 +77,16 @@ switch ($zone) {
 		
 
 	case 'events':
-		$controller = EventsController;
 		switch ($action) {
 			
 			case 'list':
 				$activation_id=$_GET['activation_id'];
-				$controller::listRows($activation_id);
+				EventsController::listRows($activation_id);
 				break;
 			
 			case 'delete':
 				$id=$_GET['id'];
-				$controller::deleteEvent($id);
+				EventsController::deleteEvent($id);
 				break;
 				
 			default:
@@ -97,10 +94,6 @@ switch ($zone) {
 		}
 		
 		break;
-
-	case 'pluto':
-		break;
-
 
 	default:
 		break;
