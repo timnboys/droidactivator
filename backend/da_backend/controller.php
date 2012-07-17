@@ -54,7 +54,8 @@ class ActivationsController extends AbstractController {
 		$result = $model->listData(null);
 		
 		// create an associative array from model data
-		$map = $result->fetch_all(MYSQLI_ASSOC);
+		//$map = $result->fetch_all(MYSQLI_ASSOC); //Php 5.3.0+ only
+		for ($map = array(); $tmp = $result->fetch_array(MYSQLI_ASSOC);) $map[] = $tmp; //Php 5+
 
 		// store data in the session
 		$_SESSION['activation_datamap']=$map;
@@ -167,7 +168,9 @@ class EventsController extends AbstractController {
 		$result = $model->listData($filter);
 		
 		// create an associative array from model data
-		$map = $result->fetch_all(MYSQLI_ASSOC);
+		//$map = $result->fetch_all(MYSQLI_ASSOC);  //Php 5.3.0+ only
+		for ($map = array(); $tmp = $result->fetch_array(MYSQLI_ASSOC);) $map[] = $tmp;	//Php 5+
+		
 
 		// store data in the session
 		$_SESSION['event_datamap']=$map;
