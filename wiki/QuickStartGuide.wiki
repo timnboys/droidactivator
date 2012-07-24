@@ -95,9 +95,9 @@ As the server address, provide only {{{http://}}} followed by the IP address or 
 
 *right:* {{{http://151.13.2.58}}}
 
-*right:* {{{http://mydomain.org}}} *is right*
+*right:* {{{http://mydomain.org}}}
 
-*wrong:* {{{http://151.13.2.58/da_backend/check.php}}} *is wrong*
+*wrong:* {{{http://151.13.2.58/da_backend/check.php}}}
 
 please do not change the backend folder or file names as they are hard-coded in the jar library.
 
