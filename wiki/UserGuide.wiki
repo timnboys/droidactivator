@@ -366,9 +366,6 @@ then in your MainActivity check the Activation status
 ...
 
 
-
-This has the following drawback: since your main Activity could be called many 
-
 =Registering new purchases in the backend=
 
 For the system to work, you have to mantain a registry of all the valid purchases.
