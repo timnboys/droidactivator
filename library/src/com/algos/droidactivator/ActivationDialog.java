@@ -39,6 +39,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.algos.droidactivator.dialog.InfoDialog;
@@ -134,7 +135,11 @@ class ActivationDialog extends Dialog {
 		// add bottom panel
 		vLayout.addView(createBottomPanel());
 
-		return vLayout;
+		// put the layout in a ScrollView
+		ScrollView sv = new ScrollView(getContext());
+		sv.addView(vLayout);
+		
+		return sv;
 
 	}
 
