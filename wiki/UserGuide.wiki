@@ -314,7 +314,9 @@ When the Activation Cycle is done, your !MainActivity is started and the !Activa
 ===!MainActivity class===
 
 {{{
+@Override
 public void onCreate(Bundle savedInstanceState) {
+
 	super.onCreate(savedInstanceState);
 			
 	// test the activator variables and do whatever is appropriate	
