@@ -270,7 +270,7 @@ There are many ways you can implement activation in your app. We suggest here a 
 
 1. Create an ActivationActivity and make it your main activity in your Manifest file, then implement the onCreate() method as follows:
 
-===ActivationActivity class===
+===!ActivationActivity class===
 
 {{{
 
