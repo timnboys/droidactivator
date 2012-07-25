@@ -103,4 +103,4 @@ please do not change the backend folder or file names as they are hard-coded in 
 
 When your app starts up, !DroidActivator's Activation dialog should appear. Have fun!
 
-Note: this is a quick and dirty implementation to get started. A better implementation pattern, using a separated ActivationActivity, is explained in the UserGuide.
+*Note: this is a quick and dirty implementation to get started. A better implementation pattern, using a separated ActivationActivity, is explained in the UserGuide.*
