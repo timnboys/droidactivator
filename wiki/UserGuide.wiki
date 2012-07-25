@@ -291,7 +291,7 @@ public void onCreate(Bundle savedInstanceState) {
 			intent.setClass(this, MainActivity.class);
 			startActivity(intent);
 
-			// this will end this activity after starting your app
+			// this will end ActivationActivity after starting your app
 			// so it will be removed from the backstack
 			finish();
 		}
