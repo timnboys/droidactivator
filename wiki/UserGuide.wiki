@@ -311,7 +311,7 @@ When the Activation Cycle is done, your Main Activity is started and the Activat
 
 2. In your MainActivity, check !DroidActivator for the activation status and put the appropriate actions in place
 
-===MainActivity class===
+===!MainActivity class===
 
 {{{
 public void onCreate(Bundle savedInstanceState) {
