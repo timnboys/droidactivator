@@ -375,7 +375,7 @@ The event tracking is anonymous until the application is activated (you only kno
 
 The call to the backend is performed in a separate thread with short timeouts. If the call fails because the backend is not reachable nothing happens and the user should not notice anything. Be aware that  this kind of event tracking is intended to be used for statistic purposes and it does not guarantee that all events will be tracked! Events are tracked only when the device has an active connection and the backend is up.
 
-When the backend receives an Event Tracking request, it looks for the device's Activation Record by Unique Id. If found, it is used as the parent. If not found, a new Tracking Record record is created (an Activation Record without userId and with the TrackingOnly flag set to true) and used as parent.
+When the backend receives an Event Tracking request, it looks for the device's Activation Record by Unique Id. If found, it is used as the parent. If not found, a new Tracking Record record is created (an Activation Record without userId and with the !TrackingOnly flag set to true) and used as parent.
 
 Then a new Event Record is created as a child, and event data is stored in that record.
 
