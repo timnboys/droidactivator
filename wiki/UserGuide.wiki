@@ -266,7 +266,7 @@ To use !DroidActivator, your application requires the following permissions to b
 
 ==An implementation example==
 
-There are many ways you can implement activation in your app. We suggest here a pattern which separates the activity where the activation is performed from the other activities of your app. This allows a better separation and ensures the activation process is performed only once at startup.
+There are many ways you can implement activation in your app. We suggest here a pattern which separates the activity where the activation is performed from the other activities of your app. This allows a better code separation and ensures the activation process is performed only once at startup.
 
 1. Create an !ActivationActivity and make it your main activity in your Manifest file, then implement the onCreate() method as follows:
 
