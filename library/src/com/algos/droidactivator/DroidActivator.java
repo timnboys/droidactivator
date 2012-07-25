@@ -1530,9 +1530,6 @@ public class DroidActivator {
 	 * @param ctx the context
 	 * @param address the backend address
 	 * @param runnable the runnable to run to start your app when an Activation Cycle is completed.
-	 * The producer id identifies the application producer. Can be left to 0 if DroidAcrivator
-	 * is used anly for applications of the same producer.
-	 * <p>Valid backend addresses are in the form "http://123.123.123.123" or "http://mydomain.com:12100".
 	 */
 	public static void newInstance(Context ctx, String address, Runnable runnable) {
 		newInstance(ctx, address, 0, runnable);
