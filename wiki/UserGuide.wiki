@@ -223,6 +223,8 @@ This is an attempt to activate the installation before purchase data is added to
 
 =In your code=
 
+These are the basic steps to integrate DroidActivator in your app:
+
 1. As soon as you have a Context (usually in the onCreate() method) instantiate !DroidActivator calling
 
 {{{
@@ -235,13 +237,6 @@ DroidActivator.newInstance(context, backendAddress, runnable)
  * `backendAddress` is a string containing the network address of your Php backend, in the form "http://151.10.128.32" or "http://droidactivator.mydomain.com".
  * the `runnable` is an object implementing the Runnable interface whose method run() will be called when the activation process is completed. In this run() method you start up your application.
 
-For example, from your Activity onCreate() method, make this call:
-{{{
-DroidActivator.newInstance(this, "http://151.10.128.32",new Runnable() {	
-	public void run() {startMyApp();}
-});
-}}}
-
 2. Just after instantiation, you can configure the Activator (optional). Here you have the chance to change the default settings if needed.
 
 For example:
@@ -250,62 +245,17 @@ For example:
 DroidActivator.setTemporaryWaitTime(20);
 }}}
 
-3. Perform the Activation Cycle. This will always try to update the cached Activation status based on your server data and may bring up the Activation Dialog if needed (app not activated or activation expired). In any case, your Runnable will be called after the Activation Cycle is done and your app will be started.
+3. Perform the Activation Cycle. This will always try to update the cached Activation status based on your server data, and may bring up the Activation Dialog if needed (if the app is not activated or activation has expired). In any case, your Runnable will be called when the Activation Cycle is done and your app will always be started.
 
 {{{
-DroidActivator.doActivationCycle(this);
+DroidActivator.doActivationCycle(context);
 }}}
 
-After the Activation Cycle, your startup method is called.
+4. In your Activity, obtain the activation status from !DroidActivator and put your actions in place. 
 
-There, you can obtain the activation status from !DroidActivator and put your actions in place. For example, you may decide to start your app in demo mode, in full mode, or with a particular feature set based on the Activation Level, or to deny access completely.
+For example, you may decide to start your app in demo mode, in full mode, or with a particular feature set based on the Activation Level, or to deny access completely.
 
-This is an example of a full implementation in your startup Activity:
-
-{{{
-public void onCreate(Bundle savedInstanceState) {
-	super.onCreate(savedInstanceState);
-			
-	// instantiate DroidActivator
-	DroidActivator.newInstance(this, "http://151.10.128.32",new Runnable() {	
-		public void run() {startMyApp();}
-	});
-
-	// optional: configure DroidActivator
-	DroidActivator.setTemporaryWaitTime(3);
-			
-	// perform the Activation cycle – your startup method is called when finished
-	DroidActivator.doActivationCycle(this);
-		
-}
-
-
-// this is your startup method
-private void startMyApp() {
-
-	// test the activator variables and do whatever is appropriate	
-	if (DroidActivator.isActivated()) {
-		switch (DroidActivator.getLevel()) {
-		case 0:
-			startInDemoMode();
-			break;
-		case 1:
-			startInBasicMode();
-			break;
-		case 2:
-			startInProMode();
-			break;
-		}
-	}
-	else {
-		startInDemoMode();
-	}
-}
-}}}
-
-To check if the installation is activated, you call *!DroidActivator.isActivated()*. This method returns true also if the activation is temporary. If you need to distinguish between these cases, you can call *!DroidActivator.isTemporarilyActivated()*.
-
-To check the activation level, call *!DroidActivator.getLevel()*.
+To check if the installation is activated, you call *!DroidActivator.isActivated()*. This method returns true also if the activation is temporary. If you need to distinguish between these cases, you can call *!DroidActivator.isTemporarilyActivated()*. To check the activation level, call *!DroidActivator.getLevel()*.
 
 To use !DroidActivator, your application requires the following permissions to be granted in the Manifest file:
 
@@ -314,17 +264,13 @@ To use !DroidActivator, your application requires the following permissions to b
 <uses-permission android:name="android.permission.INTERNET" />
 }}}
 
-==A better implementation in your code==
+==An implementation example==
 
-The previous implementation pattern has a drawback: it calls the Activation Cycle inside the onCreate() method of your main Activity. This method is called every time the Activity is created. Depending on the architecture of your app, this method could be called more than once in the lifecycle of your app, notably if there is a Configuration Change (e.g. a screen rotation).
+There are many ways you can implement activation in your app. We suggest here a pattern which separates the activity where the activation is performed from the other activities of your app. This allows a better separation and ensures the activation process is performed only once at startup.
 
-This is not harmful, since you can perform how many Activation Cycles you desire, your cached activation data will just be brought up-to-date more often, however, if the app is not activated, the activation dialog may appear more than once, and this is not desirable.
+1. Create an ActivationActivity and make it your main activity in your Manifest file, then implement the onCreate() method as follows:
 
-A better implementation pattern should decouple the Activation process from your main Activity, so that activation is performed only once at startup.
-
-To obtain this result, a better way is to create a separate Activity for the Activation process and start your main Activity from there.
-
-Lets create an ActivationActivity and make it your launch activity in your Manifest file, then implement the onCreate() method as follows:
+===ActivationActivity class===
 
 {{{
 
@@ -336,6 +282,8 @@ public void onCreate(Bundle savedInstanceState) {
 	// instantiate DroidActivator
 	DroidActivator.newInstance(this, "http://151.10.128.32", new Runnable() {
 
+		// this method will be run when activation process is completed
+		// your MainActivity will be started and the ActivationActivity will be finished
 		public void run() {
 
 			// start your Main Activity
@@ -352,7 +300,7 @@ public void onCreate(Bundle savedInstanceState) {
 	// optional: configure DroidActivator
 	DroidActivator.setTemporaryWaitTime(3);
 
-	// perform the Activation cycle – your Main Activity is started when finished
+	// perform the Activation cycle - this may bring up the activation dialog
 	DroidActivator.doActivationCycle(this);
 
 }
@@ -361,10 +309,35 @@ public void onCreate(Bundle savedInstanceState) {
 
 When the Activation Cycle is done, your Main Activity is started and the ActivationActivity is finished and will never be executed again.
 
-.....
-then in your MainActivity check the Activation status
-...
+2. In your MainActivity, check !DroidActivator for the activation status and put the appropriate actions in place
 
+===MainActivity class===
+
+{{{
+public void onCreate(Bundle savedInstanceState) {
+	super.onCreate(savedInstanceState);
+			
+	// test the activator variables and do whatever is appropriate	
+	if (DroidActivator.isActivated()) {
+		switch (DroidActivator.getLevel()) {
+		case 0:
+			startInDemoMode();
+			break;
+		case 1:
+			startInBasicMode();
+			break;
+		case 2:
+			startInProMode();
+			break;
+		}
+	}
+	else {
+		askUserToPayAndExit();
+	}
+	
+}
+
+}}}
 
 =Registering new purchases in the backend=
 
