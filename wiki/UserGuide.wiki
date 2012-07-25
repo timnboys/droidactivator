@@ -307,9 +307,9 @@ public void onCreate(Bundle savedInstanceState) {
 
 }}}
 
-When the Activation Cycle is done, your Main Activity is started and the ActivationActivity is finished and will never be executed again.
+When the Activation Cycle is done, your !MainActivity is started and the !ActivationActivity is finished and will never be executed again.
 
-2. In your MainActivity, check !DroidActivator for the activation status and put the appropriate actions in place
+2. In your !MainActivity, check !DroidActivator for the activation status and put the appropriate actions in place
 
 ===!MainActivity class===
 
