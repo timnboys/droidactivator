@@ -245,11 +245,14 @@ For example:
 DroidActivator.setTemporaryWaitTime(20);
 }}}
 
-3. Perform the Activation Cycle. This will always try to update the cached Activation status based on your server data, and may bring up the Activation Dialog if needed (if the app is not activated or activation has expired). In any case, your Runnable will be called when the Activation Cycle is done and your app will always be started.
+3. Perform the Activation Cycle. 
 
 {{{
 DroidActivator.doActivationCycle(context);
 }}}
+
+This will always try to update the cached Activation status based on your server data, and may bring up the Activation Dialog if needed (if the app is not activated or activation has expired). In any case, your Runnable will be called when the Activation Cycle is done and your app will always be started.
+
 
 4. In your Activity, obtain the activation status from !DroidActivator and put your actions in place. 
 
