@@ -223,7 +223,7 @@ This is an attempt to activate the installation before purchase data is added to
 
 =In your code=
 
-These are the basic steps to integrate DroidActivator in your app:
+These are the basic steps to integrate !DroidActivator in your app:
 
 1. As soon as you have a Context (usually in the onCreate() method) instantiate !DroidActivator calling
 
