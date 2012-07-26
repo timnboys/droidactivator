@@ -405,11 +405,11 @@ You can customize this information by overriding the {{{DroidActivator.createDev
 @Override
 protected LinkedHashMap<String, String> createDeviceInfoMap(){
 
-    //retrieve the info map already filled from the superclass 
-    //(or create a new one if you are not interested in standard info)
+    //retrieve the info map already filled by the superclass 
+    //(or create a new empty one if you are not interested in standard info)
     LinkedHashMap<String, String> map = super.createDeviceInfoMap(); 
 
-    // add your own informations
+    // add your own informations, key/value pairs
     map.put("myinfo", retrieveMyCustomInfo());
 
     // return the info map
