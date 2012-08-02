@@ -28,6 +28,7 @@
 		<li><a href="router.php?zone=menu&action=activations">Activations</a></li>
 		<li><a href="router.php?zone=menu&action=events">Events</a></li>
 		<li><a href="router.php?zone=menu&action=logout">Logout</a></li>
+		<li><a href="router.php?zone=menu&action=about">About</a></li>
 		
 		<?php
 		}

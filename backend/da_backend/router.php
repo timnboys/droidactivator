@@ -37,6 +37,9 @@ switch ($zone) {
 			case 'logout':
 				MenuController::logout();
 				break;
+			case 'about':
+				MenuController::about();
+				break;
 			default:
 				break;
 		}

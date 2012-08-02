@@ -16,10 +16,10 @@
 //    along with this program.  If not, see http://www.gnu.org/licenses/
 
 
-const 	ACTIVATION_CODE_WRONG = 1,
-		RECORD_FOR_OTHER_APP = 2,
-		ACTIVATION_RECORD_NOT_FOUND = 3;
-
+define('ACTIVATION_CODE_WRONG', 1);
+define('RECORD_FOR_OTHER_APP', 2);
+define('ACTIVATION_RECORD_NOT_FOUND', 3);
+		
 $headers = parseRequestHeaders();
 $action = $headers['Action'];
 
