@@ -37,6 +37,15 @@ class MenuController extends AbstractController {
 		
 	}
 	
+	static function about() {
+		
+		// redirect to the about page
+   		header("Location: about.php");
+		
+	}
+	
+	
+	
 	
 }
 
