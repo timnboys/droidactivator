@@ -33,6 +33,17 @@
 <p>For any question you can <a href="mailto:info@algos.it">contact the authors.</a> We appreciate your comments and suggestions!
 <p>Current version of the backend is <strong><?php echo VERSION?></strong>
 <p>Current version of Php is <strong><?php echo phpversion()?></strong>
+<p>Web server address is <strong><?php echo $_SERVER['SERVER_ADDR']?></strong>
+
+<p>The code for instantiating DroidActivator is:<br>
+<code>
+DroidActivator.newInstance(this, "http://<?php echo $_SERVER['SERVER_ADDR']?>",new Runnable() {<br>    
+&nbsp&nbsppublic void run() {startMyApp();}<br>    
+});<br>    
+</code>
+
+
+
 </p>
 
 <?php include 'includes/footer.php'; ?>
