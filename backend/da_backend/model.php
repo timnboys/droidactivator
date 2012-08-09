@@ -533,7 +533,7 @@ abstract class AbstractModel{
 	
 	// retrieves all rows from the table ordered by id
 	// @param a filter for the records (no filter = all records)
-	// @return 
+	// @return a mysqli_result object, or false on failure
 	public function listData($filter){
 		$conn = $this->getConnection();
 		$query="SELECT * FROM " .$this->table;
