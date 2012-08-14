@@ -109,7 +109,7 @@ public enum Strings {
 
 
 	public String get() {
-		String string = "";
+		String string = null;
 
 		if (Languages.isEnglish()) {
 			string = en;
@@ -117,6 +117,11 @@ public enum Strings {
 
 		if (Languages.isItalian()) {
 			string = it;
+		}
+		
+		// fallback to english if language not recognized
+		if (string==null) {
+			string = en;
 		}
 
 		return string;
