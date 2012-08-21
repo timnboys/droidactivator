@@ -311,7 +311,7 @@ public void onCreate(Bundle savedInstanceState) {
 
 /**
  * @return this activity's Context
- * Used to supply this context to the runnable's anonymous class
+ * (used to supply this context to the runnable's anonymous class)
  */
 private Context getContext(){
 	return this;
