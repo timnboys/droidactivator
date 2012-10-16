@@ -174,24 +174,28 @@ class EventsController extends AbstractController {
         if (isset($activation_id)) {
         	$filter = "activation_id=" .$activation_id;
         }
+        
 		$result = $model->listData($filter);
 		
-		// create an associative array from model data
-		//$map = $result->fetch_all(MYSQLI_ASSOC);  //Php 5.3.0+ only
-		for ($map = array(); $tmp = $result->fetch_array(MYSQLI_ASSOC);) $map[] = $tmp;	//Php 5+
+		if ($result) {
+			
+			// create an associative array from model data
+			//$map = $result->fetch_all(MYSQLI_ASSOC);  //Php 5.3.0+ only
+			for ($map = array(); $tmp = $result->fetch_array(MYSQLI_ASSOC);) $map[] = $tmp;	//Php 5+
 		
-
-		// store data in the session
-		$_SESSION['event_datamap']=$map;
+			// store data in the session
+			$_SESSION['event_datamap']=$map;
 		
-		// if specified, save the parent activation id in the session
-		unset($_SESSION['activation_id']);
-		if (isset($activation_id)) {
-			$_SESSION['activation_id']=$activation_id;
+			// if specified, save the parent activation id in the session
+			unset($_SESSION['activation_id']);
+			if (isset($activation_id)) {
+				$_SESSION['activation_id']=$activation_id;
+			}
+		
+			// redirect to the display page
+   			header("Location: events.php");
+			
 		}
-		
-		// redirect to the display page
-   		header("Location: events.php");
 		
 	}
 	
