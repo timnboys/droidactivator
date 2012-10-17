@@ -19,6 +19,10 @@
 session_start();
 include 'includes/authorize.php';
 include 'includes/header.php';
+
+// retrieve search datamap from session
+$searchdata = $_SESSION['search_map'];
+
 ?>
 
 <table border="0">
@@ -35,7 +39,88 @@ include 'includes/header.php';
 			</form>
 		</td>
 	</tr>
+
 </table>
+
+<div id="searchbox-collapsed" class="searchbox">
+	<a href="#" onclick="show('searchbox');">Show search box</a>
+</div>
+
+<div id="searchbox" class="searchbox">
+
+	<a href="#" onclick="hide('searchbox');">Hide search box</a>
+
+<form action="router.php?zone=activations&action=search" method="POST">
+
+	<table border="0">
+		<tr>
+			<td>Id</td>
+			<td><input type="number" name="id" size="8" value=<?php echo $searchdata['id']?>></td>
+		</tr>
+		
+		<tr>
+			<td>User Id</td>
+			<td><input type="text" name="userid" size="40" value=<?php echo $searchdata['userid']?>></td>
+		</tr>
+		
+		<tr>
+			<td>App name</td>
+			<td><input type="text" name="appname" size="20" value=<?php echo $searchdata['appname']?>></td>
+		</tr>
+		
+		<tr>
+			<td>Activation code</td>
+			<td><input type="number" name="activationcode" size="8" value=<?php echo $searchdata['activationcode']?>></td>
+		</tr>
+		
+		<tr>
+			<td>Producer id</td>
+			<td><input type="number" name="producerid" size="4" value=<?php echo $searchdata['producerid']?>></td>
+		</tr>
+		
+		<tr>
+			<td>Activated</td>
+			<td>
+            <select name="activated">
+            	<option value="any" <?php if ($searchdata['activated']=="any") {echo "selected";}?>>Any</option>
+            	<option value="true" <?php if ($searchdata['activated']=="true") {echo "selected";}?>>Yes</option>
+            	<option value="false" <?php if ($searchdata['activated']=="false") {echo "selected";}?>>No</option>
+            </select>
+			</td>
+		</tr>
+		
+		<tr>
+			<td>Unique id</td>
+			<td><input type="text" name="uniqueid" size="90" value=<?php echo $searchdata['uniqueid']?>></td>
+		</tr>
+		
+		<tr>
+			<td>Track Only</td>
+			<td>
+            <select name="trackonly">
+            	<option value="any" <?php if ($searchdata['trackonly']=="any") {echo "selected";}?>>Any</option>
+            	<option value="true" <?php if ($searchdata['trackonly']=="true") {echo "selected";}?>>Yes</option>
+            	<option value="false" <?php if ($searchdata['trackonly']=="false") {echo "selected";}?>>No</option>
+            </select>
+			</td>
+		</tr>
+		
+		<tr>
+			<td>Level</td>
+			<td><input type="number" name="level" size="4" value=<?php echo $searchdata['level']?>></td>
+		</tr>
+		
+		<tr>
+			<td colspan="2" align="center">
+				<input type="submit" name="reset" value="Reset">
+				<input type="submit" name="search" value="Search">
+			</td>
+		</tr>
+
+	</table>
+
+</form>
+</div>
 
 
 <table border="1">
