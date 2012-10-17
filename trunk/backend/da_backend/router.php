@@ -108,6 +108,11 @@ switch ($zone) {
 				break;
 				
 				
+			// submit a search form
+			case 'hidesearch':
+				$_SESSION['pippo']="ciao";
+				
+				
 			default:
 				break;
 		}
