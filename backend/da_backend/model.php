@@ -388,6 +388,120 @@ class ActivationModel extends AbstractModel{
 		
 		return $retval;
 	}
+
+	// Creates a SQL filter from posted query conditions
+	// @param the map with the conditions
+	// @return the SQL filter
+	static function createFilter($map){
+		$filter="";
+		
+		if (isset($map['id'])) {
+			$value=$map['id'];
+			if ($value!=0) {
+				if ($filter!="") {
+					$filter = $filter ." AND ";
+				}
+				$filter = $filter . "id=".$value;
+			}
+		}
+		
+		if (isset($map['userid'])) {
+			$value=$map['userid'];
+			if ($value!="") {
+				if ($filter!="") {
+					$filter = $filter ." AND ";
+				}
+				$filter = $filter . "userid='".$value."'";
+			}
+		}
+		
+		if (isset($map['appname'])) {
+			$value=$map['appname'];
+			if ($value!="") {
+				if ($filter!="") {
+					$filter = $filter ." AND ";
+				}
+				$filter = $filter . "app_name='".$value."'";
+			}
+		}
+		
+		if (isset($map['activationcode'])) {
+			$value=$map['activationcode'];
+			if ($value!="") {
+				if ($filter!="") {
+					$filter = $filter ." AND ";
+				}
+				$filter = $filter . "activation_code='".$value."'";
+			}
+		}
+		
+		if (isset($map['producerid'])) {
+			$value=$map['producerid'];
+			if ($value!=0) {
+				if ($filter!="") {
+					$filter = $filter ." AND ";
+				}
+				$filter = $filter . "producer_id=".$value;
+			}
+		}
+		
+		if (isset($map['activated'])) {
+			$value=$map['activated'];
+			if (strtoupper($value)!=strtoupper("Any")) {
+				$comp="";
+				if ($value=="true") {
+					$comp="true";
+				}
+				if ($value=="false") {
+					$comp="false";
+				}
+				if ($filter!="") {
+					$filter = $filter ." AND ";
+				}
+				$filter = $filter . "active=".$comp;
+			}
+		}
+		
+		if (isset($map['uniqueid'])) {
+			$value=$map['uniqueid'];
+			if ($value!="") {
+				if ($filter!="") {
+					$filter = $filter ." AND ";
+				}
+				$filter = $filter . "uniqueid='".$value."'";
+			}
+		}
+		
+		if (isset($map['trackonly'])) {
+			$value=$map['trackonly'];
+			if (strtoupper($value)!=strtoupper("Any")) {
+				$comp="";
+				if ($value=="true") {
+					$comp="true";
+				}
+				if ($value=="false") {
+					$comp="false";
+				}
+				if ($filter!="") {
+					$filter = $filter ." AND ";
+				}
+				$filter = $filter . "tracking_only=".$comp;
+			}
+		}
+		
+		if (isset($map['level'])) {
+			$value=$map['level'];
+			if ($value!=0) {
+				if ($filter!="") {
+					$filter = $filter ." AND ";
+				}
+				$filter = $filter . "level=".$value;
+			}
+		}
+		
+		
+		return ($filter);
+	}
 	
 	
 
@@ -538,7 +652,9 @@ abstract class AbstractModel{
 		$conn = $this->getConnection();
 		$query="SELECT * FROM " .$this->table;
 		if (isset($filter)){
-			$query = $query . " WHERE " . $filter;
+			if ($filter!="") {
+				$query = $query . " WHERE " . $filter;
+			}
 		}
 		$query = $query . " ORDER BY id";
 		$result = $conn->query($query);

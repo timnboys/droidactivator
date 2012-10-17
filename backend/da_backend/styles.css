@@ -13,3 +13,20 @@
 hr{
         clear: both;
 }
+
+.searchbox{
+        background-color: LightGray;
+        padding:20px;
+        width: 50%; 
+        border-style:solid;
+        border-width: 1px;
+        border-color: DarkGray;
+        margin-top: 20px;
+        margin-bottom: 20px;
+        font-family: sans-serif;
+        font-size: small;
+        font-weight: bold;
+}
+
+
+

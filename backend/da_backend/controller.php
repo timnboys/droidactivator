@@ -21,7 +21,7 @@ session_start();
 class MenuController extends AbstractController {
 	
 	static function activations() {
-		ActivationsController::listRows();
+		ActivationsController::listRows(null);
    	}
 	
 	static function events() {
@@ -54,13 +54,13 @@ class MenuController extends AbstractController {
 class ActivationsController extends AbstractController {
 		
 	// lists the rows
-	static function listRows() {
+	static function listRows($filter) {
 		
 		// retrieve model instance
         $model=AbstractController::getActivationModel();
 
         // request data to the model
-		$result = $model->listData(null);
+		$result = $model->listData($filter);
 		
 		// create an associative array from model data
 		//$map = $result->fetch_all(MYSQLI_ASSOC); //Php 5.3.0+ only
@@ -71,6 +71,7 @@ class ActivationsController extends AbstractController {
 		
 		// redirect to the display page
    		header("Location: activations.php");
+				
 				
 	}
 	
@@ -153,7 +154,6 @@ class ActivationsController extends AbstractController {
         
 		
 	}
-	
 	
 	
 	

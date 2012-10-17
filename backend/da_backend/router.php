@@ -20,6 +20,7 @@ session_start();
 
 include 'includes/authorize.php';
 include 'controller.php';
+include 'model.php';
 
 $zone = $_GET['zone'];
 $action = $_GET['action'];
@@ -63,12 +64,47 @@ switch ($zone) {
 				break;
 				
 			case 'refreshlist':
-				ActivationsController::listRows();
+				ActivationsController::listRows(null);
 				break;
 				
 			// submit an activation form (either new or existing record)
 			case 'submit':
 				ActivationsController::submit();
+				break;
+				
+			// submit a search form
+			case 'search':
+				
+				$map=$_POST;
+				
+				// search button pressed
+				if (isset($map['search'])) {
+					
+					// store search data in the session
+					$_SESSION['search_map']=$map;
+				
+					// create a filter
+					$filter = ActivationModel::createFilter($map);
+				
+					// store the last filter in the session
+					$_SESSION['last_activations_filter']=$filter;
+					
+				}
+				
+				// reset button pressed
+				if (isset($map['reset'])) {
+					
+					// clear the search map stored in the session
+					unset($_SESSION['search_map']);
+				
+					// retrieve the last filter from the session
+					$filter=$_SESSION['last_activations_filter'];
+				
+				}
+				
+				// list the rows using the filter
+				ActivationsController::listRows($filter);
+				
 				break;
 				
 				
