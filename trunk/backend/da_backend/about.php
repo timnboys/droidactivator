@@ -19,7 +19,7 @@
 	session_start();
 	include 'includes/header.php';
 	
-	define('VERSION', '2.0.3');
+	define('VERSION', '2.1');
 	
 ?>
 

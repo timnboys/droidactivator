@@ -63,10 +63,6 @@ switch ($zone) {
 				ActivationsController::create();
 				break;
 				
-			case 'refreshlist':
-				ActivationsController::listRows(null);
-				break;
-				
 			// submit an activation form (either new or existing record)
 			case 'submit':
 				ActivationsController::submit();
@@ -77,11 +73,34 @@ switch ($zone) {
 				
 				$map=$_POST;
 				
-				// search button pressed
+				// show all button was pressed
+				if (isset($map['all'])) {
+					
+					// clear the search map stored in the session
+					unset($_SESSION['activation_search_map']);
+					
+					// clear the last filter session variable (but don't unset it)
+					$_SESSION['last_activations_filter']="";
+				
+				}
+				
+				
+				// reset button was pressed
+				if (isset($map['reset'])) {
+					
+					// clear the search map stored in the session
+					unset($_SESSION['activation_search_map']);
+				
+					// retrieve the last filter from the session
+					$filter=$_SESSION['last_activations_filter'];
+				
+				}
+				
+				// search button was pressed
 				if (isset($map['search'])) {
 					
 					// store search data in the session
-					$_SESSION['search_map']=$map;
+					$_SESSION['activation_search_map']=$map;
 				
 					// create a filter
 					$filter = ActivationModel::createFilter($map);
@@ -91,28 +110,24 @@ switch ($zone) {
 					
 				}
 				
-				// reset button pressed
-				if (isset($map['reset'])) {
-					
-					// clear the search map stored in the session
-					unset($_SESSION['search_map']);
-				
-					// retrieve the last filter from the session
-					$filter=$_SESSION['last_activations_filter'];
-				
-				}
-				
 				// list the rows using the filter
 				ActivationsController::listRows($filter);
 				
 				break;
 				
 				
-			// submit a search form
-			case 'hidesearch':
-				$_SESSION['pippo']="ciao";
-				
-				
+			// toggle the search box visibility
+			case 'togglesearch':
+				// invert the session variable
+				if ($_SESSION['hide_activation_searchbox']=="false") {
+					$_SESSION['hide_activation_searchbox']="true";
+				}else{
+					$_SESSION['hide_activation_searchbox']="false";
+				}
+
+				// redirect to the activations page
+   				header("Location: activations.php");
+   				
 			default:
 				break;
 		}
@@ -125,13 +140,75 @@ switch ($zone) {
 			
 			case 'list':
 				$activation_id=$_GET['activation_id'];
-				EventsController::listRows($activation_id);
+				$_SESSION['activation_id']=$activation_id;
+				$filter="activation_id=".$activation_id;
+				EventsController::listRows($filter);
 				break;
 			
 			case 'delete':
 				$id=$_GET['id'];
 				EventsController::deleteEvent($id);
 				break;
+				
+			// submit a search form
+			case 'search':
+				
+				$map=$_POST;
+				
+				// show all button was pressed
+				if (isset($map['all'])) {
+					
+					// clear the search map stored in the session
+					unset($_SESSION['event_search_map']);
+					
+					// clear the last filter session variable (but don't unset it)
+					$_SESSION['last_events_filter']="";
+				
+				}
+				
+				
+				// reset button was pressed
+				if (isset($map['reset'])) {
+					
+					// clear the search map stored in the session
+					unset($_SESSION['event_search_map']);
+				
+					// retrieve the last filter from the session
+					$filter=$_SESSION['last_events_filter'];
+				
+				}
+				
+				// search button was pressed
+				if (isset($map['search'])) {
+					
+					// store search data in the session
+					$_SESSION['event_search_map']=$map;
+				
+					// create a filter
+					$filter = EventModel::createFilter($map);
+				
+					// store the last filter in the session
+					$_SESSION['last_events_filter']=$filter;
+					
+				}
+				
+				// list the rows using the filter
+				EventsController::listRows($filter);
+				
+				break;
+				
+			// toggle the search box visibility
+			case 'togglesearch':
+				// invert the session variable
+				if ($_SESSION['hide_event_searchbox']=="false") {
+					$_SESSION['hide_event_searchbox']="true";
+				}else{
+					$_SESSION['hide_event_searchbox']="false";
+				}
+
+				// redirect to the events page
+   				header("Location: events.php");
+				
 				
 			default:
 				break;

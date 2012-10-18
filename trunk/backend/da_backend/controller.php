@@ -15,30 +15,44 @@
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program.  If not, see http://www.gnu.org/licenses/
 
+include_once 'constants.php';
+
 session_start();
 
 /*** Menu Controller ***/
 class MenuController extends AbstractController {
 	
 	static function activations() {
-		ActivationsController::listRows(null);
+		$_SESSION['sectioncode']=Constants::ACTIVATION_SECTION;
+		$lastFilter=$_SESSION['last_activations_filter'];
+		if (!isset($lastFilter)) {
+			$lastFilter="id<0";
+		}
+		ActivationsController::listRows($lastFilter);
    	}
 	
 	static function events() {
-		EventsController::listRows(null);
+		$_SESSION['sectioncode']=Constants::EVENTS_SECTION;
+		$lastFilter=$_SESSION['last_events_filter'];
+		if (!isset($lastFilter)) {
+			$lastFilter="id<0";
+		}
+		EventsController::listRows($lastFilter);
 	}
 	
 	static function logout() {
-		
+		$_SESSION['sectioncode']=Constants::LOGOUT_SECTION;
 		unset($_SESSION['authorized']);
-		
+				
 		// redirect to the index page
    		header("Location: admin.php");
-		
+   		
 	}
 	
 	static function about() {
-		
+
+		$_SESSION['sectioncode']=Constants::ABOUT_SECTION;
+				
 		// redirect to the about page
    		header("Location: about.php");
 		
@@ -57,8 +71,8 @@ class ActivationsController extends AbstractController {
 	static function listRows($filter) {
 		
 		// retrieve model instance
-        $model=AbstractController::getActivationModel();
-
+		$model=ActivationModel::getInstance();
+        
         // request data to the model
 		$result = $model->listData($filter);
 		
@@ -81,7 +95,7 @@ class ActivationsController extends AbstractController {
 	static function deleteActivation($id) {
 		
 		// retrieve model instance
-        $model=AbstractController::getActivationModel();
+		$model=ActivationModel::getInstance();
 		
         // delegate deletion to the model
 		$result = $model->delete($id);
@@ -96,8 +110,8 @@ class ActivationsController extends AbstractController {
 	static function edit($id) {
 		
 		// retrieve model instance
-        $model=AbstractController::getActivationModel();
-        
+		$model=ActivationModel::getInstance();
+		        
         // acquire data from model
         $map = $model->get($id);
         
@@ -137,15 +151,28 @@ class ActivationsController extends AbstractController {
 		$_SESSION['activation_editmap']=$_POST;
 		
 		// retrieve model instance
-        $model=AbstractController::getActivationModel();
-		
+		$model=ActivationModel::getInstance();
+				
         // save or create the record
         $result = $model->save($_POST);
         $code=substr($result, 0, 2);
         
         if ($code=="OK") {
-			// redirect to the list
-			ActivationsController::listRows();
+        	
+        	$newRecord=($_POST['id']==0);
+        	
+        	// if this was a new record, show only this record in the list
+        	// if this was an existing record, keep the previous filter
+        	if ($newRecord) {
+        		$newId=substr($result,2,strlen($result)-2);
+		     	$filter="id=".$newId;
+           	}else{
+        		$filter=$_SESSION['last_activations_filter'];
+        	}
+
+        	// redirect to the list
+			ActivationsController::listRows($filter);
+			
         }else {
 			// redirect to the edit page with error message
 			$result = str_replace("\n", "<br>", $result);// no newlines in headers!
@@ -164,11 +191,12 @@ class ActivationsController extends AbstractController {
 /*** Events Controller ***/
 class EventsController extends AbstractController {
 	
+	/***
 	// lists the rows
 	static function listRows($activation_id) {
 		
 		// retrieve model instance
-        $model=MenuController::getEventModel();
+        $model=EventModel::getInstance();
 
         // request data to the model
         if (isset($activation_id)) {
@@ -198,14 +226,39 @@ class EventsController extends AbstractController {
 		}
 		
 	}
+	***/
+	
+		// lists the rows
+	static function listRows($filter) {
+		
+		// retrieve model instance
+		$model=EventModel::getInstance();
+        
+        // request data to the model
+		$result = $model->listData($filter);
+		
+		// create an associative array from model data
+		//$map = $result->fetch_all(MYSQLI_ASSOC); //Php 5.3.0+ only
+		for ($map = array(); $tmp = $result->fetch_array(MYSQLI_ASSOC);) $map[] = $tmp; //Php 5+
+
+		// store data in the session
+		$_SESSION['event_datamap']=$map;
+				
+		// redirect to the display page
+   		header("Location: events.php");
+						
+				
+	}
+	
+	
 	
 	// Deletes an event
 	// @param id of the event
 	static function deleteEvent($id) {
 		
 		// retrieve model instance
-        $model=MenuController::getEventModel();
-		
+        $model=EventModel::getInstance();
+				
         // delegate deletion to the model
 		$result = $model->delete($id);
 		
@@ -221,21 +274,6 @@ class EventsController extends AbstractController {
 
 
 abstract class AbstractController{
-	
-	// Retrieves the Activation model stored in the session
-	// @return the Activation model
-	static function getActivationModel() {
-		include_once 'model.php';
-        return unserialize($_SESSION['activationmodel']);
-	}
-	
-	// Retrieves the Event model stored in the session
-	// @return the Event model
-	static function getEventModel() {
-		include_once 'model.php';
-        return unserialize($_SESSION['eventmodel']);
-	}
-	
 }
 
 

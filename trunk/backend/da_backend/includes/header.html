@@ -23,6 +23,45 @@
             document.getElementById(id).style.display = 'block';
         }
     } 
+    
+    //Generate a random activation code
+    //write it in the field if empty
+    //request use to confirm if not empty
+    //@param the id of the element to read and write the value
+    function generateCode(id){
+    	
+    	// check if not empty and ask user to confirm
+        var element = document.getElementById(id);
+        var cont = true;
+		if (element.value!="") {
+			if (!confirm("An activation code already exists. Overwrite?")) { 
+				cont=false;
+			}
+		}
+		
+		// generate a random
+		if (cont) {
+			var newCode=randomCode();
+		}
+		
+		// write the new code in the element
+		if (cont) {
+			element.value=newCode;
+		}
+    }
+    
+    //random code generator
+    function randomCode() {
+    	var chars = "0123456789";
+    	var string_length = 8;
+    	var randomstring = '';
+    	for (var i=0; i<string_length; i++) {
+    		var rnum = Math.floor(Math.random() * chars.length);
+    		randomstring += chars.substring(rnum,rnum+1);
+    	}
+    	return randomstring;
+    }
+
 
 </script>
 

@@ -27,6 +27,7 @@ $error = $_GET['error'];
 
 
 ?>
+<div class="editform">
 
 <form name="activationform" action="router.php?zone=activations&action=submit" method="POST">
 
@@ -57,8 +58,10 @@ $error = $_GET['error'];
 
 		<tr>
 			<td>Activation code (8-digits):*</td>
-			<td><input type="text" size="8" maxlength="8" name="activation_code"
-				value=<?php echo $data['activation_code']?>></td>
+			<td>
+				<input id="activationcode" type="text" size="8" maxlength="8" name="activation_code" value=<?php echo $data['activation_code']?>>
+				<button type="button" onclick="generateCode('activationcode')">Generate</button>
+			</td>
 		</tr>
 
 		<tr>
@@ -156,3 +159,6 @@ if (isset($error)) {
 	echo("<br><strong>".$error."</strong>");
 }
 ?>
+
+</div>
+

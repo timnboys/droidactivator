@@ -17,23 +17,50 @@
 ?>
 
 <?php include 'includes/header.html'; ?>
+<?php include 'constants.php'; ?>
 
-<div class="menu">
-	<ul>
+<?php if(isset($_SESSION['authorized'])){?>
+		
+	<table cellspacing="10px">
+		<tr>
+			<td><a href="router.php?zone=menu&action=activations"><?php echo(menuitem(Constants::ACTIVATION_SECTION));?></a></td>
+			<td><a href="router.php?zone=menu&action=events"><?php echo(menuitem(Constants::EVENTS_SECTION));?></a></td>
+			<td><a href="router.php?zone=menu&action=logout"><?php echo(menuitem(Constants::LOGOUT_SECTION));?></a></td>
+			<td><a href="router.php?zone=menu&action=about"><?php echo(menuitem(Constants::ABOUT_SECTION));?></a></td>
+		</tr>
+	</table>
+		
+<?php } ?>
 
-		<?php
-		if(isset($_SESSION['authorized'])){
-		?>
+<?php 
+
+	// Returns the HTML string corresponding to a menu item
+	// @param the section code constant
+	// @return the HTML string (bold if is the active section)
+function menuitem($sectioncode){
 		
-		<li><a href="router.php?zone=menu&action=activations">Activations</a></li>
-		<li><a href="router.php?zone=menu&action=events">Events</a></li>
-		<li><a href="router.php?zone=menu&action=logout">Logout</a></li>
-		<li><a href="router.php?zone=menu&action=about">About</a></li>
-		
-		<?php
+		switch ($sectioncode) {
+    		case Constants::ACTIVATION_SECTION:
+			$section="Activations";
+    		break;
+    	case Constants::EVENTS_SECTION:
+			$section="Events";
+    		break;
+       	case Constants::LOGOUT_SECTION:
+			$section="Logout";
+       		break; 	    
+    	case Constants::ABOUT_SECTION:
+			$section="About";
+    		break;
 		}
-		?>
 		
-	</ul>
-</div>
-<hr>
+		// if this is the active section make it bold
+		if ($_SESSION['sectioncode']==$sectioncode) {
+			$section="<strong>".$section."</strong>";
+		}
+		
+		return ($section);
+	}
+?>
+
+<hr></hr>
