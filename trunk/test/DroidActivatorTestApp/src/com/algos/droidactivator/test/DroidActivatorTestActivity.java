@@ -146,7 +146,7 @@ public class DroidActivatorTestActivity extends Activity {
 
 	// Send a Custom Event.
 	private void sendCustomEvent() {
-		DroidActivator.sendCustomEvent(3, "text:ciao");
+		DroidActivator.sendCustomEvent(3, "text:hello, another:pippo");
 	}
 
 
