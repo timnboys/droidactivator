@@ -38,6 +38,10 @@ class ActivationModel extends AbstractModel{
 		));
 	}
 	
+	static function getInstance(){
+        return unserialize($_SESSION['activationmodel']);
+	}
+	
 	// deletes a single row
 	// deletes events first
 	// @param $id the id of the row to delete
@@ -520,6 +524,62 @@ class EventModel extends AbstractModel{
 		));
 	}
 	
+	static function getInstance(){
+        return unserialize($_SESSION['eventmodel']);
+	}
+	
+	
+	// Creates a SQL filter from posted query conditions
+	// @param the map with the conditions
+	// @return the SQL filter
+	static function createFilter($map){
+		$filter="";
+		
+		if (isset($map['id'])) {
+			$value=$map['id'];
+			if ($value!=0) {
+				if ($filter!="") {
+					$filter = $filter ." AND ";
+				}
+				$filter = $filter . "id=".$value;
+			}
+		}
+		
+		if (isset($map['activationid'])) {
+			$value=$map['activationid'];
+			if ($value!="") {
+				if ($filter!="") {
+					$filter = $filter ." AND ";
+				}
+				$filter = $filter . "activation_id='".$value."'";
+			}
+		}
+		
+		if (isset($map['code'])) {
+			$value=$map['code'];
+			if ($value!="") {
+				if ($filter!="") {
+					$filter = $filter ." AND ";
+				}
+				$filter = $filter . "code='".$value."'";
+			}
+		}
+		
+		if (isset($map['details'])) {
+			$value=$map['details'];
+			if ($value!="") {
+				if ($filter!="") {
+					$filter = $filter ." AND ";
+				}
+				$filter = $filter . "details like '%".$value."%'";
+			}
+		}
+		
+		return ($filter);
+	}
+	
+	
+	
 }
 
 
@@ -559,7 +619,8 @@ abstract class AbstractModel{
 		$this->checkColumns();
 				
 	}
-
+	
+	
 		
 	// creates and returns a new connection
 	function getConnection(){
@@ -727,6 +788,19 @@ abstract class AbstractModel{
 	function getTable(){
 		return $this->table;
 	}
+	
+	// @return the total wow count
+	public function countRows(){
+		$numrows=0;
+		$conn = $this->getConnection();
+		$query="SELECT id FROM " .$this->table;
+		$result = $conn->query($query);
+		if ($result) {
+			$numrows=$result->num_rows;
+		}
+		return $numrows;
+	}
+	
 	
 
 }

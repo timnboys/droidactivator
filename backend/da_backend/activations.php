@@ -21,63 +21,62 @@ include 'includes/authorize.php';
 include 'includes/header.php';
 
 // retrieve search datamap from session
-$searchdata = $_SESSION['search_map'];
+$searchdata = $_SESSION['activation_search_map'];
+
+// set the hide searchbox variable to false if not already set
+if (!isset($_SESSION['hide_activation_searchbox'])) {
+	$_SESSION['hide_activation_searchbox']="false";
+}
 
 ?>
 
-<table border="0">
-	<tr>
-		<td>
-			<form action="router.php?zone=activations&action=create" method="POST">
-				<input type="submit" name="addrecord" value="Add record" />
-			</form>
-		</td>
 
-		<td>
-			<form action="router.php?zone=activations&action=refreshlist" method="POST">
-				<input type="submit" name="refresh" value="Refresh list" />
-			</form>
-		</td>
-	</tr>
 
-</table>
+<div>
+	<form action="router.php?zone=activations&action=create" method="POST">
+		<input type="submit" name="addrecord" value="Add record" />
+	</form>
+</div>
+
 
 <div id="searchbox-collapsed" class="searchbox">
-	<a href="#" onclick="show('searchbox');hide('searchbox-collapsed');return false">Show search box</a>
+	<div style="text-align:right">
+		<a href="router.php?zone=activations&action=togglesearch">Show search box</a>
+	</div>
 </div>
 
 <div id="searchbox" class="searchbox">
 
-	<a href="#" onclick="hide('searchbox');show('searchbox-collapsed');return false">Hide search box</a>
-	<?php echo($_SESSION['pippo']); ?>
-	<a href="router.php?zone=activations&action=hidesearch" onclick="">Hide search box2</a>
-	
+	<div style="text-align:right">
+		<a href="router.php?zone=activations&action=togglesearch">Hide search box</a>
+	</div>
+
 	<form action="router.php?zone=activations&action=search" method="POST">
 	
 		<table border="0">
 			<tr>
 				<td>Id</td>
-				<td><input type="number" name="id" size="8" value=<?php echo $searchdata['id']?>></td>
+				<td><input type="number" name="id" size="8" value="<?php echo $searchdata['id']?>"></td>
 			</tr>
 			
 			<tr>
 				<td>User Id</td>
-				<td><input type="text" name="userid" size="40" value=<?php echo $searchdata['userid']?>></td>
+				<td><input type="text" name="userid" size="40" value="<?php echo $searchdata['userid']?>"></td>
 			</tr>
 			
 			<tr>
 				<td>App name</td>
-				<td><input type="text" name="appname" size="20" value=<?php echo $searchdata['appname']?>></td>
+				<td><input type="text" name="appname" size="20" value="<?php echo $searchdata['appname']?>"></td>
 			</tr>
 			
 			<tr>
 				<td>Activation code</td>
-				<td><input type="number" name="activationcode" size="8" value=<?php echo $searchdata['activationcode']?>></td>
+				<td><input type="number" name="activationcode" size="8" value="<?php echo $searchdata['activationcode']?>"></td>
 			</tr>
 			
 			<tr>
 				<td>Producer id</td>
-				<td><input type="number" name="producerid" size="4" value=<?php echo $searchdata['producerid']?>></td>
+				<td><input type="number" name="producerid" size="4" value="<?php echo $searchdata['producerid']?>"></td>
 			</tr>
 			
 			<tr>
@@ -93,7 +92,7 @@ $searchdata = $_SESSION['search_map'];
 			
 			<tr>
 				<td>Unique id</td>
-				<td><input type="text" name="uniqueid" size="90" value=<?php echo $searchdata['uniqueid']?>></td>
+				<td><input type="text" name="uniqueid" size="90" value="<?php echo $searchdata['uniqueid']?>"></td>
 			</tr>
 			
 			<tr>
@@ -109,37 +108,57 @@ $searchdata = $_SESSION['search_map'];
 			
 			<tr>
 				<td>Level</td>
-				<td><input type="number" name="level" size="4" value=<?php echo $searchdata['level']?>></td>
+				<td><input type="number" name="level" size="4" value="<?php echo $searchdata['level']?>"></td>
 			</tr>
 			
-			<tr>
-				<td colspan="2" align="center">
-					<input type="submit" name="reset" value="Reset">
-					<input type="submit" name="search" value="Search">
-				</td>
-			</tr>
-	
 		</table>
+		
+		<div align="center">
+			<input type="submit" name="all" value="Show all">
+			<input type="submit" name="reset" value="Reset">
+			<input type="submit" name="search" value="Search">
+		</div>
 	
 	</form>
+
 </div>
 
+<div class="counter"><?php echo(counterString())?></div>
 
-<table border="1">
+<?php
+// @return a string for the result counter
+function counterString(){
+	// rows to be listed
+    $datamap = $_SESSION['activation_datamap'];
+	$partial=count($datamap);
+	
+	// total rows
+	include_once 'model.php';
+    $model=ActivationModel::getInstance();
+    $total=$model->countRows();
+    
+    // display counter
+    $string=$partial." of ".$total." records";
+    return $string;
+}
+?>
+
+
+<table class="table" border="1">
 
 	<tr>
-		<th><small>Id</small></th>
-		<th><small>User Id</small></th>
-		<th><small>App Name</small></th>
-		<th><small>Activation code</small></th>
-		<th><small>Producer Id</small></th>
-		<th><small>Activated</small></th>
-		<th><small>Unique Id</small></th>
-		<th><small>TrackOnly</small></th>
-		<th><small>Level</small></th>
-		<th><small>Expiration</small></th>
-		<th><small>Last activation</small></th>
-		<th><small>Last update</small></th>
+		<th>Id</th>
+		<th>User Id</th>
+		<th>App Name</th>
+		<th>Activation code</th>
+		<th>Producer Id</th>
+		<th>Activated</th>
+		<th>Unique Id</th>
+		<th>TrackOnly</th>
+		<th>Level</th>
+		<th>Expiration</th>
+		<th>Last activation</th>
+		<th>Last update</th>
 	</tr>
 
 	<?php createTableData(); ?>
@@ -147,7 +166,7 @@ $searchdata = $_SESSION['search_map'];
 </table>
 
 
-	<?php
+<?php
 	function createTableData() {
 
 		date_default_timezone_set("UTC");
@@ -193,24 +212,37 @@ $searchdata = $_SESSION['search_map'];
 			$deleteLink = "router.php?zone=activations&action=delete&id=".$row['id'];
 			$eventsLink = "router.php?zone=events&action=list&activation_id=".$row['id'];
 
-			echo '<tr>
-		<td><small>'.$row['id'].'</small></td>
-		<td><small>'.$row['userid'].'</small></td>
-		<td><small>'.$row['app_name'].'</small></td>
-		<td><small>'.$row['activation_code'].'</small></td>
-		<td><small>'.$row['producer_id'].'</small></td>
-		<td><small><input type="checkbox" disabled="disabled" '.$activated.' /></small></td>
-		<td><small>'.$row['uniqueid'].'</small></td>
-		<td><small><input type="checkbox" disabled="disabled" '.$tracking_only.' /></small></td>
-		<td><small>'.$row['level'].'</small></td>
-		<td><small>'.$expiration.'</small></td>
-		<td><small>'.$last_activation.'</small></td>
-		<td><small>'.$last_update.'</small></td>
-		<td><small><a href="'.$editLink. '">Edit</a></small></td>
-		<td><small><a href="'.$deleteLink.'" onclick="return(confirm(\'Confirm record deletion?\'))">Delete</a></small></td>
-		<td><small><a href="'.$eventsLink.'">Events</a></small></td>
-		</tr>
-		';
+			echo '
+			<tr>
+			<td>'.$row['id'].'</td>
+			<td>'.$row['userid'].'</td>
+			<td>'.$row['app_name'].'</td>
+			<td>'.$row['activation_code'].'</td>
+			<td>'.$row['producer_id'].'</td>
+			<td><input type="checkbox" disabled="disabled" '.$activated.' /></td>
+			<td>'.$row['uniqueid'].'</td>
+			<td><input type="checkbox" disabled="disabled" '.$tracking_only.' /></td>
+			<td>'.$row['level'].'</td>
+			<td>'.$expiration.'</td>
+			<td>'.$last_activation.'</td>
+			<td>'.$last_update.'</td>
+			<td><a href="'.$editLink. '">Edit</a></td>
+			<td><a href="'.$deleteLink.'" onclick="return(confirm(\'Confirm record deletion?\'))">Delete</a></td>
+			<td><a href="'.$eventsLink.'">Events</a></td>
+			</tr>
+			';
+		}
 	}
-}
 ?>
+
+<script>
+// read the session variable and show or hide the searchbox
+var hidden = "<?php echo($_SESSION['hide_activation_searchbox']); ?>";
+if (hidden=="true") {
+	hide('searchbox');
+	show('searchbox-collapsed');
+}else{
+	show('searchbox');
+	hide('searchbox-collapsed');
+}
+</script>

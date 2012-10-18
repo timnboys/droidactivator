@@ -15,27 +15,104 @@
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program.  If not, see http://www.gnu.org/licenses/
 
-	/*** Events List View ***/
-	session_start();
-	include 'includes/authorize.php';
-	include 'includes/header.php';
+/*** Events List View ***/
+session_start();
+include 'includes/authorize.php';
+include 'includes/header.php';
+
+// retrieve search datamap from session
+$searchdata = $_SESSION['event_search_map'];
+
+// set the hide searchbox variable to false if not already set
+if (!isset($_SESSION['hide_event_searchbox'])) {
+	$_SESSION['hide_event_searchbox']="false";
+}
+
 ?>
 
+
+<div id="searchbox-collapsed" class="searchbox">
+	<div style="text-align:right">
+		<a href="router.php?zone=events&action=togglesearch">Show search box</a>
+	</div>
+</div>
+
+
+<div id="searchbox" class="searchbox">
+	<div style="text-align:right">
+		<a href="router.php?zone=events&action=togglesearch">Hide search box</a>
+	</div>
+	
+	<form action="router.php?zone=events&action=search" method="POST">
+	
+		<table border="0">
+			<tr>
+				<td>Event Id</td>
+				<td><input type="number" name="id" size="8" value="<?php echo $searchdata['id']?>"></td>
+			</tr>
+			
+			<tr>
+				<td>Activation Id</td>
+				<td><input type="number" name="activationid" size="8" value="<?php echo $searchdata['activationid']?>"></td>
+			</tr>
+			
+			<tr>
+				<td>Event code</td>
+				<td><input type="number" name="code" size="8" value="<?php echo $searchdata['code']?>"></td>
+			</tr>
+			
+			<tr>
+				<td>Event details</td>
+				<td><input type="text" name="details" size="40" value="<?php echo $searchdata['details']?>"></td>
+			</tr>
+			
+		</table>
+		
+		<div align="center">
+			<input type="submit" name="all" value="Show all">
+			<input type="submit" name="reset" value="Reset">
+			<input type="submit" name="search" value="Search">
+		</div>
+	
+	</form>
+	
+</div>
+
 <?php
-$activation_id=$_SESSION[activation_id];
+$activation_id=$_SESSION['activation_id'];
 if (isset($activation_id)) {
 	echo "<strong>Events for activation #".$activation_id."</strong>";
+	unset($_SESSION['activation_id']);
 }
 ?>
 
-<table border="1">
+<div class="counter"><?php echo(counterString())?></div>
+<?php
+// @return a string for the result counter
+function counterString(){
+	// rows to be listed
+    $datamap = $_SESSION['event_datamap'];
+	$partial=count($datamap);
+	
+	// total rows
+	include_once 'model.php';
+    $model=EventModel::getInstance();
+    $total=$model->countRows();
+    
+    // display counter
+    $string=$partial." of ".$total." records";
+    return $string;
+}
+?>
+
+<table class="table" border="1">
 
 	<tr>
-		<th><small>Evt Id</small></th>
-		<th><small>Activation Id</small></th>
-		<th><small>Timestamp</small></th>
-		<th><small>Code</small></th>
-		<th><small>Details</small></th>
+		<th>Evt Id</th>
+		<th>Activation Id</th>
+		<th>Timestamp</th>
+		<th>Code</th>
+		<th>Details</th>
 	</tr>
 
 	<?php createTableData(); ?>
@@ -60,14 +137,27 @@ function createTableData() {
 		$deleteLink = "router.php?zone=events&action=delete&id=".$eventId;
 
 		echo '<tr>
-				<td><small>'.$eventId.'</small></td>
-				<td><small>'.$activationId.'</small></td>
-				<td><small>'.$timestamp.'</small></td>
-				<td><small>'.$code.'</small></td>
-				<td><small>'.$details.'</small></td>
-				<td><small><a href="'.$deleteLink.'" onclick="return(confirm(\'Confirm record deletion?\'))">Delete</a></small></td>
+				<td>'.$eventId.'</td>
+				<td>'.$activationId.'</td>
+				<td>'.$timestamp.'</td>
+				<td>'.$code.'</td>
+				<td>'.$details.'</td>
+				<td><a href="'.$deleteLink.'" onclick="return(confirm(\'Confirm record deletion?\'))">Delete</a></td>
 				</tr>
 			';
 	}
 }
 ?>
+
+<script>
+// read the session variable and show or hide the searchbox
+var hidden = "<?php echo($_SESSION['hide_event_searchbox']); ?>";
+if (hidden=="true") {
+	hide('searchbox');
+	show('searchbox-collapsed');
+}else{
+	show('searchbox');
+	hide('searchbox-collapsed');
+}
+</script>
+
