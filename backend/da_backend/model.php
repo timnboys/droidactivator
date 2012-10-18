@@ -518,6 +518,7 @@ class EventModel extends AbstractModel{
 	public function __construct() {
 		
 		parent::__construct('event', array(
+		"activation_id BIGINT",
         "timestamp DATETIME",
         "code INT",
     	"details VARCHAR(255)"
