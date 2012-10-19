@@ -62,6 +62,27 @@
     	return randomstring;
     }
 
+    
+    // install a function to trap keys pressed
+    document.onkeydown=function(e){
+        if (!e) e = window.event;
+        var keynum = e.keyCode ? e.keyCode : e.which; // IE vs others
+		
+        switch (keynum) {
+        case 13: //key is enter
+        
+        	// if we find a "search_btn" button in the page, click it
+        	var button = document.getElementById('search_btn');
+        	if (button!=null) {
+        		button.click();
+        	    return false; //"return false" will avoid further events
+			}
+	    }
+        
+	    return; //using "return" other attached events will execute
+
+    };
+
 
 </script>
 
