@@ -116,7 +116,7 @@ if (!isset($_SESSION['hide_activation_searchbox'])) {
 		<div align="center">
 			<input type="submit" name="all" value="Show all">
 			<input type="submit" name="reset" value="Reset">
-			<input type="submit" name="search" value="Search">
+			<input id="search_btn" type="submit" name="search" value="Search">
 		</div>
 	
 	</form>
