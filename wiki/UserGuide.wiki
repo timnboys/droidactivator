@@ -60,11 +60,11 @@ We suppose this is annoying enough to prevent most unauthorized usage. Maybe we 
 
 = The Activation Cycle =
 
-At startup (or when you decide to), your app calls an Activation Cycle.
+# At startup (or when you decide to), your app calls an Activation Cycle.
 
 This performs an Activation Update to sync cached activation data with backend data (cached activation data may change based upon your backend data).
 
-After the update (whether successful or not) an Activation Check is performed, and if the app is not activated the user is asked to supply activation data.
+# After the update (whether successful or not) an Activation Check is performed, and if the app is not activated the user is asked to supply activation data.
 
 At this point the user can:
 
