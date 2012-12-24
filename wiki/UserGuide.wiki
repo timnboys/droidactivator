@@ -78,7 +78,7 @@ At this point the user can:
 
 The Activation Update process is performed at every startup, and consists in a call to the backend to read activation data and update cached data in the app. After an Activation Update, you can access updated data and set your app's behaviour accordingly.
 
-The Activation Update is very fault-tolerant: it is performed in an unobtrusive way (only if the backend is reachable, in a separate thread, and with short timeouts). The user should never be annoyed or even notice anything during an Activation Update.
+The Activation Update is very fault-tolerant: it is performed in an unobtrusive way (only if connection is available, the backend is reachable, in a separate thread, and with short timeouts). The user should never be annoyed or even notice anything during an Activation Update.
 
 If an Activation Update fails, nothing in the cached activation data is changed. This guarantees the customer retains his rights until an Update is successfully performed, so you can tear off your backend at any time with no hassle.
 
