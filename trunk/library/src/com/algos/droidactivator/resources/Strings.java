@@ -61,16 +61,16 @@ public enum Strings {
 
 	network_unavailable("Network is currently unavailable. Please check your " +
 			"connection and try again.",
-			"La rete non è attualmente disponibile. Controlla la connessione e riprova."), //
+			"La rete non √® attualmente disponibile. Controlla la connessione e riprova."), //
 
 	backend_not_responding("The activation server is not responding. Please try again later.", 
-			"Il server di attivazione non risponde. Riprova più tardi."), //
+			"Il server di attivazione non risponde. Riprova pi√π tardi."), //
 
 	invalid_email_address("Invalid e-mail address", "Indirizzo e-mail non valido"), //
 
 	congratulations("Congratulations!", "Congratulazioni!"), //
 	
-	app_successfully_activated("has been successfully activated.\nThank You.", "è stata attivata correttamente.\nGrazie."), //
+	app_successfully_activated("has been successfully activated.\nThank You.", "√® stata attivata correttamente.\nGrazie."), //
 
 	activation_error("Activation error", "Errore di attivazione"), //
 
@@ -81,13 +81,13 @@ public enum Strings {
 
 	wrong_app_name("Your user id was found but the application name does not match the " +
 			"licensed name. Please contact the support service.", 
-			"Il tuo id utente è stato riconosciuto ma il nome dell'applicazione non " +
+			"Il tuo id utente √® stato riconosciuto ma il nome dell'applicazione non " +
 			"corrisponde alla licenza. Contatta il servizio di assistenza."), //
 			
 	userid_not_found("User id not found in the activation database.\nMaybe your purchase " +
 			"data has not yet been received. Please retry later.", 
 			"Utente non trovato nel database di attivazione.\nProbabilmente i dati relativi " +
-			"al tuo acquisto non sono ancora stati ricevuti. Riprova più tardi."), //
+			"al tuo acquisto non sono ancora stati ricevuti. Riprova pi√π tardi."), //
 
 	unrecognized_error("Unrecognized error code", "Codice di errore non riconosciuto"), //
 			
@@ -100,12 +100,20 @@ public enum Strings {
 	
 	private String en;
 	private String it;
+	private String es;
 
 
 	private Strings(String en, String it) {
 		this.en = en;
 		this.it = it;
 	}
+	
+	private Strings(String en, String it, String es) {
+		this.en = en;
+		this.it = it;
+		this.es = es;
+	}
+
 
 
 	public String get() {
@@ -118,6 +126,11 @@ public enum Strings {
 		if (Languages.isItalian()) {
 			string = it;
 		}
+		
+		if (Languages.isSpanish()) {
+			string = es;
+		}
+
 		
 		// fallback to english if language not recognized
 		if (string==null) {

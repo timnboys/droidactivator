@@ -47,7 +47,6 @@ class Lib {
 	 */
 	static Date getDate(Object obj) {
 		Date date=null;
-		boolean empty=true;
 		if (obj != null) {
 			if (obj instanceof Date) {
 				date = (Date)obj;
