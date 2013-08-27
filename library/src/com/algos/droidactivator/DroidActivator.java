@@ -24,7 +24,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -487,8 +486,6 @@ public class DroidActivator {
 
 			}
 			catch (Exception e) {
-				int a = 87;
-				int b = a;
 			}
 			
 			setFinished(true);
@@ -925,7 +922,6 @@ public class DroidActivator {
 
 			}
 			catch (Exception e) {
-				int a = 87;
 			}
 			setFinished(true);
 		}
